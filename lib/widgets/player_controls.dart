@@ -60,19 +60,17 @@ class PlayerControls extends StatelessWidget {
   }
 
   Widget previousButton() {
-    bool disabled = playerState.queueIndex == 0;
     return IconButton(
       icon: Icon(Icons.skip_previous, size: 32),
-      onPressed: disabled ? null : Application.audioManager.skipToPrevious,
+      onPressed: Application.audioManager.skipToPrevious,
       disabledColor: Colors.white.withOpacity(0.25),
     );
   }
 
   Widget nextButton() {
-    bool disabled = playerState.queueIndex >= playerState.queue.length - 1;
     return IconButton(
       icon: Icon(Icons.skip_next, size: 32),
-      onPressed: disabled ? null : Application.audioManager.skipToNext,
+      onPressed: Application.audioManager.skipToNext,
       disabledColor: Colors.white.withOpacity(0.25),
     );
   }

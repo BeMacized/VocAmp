@@ -26,7 +26,6 @@ class CustomAudioPlayer {
   Map<String, MediaSource> _sourceMap = {};
   SongCache _songCache;
   Duration _position = Duration(seconds: 0);
-  List<MediaControl> _controls = [];
   BasicPlaybackState _basicState = BasicPlaybackState.paused;
 
   Future<void> start() async {
@@ -137,7 +136,6 @@ class CustomAudioPlayer {
     _audioPlayer.stop();
     await _setState(
       basicState: BasicPlaybackState.stopped,
-      controls: [],
       position: Duration(seconds: 0),
     );
     _completer.complete();
@@ -159,8 +157,8 @@ class CustomAudioPlayer {
 
   Future<void> skipPrevious() async {
     // Reset to start of song
-    if (_audioPlayer.state == AudioPlayerState.PLAYING &&
-        _position.inMilliseconds >= 2000) {
+    if (_position.inMilliseconds >= 2000 ||
+        (_repeatMode != RepeatMode.ALL && _cursor == 0)) {
       await _audioPlayer.seek(0);
       play();
     }
@@ -233,14 +231,7 @@ class CustomAudioPlayer {
           );
           AudioServiceBackground.setMediaItem(_queue[_cursor]);
         }
-        List<MediaControl> controls = [];
-        if (_repeatMode == RepeatMode.ALL || _cursor > 0)
-          controls.add(previousControl);
-        controls.add(pauseControl);
-        if (_repeatMode == RepeatMode.ALL || _cursor < _queue.length - 1)
-          controls.add(nextControl);
         _setState(
-          controls: controls,
           basicState: BasicPlaybackState.playing,
         );
         break;
@@ -262,20 +253,12 @@ class CustomAudioPlayer {
       case AudioPlayerState.STOPPED:
         print("[DEBUG] " + state.toString());
         _setState(
-          controls: [],
           basicState: BasicPlaybackState.stopped,
         );
         break;
       case AudioPlayerState.PAUSED:
         print("[DEBUG] " + state.toString());
-        List<MediaControl> controls = [];
-        if (_repeatMode == RepeatMode.ALL || _cursor > 0)
-          controls.add(previousControl);
-        controls.add(playControl);
-        if (_repeatMode == RepeatMode.ALL || _cursor < _queue.length - 1)
-          controls.add(nextControl);
         _setState(
-          controls: controls,
           basicState: BasicPlaybackState.paused,
         );
         break;
@@ -283,14 +266,24 @@ class CustomAudioPlayer {
   }
 
   Future<void> _setState(
-      {Duration position,
-      List<MediaControl> controls,
-      BasicPlaybackState basicState}) async {
+      {Duration position, BasicPlaybackState basicState}) async {
     this._position = position ?? this._position;
     this._basicState = basicState ?? this._basicState;
-    this._controls = controls ?? this._controls;
+    List<MediaControl> controls;
+    switch (this._basicState) {
+      case BasicPlaybackState.buffering:
+      case BasicPlaybackState.playing:
+        controls = [previousControl, pauseControl, nextControl];
+        break;
+      case BasicPlaybackState.paused:
+        controls = [previousControl, playControl, nextControl];
+        break;
+      case BasicPlaybackState.stopped:
+      default:
+        controls = [];
+    }
     await AudioServiceBackground.setState(
-        controls: this._controls,
+        controls: controls,
         basicState: basicState ?? this._basicState,
         position: this._position.inMilliseconds);
   }
