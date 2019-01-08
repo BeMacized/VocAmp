@@ -135,6 +135,11 @@ class CustomAudioPlayer {
 
   Future<void> stop() async {
     _audioPlayer.stop();
+    await _setState(
+      basicState: BasicPlaybackState.stopped,
+      controls: [],
+      position: Duration(seconds: 0),
+    );
     _completer.complete();
   }
 
