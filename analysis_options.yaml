@@ -1,0 +1,8 @@
+analyzer:
+  strong-mode:
+    implicit-casts: true
+  errors:
+    todo: ignore
+  exclude:
+    - flutter/**
+    - lib/api/*.dart
