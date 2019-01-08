@@ -171,6 +171,9 @@ class BottomControls extends StatelessWidget {
       progressValue = vm.playerState.position.inMilliseconds /
           vm.playerState.duration.inMilliseconds;
 
+    bool showManipulationControls =
+        vm.playerState.selectedQueueItems.length > 0;
+
     return Column(
       children: <Widget>[
         SizedBox(
@@ -185,11 +188,14 @@ class BottomControls extends StatelessWidget {
         AnimatedCrossFade(
           secondChild:
               Container(height: 110, child: PlayerControls(vm.playerState)),
-          firstChild: Container(height: 110, child: ManipulationControls(vm)),
+          firstChild: Container(
+              height: 110,
+              child:
+                  ManipulationControls(vm, enabled: showManipulationControls)),
           duration: Duration(milliseconds: 300),
           firstCurve: Curves.ease,
           secondCurve: Curves.ease,
-          crossFadeState: vm.playerState.selectedQueueItems.length > 0
+          crossFadeState: showManipulationControls
               ? CrossFadeState.showFirst
               : CrossFadeState.showSecond,
         ),
@@ -200,8 +206,9 @@ class BottomControls extends StatelessWidget {
 
 class ManipulationControls extends StatelessWidget {
   final QueueViewModel vm;
+  final bool enabled;
 
-  ManipulationControls(this.vm);
+  ManipulationControls(this.vm, {this.enabled});
 
   _buildButton({
     @required IconData icon,
@@ -211,6 +218,7 @@ class ManipulationControls extends StatelessWidget {
       Expanded(
         child: FlatButton(
           onPressed: onPressed,
+          disabledTextColor: Colors.white,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -230,16 +238,18 @@ class ManipulationControls extends StatelessWidget {
         _buildButton(
           icon: Icons.remove,
           text: 'Remove',
-          onPressed: () => vm.removeSelected(context),
+          onPressed: enabled ? () => vm.removeSelected(context) : null,
         ),
         _buildButton(
-            icon: Icons.add,
-            text: 'Add to Queue',
-            onPressed: () => vm.queueSelected(context)),
+          icon: Icons.add,
+          text: 'Add to Queue',
+          onPressed: enabled ? () => vm.queueSelected(context) : null,
+        ),
         _buildButton(
-            icon: Icons.arrow_forward,
-            text: 'Play Next',
-            onPressed: () => vm.playSelectedNext(context)),
+          icon: Icons.arrow_forward,
+          text: 'Play Next',
+          onPressed: enabled ? () => vm.playSelectedNext(context) : null,
+        ),
       ],
     );
   }
