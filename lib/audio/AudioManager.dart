@@ -5,7 +5,7 @@ import 'package:vocaloid_player/audio/CustomAudioPlayer.dart';
 import 'package:vocaloid_player/audio/MediaSource.dart';
 import 'package:vocaloid_player/globals.dart';
 import 'package:vocaloid_player/model/QueuedSong.dart';
-import 'package:vocaloid_player/redux/actions.dart';
+import 'package:vocaloid_player/redux/actions/player_actions.dart';
 import 'package:vocaloid_player/utils/mediaitem_utils.dart';
 
 class AudioManager {
