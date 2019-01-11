@@ -267,8 +267,10 @@ class CustomAudioPlayer {
 
   Future<void> _setState(
       {Duration position, BasicPlaybackState basicState}) async {
+    // set position & state
     this._position = position ?? this._position;
     this._basicState = basicState ?? this._basicState;
+    // Determine controls
     List<MediaControl> controls;
     switch (this._basicState) {
       case BasicPlaybackState.buffering:
@@ -282,6 +284,7 @@ class CustomAudioPlayer {
       default:
         controls = [];
     }
+    // Report state to clients
     await AudioServiceBackground.setState(
         controls: controls,
         basicState: basicState ?? this._basicState,

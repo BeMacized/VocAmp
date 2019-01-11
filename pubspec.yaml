@@ -24,6 +24,7 @@ dependencies:
   http: ^0.12.0
   redux_thunk: ^0.2.1
   collection: ^1.14.11
+  connectivity: ^0.3.2
   yt_audiostream:
     git:
       url: git://github.com/BeMacized/yt_audiostream.git

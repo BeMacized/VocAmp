@@ -165,12 +165,12 @@ class BottomControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double progressValue = 0;
-    if (vm.playerState.state == BasicPlaybackState.buffering)
+    if (vm.playerState.state == BasicPlaybackState.buffering) {
       progressValue = null;
-    else if (vm.playerState.duration.inMilliseconds > 0)
+    } else if (vm.playerState.duration.inMilliseconds > 0) {
       progressValue = vm.playerState.position.inMilliseconds /
           vm.playerState.duration.inMilliseconds;
-
+    }
     bool showManipulationControls =
         vm.playerState.selectedQueueItems.length > 0;
 

@@ -41,6 +41,7 @@ class AlbumViewModelTrack {
 }
 
 class AlbumViewModel {
+  ErrorState errorState;
   int albumId;
   String title;
   String albumImageUrl;
@@ -48,14 +49,14 @@ class AlbumViewModel {
   Map<int, List<AlbumViewModelTrack>> discs;
   bool loading = true;
 
-  AlbumViewModel({
-    this.albumId,
-    this.title,
-    this.albumImageUrl,
-    this.artistsString,
-    this.discs,
-    this.loading,
-  });
+  AlbumViewModel(
+      {this.albumId,
+      this.title,
+      this.albumImageUrl,
+      this.artistsString,
+      this.discs,
+      this.loading,
+      this.errorState});
 
   static String _generateContextId(int songId, int albumId) {
     if (songId == null || albumId == null) return null;
@@ -192,11 +193,13 @@ class AlbumViewModel {
     }
 
     return AlbumViewModel(
-        albumId: state.album?.id,
-        loading: state.loading,
-        title: state.album?.name,
-        albumImageUrl: state.album?.mainPicture?.urlThumb,
-        artistsString: state.album?.artistString,
-        discs: discs);
+      albumId: state.album?.id,
+      loading: state.loading,
+      title: state.album?.name,
+      albumImageUrl: state.album?.mainPicture?.urlThumb,
+      artistsString: state.album?.artistString,
+      discs: discs,
+      errorState: state.errorState,
+    );
   }
 }
