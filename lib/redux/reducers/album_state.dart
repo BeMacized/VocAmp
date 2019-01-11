@@ -1,6 +1,6 @@
 import 'package:redux/redux.dart';
 import 'package:vocaloid_player/redux/actions/album_actions.dart';
-import 'package:vocaloid_player/redux/app_state.dart';
+import 'package:vocaloid_player/redux/states/album_state.dart';
 
 Reducer<AlbumState> albumStateReducer = combineReducers<AlbumState>([
   TypedReducer<AlbumState, LoadingAlbumAction>(loadingAlbumReducer),

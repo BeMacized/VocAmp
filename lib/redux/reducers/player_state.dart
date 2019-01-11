@@ -1,7 +1,7 @@
 import 'package:redux/redux.dart';
 import 'package:vocaloid_player/model/QueuedSong.dart';
 import 'package:vocaloid_player/redux/actions/player_actions.dart';
-import 'package:vocaloid_player/redux/app_state.dart';
+import 'package:vocaloid_player/redux/states/player_state.dart';
 
 Reducer<PlayerState> playerStateReducer = combineReducers<PlayerState>([
   TypedReducer<PlayerState, PlayerStateChangeAction>(playerStateChangeReducer),

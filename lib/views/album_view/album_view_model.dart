@@ -7,6 +7,8 @@ import 'package:vocaloid_player/model/vocadb/vocadb_song.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_songinalbum.dart';
 import 'package:vocaloid_player/redux/app_state.dart';
 import 'package:collection/collection.dart';
+import 'package:vocaloid_player/redux/states/album_state.dart';
+import 'package:vocaloid_player/redux/states/error_state.dart';
 import 'package:vocaloid_player/widgets/center_toast.dart';
 
 class AlbumViewModelTrack {

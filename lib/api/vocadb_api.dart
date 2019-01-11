@@ -5,19 +5,19 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:connectivity/connectivity.dart';
 
-Future<VocaDBAlbum> getAlbum(int id) async {
+final String BASE_URL = 'https://vocadb.net/api';
+
+Future<http.Response> _handleErrors(Function request) async {
   // Check connection
   var connectivityResult = await (new Connectivity().checkConnectivity());
   if (connectivityResult == ConnectivityResult.none)
     throw NotConnectedException();
 
   try {
-    final resp = await http.get(
-        'https://vocadb.net/api/albums/${id}?fields=MainPicture,Tracks&songFields=MainPicture,PVs');
+    final http.Response resp = await request();
     switch (resp.statusCode) {
       case 200:
-        return VocaDBAlbum.fromJson(
-            json.decode(resp.body) as Map<String, dynamic>);
+        return resp;
       case 404:
         throw NotFoundException();
       default:
@@ -33,4 +33,23 @@ Future<VocaDBAlbum> getAlbum(int id) async {
   } catch (e) {
     throw CantReachException();
   }
+}
+
+Future<VocaDBAlbum> getAlbum(int id) async {
+  final String url =
+      '${BASE_URL}/albums/${id}?fields=MainPicture,Tracks&songFields=MainPicture,PVs';
+  final http.Response resp = await _handleErrors(() => http.get(url));
+  return VocaDBAlbum.fromJson(json.decode(resp.body) as Map<String, dynamic>);
+}
+
+Future<List<VocaDBAlbum>> searchAlbums(String query,
+    {int maxResults = 10}) async {
+  final String url =
+      '${BASE_URL}/albums?query=${Uri.encodeComponent(query)}&maxResults=${maxResults.clamp(1, 50)}&nameMatchMode=Auto';
+  final http.Response resp = await _handleErrors(() => http.get(url));
+  Map<String, dynamic> jsonData =
+      json.decode(resp.body) as Map<String, dynamic>;
+  return List<Map<String, dynamic>>.from(jsonData['items'] ?? [])
+      .map<VocaDBAlbum>((rawAlbum) => VocaDBAlbum.fromJson(rawAlbum))
+      .toList();
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
-import 'package:vocaloid_player/redux/app_state.dart';
+import 'package:vocaloid_player/redux/states/error_state.dart';
 
 class ErrorView extends StatelessWidget {
-  ErrorState errorState;
+  final ErrorState errorState;
 
   ErrorView(this.errorState);
 

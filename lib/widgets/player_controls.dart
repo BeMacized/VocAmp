@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:vocaloid_player/audio/CustomAudioPlayer.dart';
 import 'package:vocaloid_player/globals.dart';
-import 'package:vocaloid_player/redux/app_state.dart';
+import 'package:vocaloid_player/redux/states/player_state.dart';
 
 class PlayerControls extends StatelessWidget {
   final PlayerState playerState;

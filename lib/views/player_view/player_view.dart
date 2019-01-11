@@ -59,7 +59,7 @@ class PlayerView extends StatelessWidget {
 }
 
 class PlayerBody extends StatelessWidget {
-  PlayerViewModel vm;
+  final PlayerViewModel vm;
 
   PlayerBody({
     Key key,

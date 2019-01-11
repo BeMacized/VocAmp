@@ -5,6 +5,7 @@ import 'package:vocaloid_player/globals.dart';
 import 'package:vocaloid_player/model/QueuedSong.dart';
 import 'package:vocaloid_player/redux/actions/player_actions.dart';
 import 'package:vocaloid_player/redux/app_state.dart';
+import 'package:vocaloid_player/redux/states/player_state.dart';
 import 'package:vocaloid_player/widgets/center_toast.dart';
 
 class QueueViewModel {

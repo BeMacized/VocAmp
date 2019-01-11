@@ -5,6 +5,7 @@ import 'package:vocaloid_player/api/vocadb_api.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_album.dart';
 import 'package:vocaloid_player/redux/app_state.dart';
 import 'package:vocaloid_player/api/api_exceptions.dart';
+import 'package:vocaloid_player/redux/states/error_state.dart';
 
 class LoadedAlbumAction {
   final VocaDBAlbum album;

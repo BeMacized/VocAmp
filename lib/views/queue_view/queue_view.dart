@@ -89,9 +89,9 @@ class QueueBody extends StatelessWidget {
 
 class QueueItem extends StatelessWidget {
   final QueuedSong queuedSong;
-  bool active;
-  bool selected;
-  VoidCallback onSelect;
+  final bool active;
+  final bool selected;
+  final VoidCallback onSelect;
 
   QueueItem(
       {@required this.queuedSong,

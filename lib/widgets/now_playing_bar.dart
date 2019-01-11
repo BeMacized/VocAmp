@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:vocaloid_player/globals.dart';
 import 'package:vocaloid_player/redux/app_state.dart';
+import 'package:vocaloid_player/redux/states/player_state.dart';
 import 'package:vocaloid_player/widgets/scrolling_text.dart';
 
 class _ViewModel {
