@@ -1,5 +1,5 @@
 import 'package:redux/redux.dart';
-import 'package:vocaloid_player/model/QueuedSong.dart';
+import 'package:vocaloid_player/model/queued_song.dart';
 import 'package:vocaloid_player/redux/actions/player_actions.dart';
 import 'package:vocaloid_player/redux/states/player_state.dart';
 

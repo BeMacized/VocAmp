@@ -2,15 +2,14 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_redux/flutter_redux.dart';
-import 'package:redux/redux.dart';
 import 'package:vocaloid_player/globals.dart';
+import 'package:vocaloid_player/model/status_data.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_album.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_song.dart';
-import 'package:vocaloid_player/redux/app_state.dart';
-import 'package:vocaloid_player/redux/states/search_state.dart';
 import 'package:vocaloid_player/views/home_view/tabs/home_tab/home_tab_model.dart';
 import 'package:vocaloid_player/widgets/album_art.dart';
+import 'package:sliver_fill_remaining_box_adapter/sliver_fill_remaining_box_adapter.dart';
+import 'package:vocaloid_player/widgets/status_view.dart';
 
 class SearchBody extends StatelessWidget {
   final HomeTabModel vm;
@@ -99,6 +98,47 @@ class SearchBody extends StatelessWidget {
         child: Container(height: 54),
       ),
     ];
+
+    // Query error
+    if (vm.searchState.errorState != null) {
+      slivers.add(
+        SliverFillRemainingBoxAdapter(
+          child: StatusView(
+            vm.searchState.errorState,
+          ),
+        ),
+      );
+      return slivers;
+    }
+
+    // Loading
+    if (vm.searchState.loading) {
+      slivers.add(
+        SliverFillRemainingBoxAdapter(
+          child: Container(
+            alignment: Alignment.center,
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      );
+      return slivers;
+    }
+
+    // No results
+    if (!vm.searchState.hasResults) {
+      slivers.add(
+        SliverFillRemainingBoxAdapter(
+          child: StatusView(
+            StatusData(
+                icon: Icons.clear,
+                title: 'No results',
+                subtitle:
+                    '"${vm.searchState.query}" got no results. Maybe try a different query?'),
+          ),
+        ),
+      );
+      return slivers;
+    }
 
     // Songs
     if (vm.searchState.songResults.length > 0) {

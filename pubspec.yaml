@@ -25,6 +25,7 @@ dependencies:
   redux_thunk: ^0.2.1
   collection: ^1.14.11
   connectivity: ^0.3.2
+  sliver_fill_remaining_box_adapter: ^0.1.1
   yt_audiostream:
     git:
       url: git://github.com/BeMacized/yt_audiostream.git

@@ -1,10 +1,10 @@
 import 'package:meta/meta.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_album.dart';
-import 'package:vocaloid_player/redux/states/error_state.dart';
+import 'package:vocaloid_player/model/status_data.dart';
 
 class AlbumState {
   final bool loading;
-  final ErrorState errorState;
+  final StatusData errorState;
   final VocaDBAlbum album;
 
   AlbumState({

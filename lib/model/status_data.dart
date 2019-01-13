@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 
-class ErrorState {
+class StatusData {
   final IconData icon;
   final String title;
   final String subtitle;
 
-  ErrorState({this.icon, this.title, this.subtitle});
+  StatusData({this.icon, this.title, this.subtitle});
 }

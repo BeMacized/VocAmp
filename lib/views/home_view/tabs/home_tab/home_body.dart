@@ -10,12 +10,6 @@ class HomeBody extends StatelessWidget {
       child: Padding(
         padding:
             EdgeInsets.only(top: MediaQuery.of(context).padding.top + 54 + 8),
-        child: Text(
-          "Home",
-          style: TextStyle(
-            fontSize: 50,
-          ),
-        ),
       ),
     );
   }

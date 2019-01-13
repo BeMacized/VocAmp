@@ -6,7 +6,7 @@ import 'package:vocaloid_player/api/api_exceptions.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_album.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_song.dart';
 import 'package:vocaloid_player/redux/app_state.dart';
-import 'package:vocaloid_player/redux/states/error_state.dart';
+import 'package:vocaloid_player/model/status_data.dart';
 
 class QueryingSearchAction {
   final String query;
@@ -15,7 +15,7 @@ class QueryingSearchAction {
 }
 
 class ErrorQueryingSearchAction {
-  ErrorState errorState;
+  StatusData errorState;
 
   ErrorQueryingSearchAction(this.errorState);
 }
@@ -45,7 +45,7 @@ ThunkAction<AppState> searchQueryAction(String query) {
     } on NotConnectedException {
       store.dispatch(
         ErrorQueryingSearchAction(
-          ErrorState(
+          StatusData(
               icon: Icons.signal_wifi_off,
               title: "You're Offline",
               subtitle: "Please connect to the internet and try again."),
@@ -54,7 +54,7 @@ ThunkAction<AppState> searchQueryAction(String query) {
     } on CantReachException {
       store.dispatch(
         ErrorQueryingSearchAction(
-          ErrorState(
+          StatusData(
               icon: Icons.warning,
               title: "Can't Reach VocaDB",
               subtitle:
@@ -64,7 +64,7 @@ ThunkAction<AppState> searchQueryAction(String query) {
     } on InternalServerErrorException {
       store.dispatch(
         ErrorQueryingSearchAction(
-          ErrorState(
+          StatusData(
               icon: Icons.error_outline,
               title: "Server Error",
               subtitle:
@@ -75,7 +75,7 @@ ThunkAction<AppState> searchQueryAction(String query) {
       print(e.data);
       store.dispatch(
         ErrorQueryingSearchAction(
-          ErrorState(
+          StatusData(
             icon: Icons.error,
             title: "Unknown Error",
             subtitle:
@@ -90,7 +90,7 @@ ThunkAction<AppState> searchQueryAction(String query) {
       if (e is BadRequestException || e is NotFoundException) {
         store.dispatch(
           ErrorQueryingSearchAction(
-            ErrorState(
+            StatusData(
               icon: Icons.error,
               title: "Bad Request",
               subtitle:
@@ -104,7 +104,7 @@ ThunkAction<AppState> searchQueryAction(String query) {
       print(e);
       store.dispatch(
         ErrorQueryingSearchAction(
-          ErrorState(
+          StatusData(
               icon: Icons.error,
               title: "Unknown Error",
               subtitle:

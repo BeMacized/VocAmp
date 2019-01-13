@@ -4,7 +4,7 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:vocaloid_player/redux/app_state.dart';
 import 'package:vocaloid_player/views/album_view/album_header.dart';
 import 'package:vocaloid_player/views/album_view/album_view_model.dart';
-import 'package:vocaloid_player/widgets/error_view.dart';
+import 'package:vocaloid_player/widgets/status_view.dart';
 import 'package:vocaloid_player/widgets/main_nav_bar.dart';
 import 'package:vocaloid_player/widgets/now_playing_bar.dart';
 
@@ -28,7 +28,7 @@ class AlbumView extends StatelessWidget {
                           ? CustomScrollView(
                               slivers: _buildSlivers(context, vm),
                             )
-                          : ErrorView(vm.errorState),
+                          : StatusView(vm.errorState),
                     ),
                     IgnorePointer(
                       ignoring: !vm.loading,

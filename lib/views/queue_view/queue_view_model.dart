@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:redux/redux.dart';
 import 'package:vocaloid_player/globals.dart';
-import 'package:vocaloid_player/model/QueuedSong.dart';
+import 'package:vocaloid_player/model/queued_song.dart';
 import 'package:vocaloid_player/redux/actions/player_actions.dart';
 import 'package:vocaloid_player/redux/app_state.dart';
 import 'package:vocaloid_player/redux/states/player_state.dart';

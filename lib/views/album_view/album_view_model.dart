@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:redux/redux.dart';
 import 'package:vocaloid_player/globals.dart';
-import 'package:vocaloid_player/model/QueuedSong.dart';
+import 'package:vocaloid_player/model/queued_song.dart';
+import 'package:vocaloid_player/model/status_data.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_song.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_songinalbum.dart';
 import 'package:vocaloid_player/redux/app_state.dart';
 import 'package:collection/collection.dart';
 import 'package:vocaloid_player/redux/states/album_state.dart';
-import 'package:vocaloid_player/redux/states/error_state.dart';
 import 'package:vocaloid_player/widgets/center_toast.dart';
 
 class AlbumViewModelTrack {
@@ -43,7 +43,7 @@ class AlbumViewModelTrack {
 }
 
 class AlbumViewModel {
-  ErrorState errorState;
+  StatusData errorState;
   int albumId;
   String title;
   String albumImageUrl;

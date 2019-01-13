@@ -1,10 +1,10 @@
 import 'package:meta/meta.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_album.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_song.dart';
-import 'package:vocaloid_player/redux/states/error_state.dart';
+import 'package:vocaloid_player/model/status_data.dart';
 
 class SearchState {
-  ErrorState errorState;
+  StatusData errorState;
   final bool loading;
   String query;
   List<VocaDBAlbum> albumResults;
@@ -13,7 +13,7 @@ class SearchState {
   //List<VocaDBArtist> artistResults;
 
   bool get hasResults =>
-      (albumResults?.length ?? 0 > 0) || (songResults?.length ?? 0 > 0);
+      (albumResults?.length ?? 0) > 0 || (songResults?.length ?? 0) > 0;
 
   SearchState({
     @required this.loading,
@@ -28,7 +28,7 @@ class SearchState {
     bool loading,
     List<VocaDBAlbum> albumResults,
     List<VocaDBSong> songResults,
-    ErrorState errorState,
+    StatusData errorState,
   }) {
     return SearchState(
       loading: loading ?? this.loading,

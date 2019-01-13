@@ -1,7 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:meta/meta.dart';
 import 'package:vocaloid_player/audio/CustomAudioPlayer.dart';
-import 'package:vocaloid_player/model/QueuedSong.dart';
+import 'package:vocaloid_player/model/queued_song.dart';
 
 class PlayerState {
   // Player state

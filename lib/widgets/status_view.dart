@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
-import 'package:vocaloid_player/redux/states/error_state.dart';
+import 'package:vocaloid_player/model/status_data.dart';
 
-class ErrorView extends StatelessWidget {
-  final ErrorState errorState;
+class StatusView extends StatelessWidget {
+  final StatusData errorState;
 
-  ErrorView(this.errorState);
+  StatusView(this.errorState);
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,6 @@ class ErrorView extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      height: double.infinity,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,

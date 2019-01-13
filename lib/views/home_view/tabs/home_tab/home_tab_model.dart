@@ -3,7 +3,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:meta/meta.dart';
 import 'package:redux/redux.dart';
 import 'package:vocaloid_player/globals.dart';
-import 'package:vocaloid_player/model/QueuedSong.dart';
+import 'package:vocaloid_player/model/queued_song.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_song.dart';
 import 'package:vocaloid_player/redux/app_state.dart';
 import 'package:vocaloid_player/redux/states/search_state.dart';

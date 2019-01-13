@@ -5,7 +5,7 @@ import 'package:vocaloid_player/api/vocadb_api.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_album.dart';
 import 'package:vocaloid_player/redux/app_state.dart';
 import 'package:vocaloid_player/api/api_exceptions.dart';
-import 'package:vocaloid_player/redux/states/error_state.dart';
+import 'package:vocaloid_player/model/status_data.dart';
 
 class LoadedAlbumAction {
   final VocaDBAlbum album;
@@ -14,7 +14,7 @@ class LoadedAlbumAction {
 }
 
 class ErrorLoadingAlbumAction {
-  ErrorState errorState;
+  StatusData errorState;
 
   ErrorLoadingAlbumAction(this.errorState);
 }
@@ -33,7 +33,7 @@ ThunkAction<AppState> loadAlbumAction(int albumId) {
     } on NotConnectedException {
       store.dispatch(
         ErrorLoadingAlbumAction(
-          ErrorState(
+          StatusData(
               icon: Icons.signal_wifi_off,
               title: "You're Offline",
               subtitle: "Please connect to the internet and try again."),
@@ -42,7 +42,7 @@ ThunkAction<AppState> loadAlbumAction(int albumId) {
     } on CantReachException {
       store.dispatch(
         ErrorLoadingAlbumAction(
-          ErrorState(
+          StatusData(
               icon: Icons.warning,
               title: "Can't Reach VocaDB",
               subtitle:
@@ -52,7 +52,7 @@ ThunkAction<AppState> loadAlbumAction(int albumId) {
     } on InternalServerErrorException {
       store.dispatch(
         ErrorLoadingAlbumAction(
-          ErrorState(
+          StatusData(
               icon: Icons.error_outline,
               title: "Server Error",
               subtitle:
@@ -62,7 +62,7 @@ ThunkAction<AppState> loadAlbumAction(int albumId) {
     } on NotFoundException {
       store.dispatch(
         ErrorLoadingAlbumAction(
-          ErrorState(
+          StatusData(
             icon: Icons.album,
             title: "Album Not Found",
             subtitle: "This album could not be found. Maybe it got removed?",
@@ -72,7 +72,7 @@ ThunkAction<AppState> loadAlbumAction(int albumId) {
     } on BadRequestException {
       store.dispatch(
         ErrorLoadingAlbumAction(
-          ErrorState(
+          StatusData(
             icon: Icons.error,
             title: "Bad Request",
             subtitle:
@@ -84,7 +84,7 @@ ThunkAction<AppState> loadAlbumAction(int albumId) {
       print(e.data);
       store.dispatch(
         ErrorLoadingAlbumAction(
-          ErrorState(
+          StatusData(
             icon: Icons.error,
             title: "Unknown Error",
             subtitle:
@@ -99,7 +99,7 @@ ThunkAction<AppState> loadAlbumAction(int albumId) {
       print(e);
       store.dispatch(
         ErrorLoadingAlbumAction(
-          ErrorState(
+          StatusData(
               icon: Icons.error,
               title: "Unknown Error",
               subtitle:
