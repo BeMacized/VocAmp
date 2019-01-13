@@ -134,6 +134,7 @@ class SearchBarState extends State<SearchBar> with TickerProviderStateMixin {
                               ),
                               onPressed: () {
                                 _searchEditingController.clear();
+                                widget._searchFocusNode.unfocus();
                                 _onFocusChange();
                               },
                             ),

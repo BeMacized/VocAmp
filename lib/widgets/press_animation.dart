@@ -1,4 +1,3 @@
-
 import 'package:flutter/widgets.dart';
 
 class PressAnimation extends StatefulWidget {
@@ -42,28 +41,30 @@ class _PressAnimationState extends State<PressAnimation>
   Widget build(BuildContext context) {
     return GestureDetector(
       onTapDown:
-          widget.onTap != null ? (details) => _controller.forward() : null,
+      widget.onTap != null ? (details) => _controller.forward() : null,
       onTapUp: widget.onTap != null
           ? (details) async {
-              await Future.delayed(Duration(milliseconds: 100));
-              _controller.reverse();
-            }
+        await Future.delayed(Duration(milliseconds: 100));
+        _controller.reverse();
+      }
           : null,
       onTapCancel: _controller.reverse,
-      onTap: widget.onTap,
+      onTap: () async {
+        await Future.delayed(Duration(milliseconds: 100));
+        widget.onTap();
+      },
       child: AnimatedBuilder(
-        animation: _animation,
-        builder: (BuildContext context, Widget child) {
-          return Opacity(
-            opacity: 1.0 - _animation.value * 0.4,
-            child: Transform.scale(
-              scale: 1.0 - _animation.value * 0.1,
-              child: widget.child,
-              alignment: Alignment.center,
-            ),
-          );
-        },
-      ),
-    );
+      animation: _animation,
+      builder: (BuildContext context, Widget child) {
+        return Opacity(
+          opacity: 1.0 - _animation.value * 0.4,
+          child: Transform.scale(
+            scale: 1.0 - _animation.value * 0.1,
+            child: widget.child,
+            alignment: Alignment.center,
+          ),
+        );
+      },
+    ),);
   }
 }
