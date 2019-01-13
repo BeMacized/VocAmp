@@ -45,7 +45,7 @@ Future<VocaDBAlbum> getAlbum(int id) async {
 Future<List<VocaDBAlbum>> searchAlbums(String query,
     {int maxResults = 10}) async {
   final String url =
-      '${BASE_URL}/albums?query=${Uri.encodeComponent(query)}&maxResults=${maxResults.clamp(1, 50)}&nameMatchMode=Auto';
+      '${BASE_URL}/albums?query=${Uri.encodeComponent(query)}&maxResults=${maxResults.clamp(1, 50)}&nameMatchMode=Auto&fields=MainPicture,Tracks&songFields=MainPicture,PVs';
   final http.Response resp = await _handleErrors(() => http.get(url));
   Map<String, dynamic> jsonData =
       json.decode(resp.body) as Map<String, dynamic>;

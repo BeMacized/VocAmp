@@ -8,18 +8,15 @@ import 'package:vocaloid_player/redux/actions/home_actions.dart';
 class HomeViewTabController extends TabController {
   StreamSubscription<int> _tabSubscription;
 
-  HomeViewTabController(
-      {int initialIndex = 0,
-      @required int length,
-      @required TickerProvider vsync})
-      : super(initialIndex: initialIndex, length: length, vsync: vsync) {
+  HomeViewTabController({@required int length, @required TickerProvider vsync})
+      : super(length: length, vsync: vsync) {
     _tabSubscription = Application.store.onChange
         .map<int>((state) => state.homeState.tab)
         .distinct()
         .listen((tab) => super.index = tab);
   }
 
-  // Instead of having this set the index, we send out an action.
+  // Instead of having this set the index like usual, we send out an action.
   // This will eventually set the actual index via the store subscription.
   @override
   set index(int value) {

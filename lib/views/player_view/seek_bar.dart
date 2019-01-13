@@ -13,7 +13,7 @@ class SeekBar extends StatefulWidget {
 
   @override
   SeekBarState createState() {
-    return new SeekBarState();
+    return SeekBarState();
   }
 }
 

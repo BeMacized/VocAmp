@@ -6,3 +6,7 @@ analyzer:
   exclude:
     - flutter/**
     - lib/api/*.dart
+
+linter:
+  rules:
+    - unnecessary_new

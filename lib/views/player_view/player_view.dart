@@ -25,7 +25,7 @@ class PlayerView extends StatelessWidget {
       builder: (BuildContext context, PlayerViewModel vm) {
         return Stack(
           children: <Widget>[
-            new PlayerBackground(vm),
+            PlayerBackground(vm),
             Scaffold(
               backgroundColor: Colors.transparent,
               appBar: AppBar(
@@ -49,7 +49,7 @@ class PlayerView extends StatelessWidget {
               ),
               body: vm.playerState.currentSong == null
                   ? null
-                  : new PlayerBody(vm: vm),
+                  : PlayerBody(vm: vm),
             ),
           ],
         );
@@ -77,7 +77,7 @@ class PlayerBody extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 32),
               child: Container(
-                decoration: new BoxDecoration(boxShadow: [
+                decoration: BoxDecoration(boxShadow: [
                   BoxShadow(
                       color: Colors.black,
                       blurRadius: 20,
@@ -131,11 +131,11 @@ class PlayerBody extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: new SeekBar(vm: vm),
+          child: SeekBar(vm: vm),
         ),
         Padding(
           padding: const EdgeInsets.only(top: 24, bottom: 96),
-          child: new PlayerControls(vm.playerState),
+          child: PlayerControls(vm.playerState),
         ),
       ],
     );
@@ -146,9 +146,9 @@ class PlayerBackground extends StatelessWidget {
   final PlayerViewModel vm;
 
   const PlayerBackground(
-      this.vm, {
-        Key key,
-      }) : super(key: key);
+    this.vm, {
+    Key key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -174,7 +174,7 @@ class PlayerBackground extends StatelessWidget {
           child: Container(
             width: double.infinity,
             height: double.infinity,
-            decoration: new BoxDecoration(color: Colors.transparent),
+            decoration: BoxDecoration(color: Colors.transparent),
           ),
         ),
         Container(

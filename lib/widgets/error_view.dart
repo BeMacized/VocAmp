@@ -27,10 +27,7 @@ class ErrorView extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Text(
             errorState.title,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 25
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
           ),
         ),
       );

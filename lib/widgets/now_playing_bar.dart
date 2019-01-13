@@ -19,7 +19,7 @@ class _ViewModel {
 class NowPlayingBar extends StatefulWidget {
   @override
   NowPlayingBarState createState() {
-    return new NowPlayingBarState();
+    return NowPlayingBarState();
   }
 }
 
@@ -41,7 +41,7 @@ class NowPlayingBarState extends State<NowPlayingBar> {
 
   @override
   Widget build(BuildContext context) {
-    return new StoreConnector<AppState, _ViewModel>(converter: (store) {
+    return StoreConnector<AppState, _ViewModel>(converter: (store) {
       return _ViewModel(store.state.playerState, store.dispatch);
     }, builder: (context, vm) {
       double progressValue = 0;

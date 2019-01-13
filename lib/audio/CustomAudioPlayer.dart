@@ -17,7 +17,7 @@ class SongCache {
 
 class CustomAudioPlayer {
   RepeatMode _repeatMode = RepeatMode.NONE;
-  AudioPlayer _audioPlayer = new AudioPlayer();
+  AudioPlayer _audioPlayer = AudioPlayer();
   Completer _completer = Completer();
   List<MediaItem> _queue = [];
   List<MediaItem> _queueBackup = [];

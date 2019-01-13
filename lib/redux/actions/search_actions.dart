@@ -2,37 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:redux/redux.dart';
 import 'package:redux_thunk/redux_thunk.dart';
 import 'package:vocaloid_player/api/vocadb_api.dart';
-import 'package:vocaloid_player/model/vocadb/vocadb_album.dart';
-import 'package:vocaloid_player/redux/app_state.dart';
 import 'package:vocaloid_player/api/api_exceptions.dart';
+import 'package:vocaloid_player/model/vocadb/vocadb_album.dart';
+import 'package:vocaloid_player/model/vocadb/vocadb_song.dart';
+import 'package:vocaloid_player/redux/app_state.dart';
 import 'package:vocaloid_player/redux/states/error_state.dart';
 
-class LoadedAlbumAction {
-  final VocaDBAlbum album;
+class QueryingSearchAction {
+  final String query;
 
-  LoadedAlbumAction(this.album);
+  QueryingSearchAction(this.query);
 }
 
-class ErrorLoadingAlbumAction {
+class ErrorQueryingSearchAction {
   ErrorState errorState;
 
-  ErrorLoadingAlbumAction(this.errorState);
+  ErrorQueryingSearchAction(this.errorState);
 }
 
-class LoadingAlbumAction {}
+class ReceivedSearchQueryResultsAction {
+  final List<VocaDBAlbum> albumResults;
+  final List<VocaDBSong> songResults;
 
-ThunkAction<AppState> loadAlbumAction(int albumId) {
+  ReceivedSearchQueryResultsAction(this.albumResults, this.songResults);
+}
+
+ThunkAction<AppState> searchQueryAction(String query) {
   return (Store<AppState> store) async {
     // Dispatch loading action
-    store.dispatch(LoadingAlbumAction());
+    store.dispatch(QueryingSearchAction(query));
+
+    // If query was empty, return empty results
+    if (query.trim() == '') {
+      store.dispatch(ReceivedSearchQueryResultsAction([], []));
+      return;
+    }
+
     try {
-      // Load the album
-      VocaDBAlbum album = await getAlbum(albumId);
-      // Dispatch loaded action
-      store.dispatch(LoadedAlbumAction(album));
+      List<VocaDBAlbum> albums = await searchAlbums(query, maxResults: 50);
+      store.dispatch(ReceivedSearchQueryResultsAction(albums, []));
     } on NotConnectedException {
       store.dispatch(
-        ErrorLoadingAlbumAction(
+        ErrorQueryingSearchAction(
           ErrorState(
               icon: Icons.signal_wifi_off,
               title: "You're Offline",
@@ -41,7 +52,7 @@ ThunkAction<AppState> loadAlbumAction(int albumId) {
       );
     } on CantReachException {
       store.dispatch(
-        ErrorLoadingAlbumAction(
+        ErrorQueryingSearchAction(
           ErrorState(
               icon: Icons.warning,
               title: "Can't Reach VocaDB",
@@ -51,7 +62,7 @@ ThunkAction<AppState> loadAlbumAction(int albumId) {
       );
     } on InternalServerErrorException {
       store.dispatch(
-        ErrorLoadingAlbumAction(
+        ErrorQueryingSearchAction(
           ErrorState(
               icon: Icons.error_outline,
               title: "Server Error",
@@ -59,31 +70,10 @@ ThunkAction<AppState> loadAlbumAction(int albumId) {
                   "The server encountered an error. Please try again later."),
         ),
       );
-    } on NotFoundException {
-      store.dispatch(
-        ErrorLoadingAlbumAction(
-          ErrorState(
-            icon: Icons.album,
-            title: "Album Not Found",
-            subtitle: "This album could not be found. Maybe it got removed?",
-          ),
-        ),
-      );
-    } on BadRequestException {
-      store.dispatch(
-        ErrorLoadingAlbumAction(
-          ErrorState(
-            icon: Icons.error,
-            title: "Bad Request",
-            subtitle:
-                "Uh oh, looks like we made a mistake. Please submit a bug report, with some steps explaining how you got this to happen.",
-          ),
-        ),
-      );
     } on UnknownAPIErrorException catch (e) {
       print(e.data);
       store.dispatch(
-        ErrorLoadingAlbumAction(
+        ErrorQueryingSearchAction(
           ErrorState(
             icon: Icons.error,
             title: "Unknown Error",
@@ -96,9 +86,23 @@ ThunkAction<AppState> loadAlbumAction(int albumId) {
         ),
       );
     } catch (e) {
+      if (e is BadRequestException || e is NotFoundException) {
+        store.dispatch(
+          ErrorQueryingSearchAction(
+            ErrorState(
+              icon: Icons.error,
+              title: "Bad Request",
+              subtitle:
+                  "Uh oh, looks like we made a mistake. Please submit a bug report, with some steps explaining how you got this to happen.",
+            ),
+          ),
+        );
+        return;
+      }
+
       print(e);
       store.dispatch(
-        ErrorLoadingAlbumAction(
+        ErrorQueryingSearchAction(
           ErrorState(
               icon: Icons.error,
               title: "Unknown Error",

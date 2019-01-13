@@ -10,7 +10,7 @@ void main() => runApp(MyApp());
 class MyApp extends StatefulWidget {
   @override
   MyAppState createState() {
-    return new MyAppState();
+    return MyAppState();
   }
 }
 
@@ -24,6 +24,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.initState();
     // Add widget observer for lifecycle changes
     WidgetsBinding.instance.addObserver(this);
+    // Connect to the audio service
     Application.audioManager.connect();
   }
 
@@ -66,5 +67,4 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
         break;
     }
   }
-
 }

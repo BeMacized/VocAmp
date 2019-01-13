@@ -40,8 +40,8 @@ class QueueView extends StatelessWidget {
             ),
             body: Column(
               children: <Widget>[
-                new QueueBody(vm),
-                new BottomControls(vm),
+                QueueBody(vm),
+                BottomControls(vm),
               ],
             ),
           );

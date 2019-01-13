@@ -23,14 +23,14 @@ class MainNavBar extends StatelessWidget {
               BottomNavigationBarItem(
                   icon: Icon(Icons.home), title: Text('Home')),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.search), title: Text('Search')),
-              BottomNavigationBarItem(
                   icon: Icon(Icons.library_books), title: Text('Your Library')),
             ],
             currentIndex: tabIndex,
             fixedColor: Colors.white,
-            onTap: (index) =>
-                Application.store.dispatch(SetHomeTabAction(index)),
+            onTap: (index) {
+              Application.navigator.popUntil(ModalRoute.withName('/'));
+              Application.store.dispatch(SetHomeTabAction(index));
+            },
           ),
         );
       },

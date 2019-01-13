@@ -110,9 +110,12 @@ class _ScrollingTextState extends State<ScrollingText>
     int duration = animationController.duration.inMilliseconds;
     double cutoff = 100 / duration;
     double value = animationController.value;
-    if (value <= cutoff) return value / cutoff;
-    else if (value >= 1.0 - cutoff) return (-(value - 1)) / cutoff;
-    else return 1;
+    if (value <= cutoff)
+      return value / cutoff;
+    else if (value >= 1.0 - cutoff)
+      return (-(value - 1)) / cutoff;
+    else
+      return 1;
   }
 
   @override

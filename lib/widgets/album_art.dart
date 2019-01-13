@@ -17,11 +17,13 @@ class AlbumArt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
+    return Container(
+      width: size,
+      height: size,
       child: CachedNetworkImage(
         imageUrl: albumImageUrl ?? '',
-        placeholder: new AlbumPlaceholder(size: size),
-        errorWidget: new AlbumPlaceholder(size: size),
+        placeholder: AlbumPlaceholder(size: size),
+        errorWidget: AlbumPlaceholder(size: size),
         width: size,
         fadeInCurve: Curves.ease,
         fadeOutCurve: Curves.ease,
@@ -30,7 +32,6 @@ class AlbumArt extends StatelessWidget {
         loadedCallback: loadedCallback,
         failedCallback: failedCallback,
       ),
-      aspectRatio: 1,
     );
   }
 }

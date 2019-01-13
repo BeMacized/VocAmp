@@ -26,7 +26,7 @@ class QueuedSong {
 
   factory QueuedSong.fromSong(VocaDBSong song,
       {String albumName = 'NONEMPTY', String albumArtUrl, String contextId}) {
-    return new QueuedSong(
+    return QueuedSong(
       song,
       MediaItem(
         id: Uuid().v4(),

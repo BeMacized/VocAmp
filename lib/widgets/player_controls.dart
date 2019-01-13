@@ -95,7 +95,7 @@ class PlayerControls extends StatelessWidget {
     return OutlineButton(
       child: Icon(icon,
           color: Colors.white.withOpacity(disabled ? 0.25 : 1), size: 32),
-      shape: new CircleBorder(),
+      shape: CircleBorder(),
       highlightedBorderColor: Colors.white,
       splashColor: Theme.of(context).splashColor,
       padding: EdgeInsets.all(12),

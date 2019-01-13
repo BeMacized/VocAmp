@@ -8,7 +8,7 @@ import 'package:vocaloid_player/redux/middleware.dart';
 
 class Application {
   static final GlobalKey<NavigatorState> navigatorKey =
-      new GlobalKey<NavigatorState>();
+      GlobalKey<NavigatorState>();
 
   static NavigatorState get navigator => navigatorKey.currentState;
 
@@ -20,5 +20,5 @@ class Application {
     middleware: createStoreMiddleware(),
   );
 
-  static final AudioManager audioManager = new AudioManager();
+  static final AudioManager audioManager = AudioManager();
 }

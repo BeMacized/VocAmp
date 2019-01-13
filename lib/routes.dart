@@ -14,7 +14,7 @@ class Routes {
   static final String queue = '/queue';
 
   static void configureRoutes(Router router) {
-    router.notFoundHandler = new Handler(
+    router.notFoundHandler = Handler(
         handlerFunc: (BuildContext context, Map<String, List<String>> params) {
       print("ROUTE WAS NOT FOUND !!!");
     });
@@ -35,28 +35,28 @@ class Routes {
   }
 }
 
-final Handler rootHandler = new Handler(
+final Handler rootHandler = Handler(
   handlerFunc: (BuildContext context, Map<String, List<String>> params) {
-    return new HomeView();
+    return HomeView();
   },
 );
 
-final Handler albumHandler = new Handler(
+final Handler albumHandler = Handler(
   handlerFunc: (BuildContext context, Map<String, dynamic> params) {
     Application.store
         .dispatch(loadAlbumAction(int.parse(params['id'][0] as String)));
-    return new AlbumView();
+    return AlbumView();
   },
 );
 
-final Handler nowPlayingHandler = new Handler(
+final Handler nowPlayingHandler = Handler(
   handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-    return new PlayerView();
+    return PlayerView();
   },
 );
 
-final Handler queueHandler = new Handler(
+final Handler queueHandler = Handler(
   handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-    return new QueueView();
+    return QueueView();
   },
 );

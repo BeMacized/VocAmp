@@ -24,13 +24,15 @@ class VocaDBSong {
   }
 
   bool get isStreamable {
-    VocaDBPV pv = pvs.firstWhere((pv) => pv.service == PVService.Youtube && !pv.disabled,
+    VocaDBPV pv = pvs.firstWhere(
+        (pv) => pv.service == PVService.Youtube && !pv.disabled,
         orElse: () => null);
     return pv != null;
   }
 
   MediaSource get mediaSource {
-    VocaDBPV pv = pvs.firstWhere((pv) => pv.service == PVService.Youtube && !pv.disabled,
+    VocaDBPV pv = pvs.firstWhere(
+        (pv) => pv.service == PVService.Youtube && !pv.disabled,
         orElse: () => null);
     if (pv == null) return null;
     return MediaSource(type: MediaSourceType.YouTube, url: pv.url);

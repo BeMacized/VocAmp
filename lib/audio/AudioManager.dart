@@ -24,8 +24,8 @@ class AudioManager {
     if (_playbackStateSubscription == null) {
       var cb = (PlaybackState playbackState) {
         Application.store.dispatch(PlayerStateChangeAction(
-          state: playbackState.basicState,
-          position: playbackState.position,
+          state: playbackState?.basicState ?? BasicPlaybackState.none,
+          position: playbackState?.position ?? 0,
         ));
       };
       cb(AudioService.playbackState);

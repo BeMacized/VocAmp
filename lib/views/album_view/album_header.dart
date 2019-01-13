@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:palette_generator/palette_generator.dart';
@@ -63,9 +62,8 @@ class AlbumHeader extends StatelessWidget {
         )
       ],
       expandedHeight: contentHeight,
-      flexibleSpace:
-          new AlbumHeaderContent(contentHeight: contentHeight, vm: vm),
-      bottom: vm.loading ? null : new HeaderButton(vm),
+      flexibleSpace: AlbumHeaderContent(contentHeight: contentHeight, vm: vm),
+      bottom: vm.loading ? null : HeaderButton(vm),
     );
   }
 }
@@ -173,7 +171,7 @@ class _AlbumHeaderContentState extends State<AlbumHeaderContent> {
                             child: Container(
                               width: 150,
                               height: 150,
-                              decoration: new BoxDecoration(boxShadow: [
+                              decoration: BoxDecoration(boxShadow: [
                                 BoxShadow(
                                     color: Colors.black,
                                     blurRadius: 20,
@@ -251,8 +249,8 @@ class HeaderButton extends PreferredSize {
       child: Center(
         child: RaisedButton(
           padding: EdgeInsets.symmetric(vertical: 12, horizontal: 32),
-          shape: new RoundedRectangleBorder(
-            borderRadius: new BorderRadius.circular(30.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30.0),
           ),
           onPressed: vm.playAlbum,
           child: Text(
