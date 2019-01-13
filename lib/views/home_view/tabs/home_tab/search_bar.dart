@@ -132,7 +132,10 @@ class SearchBarState extends State<SearchBar> with TickerProviderStateMixin {
                               icon: Icon(
                                 Icons.clear,
                               ),
-                              onPressed: () => _searchEditingController.clear(),
+                              onPressed: () {
+                                _searchEditingController.clear();
+                                _onFocusChange();
+                              },
                             ),
                             duration: Duration(milliseconds: 250),
                             opacity:
