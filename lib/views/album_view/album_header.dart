@@ -100,16 +100,17 @@ class _AlbumHeaderContentState extends State<AlbumHeaderContent> {
 
   Future<void> _refreshFadeColor({ImageProvider imageProvider}) async {
     if (imageProvider == null) return Colors.grey.shade800;
+    await Future.delayed(Duration(milliseconds: 100)); // Wait for imageProvider
     PaletteGenerator gen =
         await PaletteGenerator.fromImageProvider(imageProvider);
     setState(() {
       fadeColor = (gen.vibrantColor ??
                   gen.darkVibrantColor ??
                   gen.lightVibrantColor ??
-                  gen.dominantColor ??
                   gen.mutedColor ??
                   gen.darkMutedColor ??
-                  gen.lightMutedColor)
+                  gen.lightMutedColor ??
+                  gen.dominantColor)
               ?.color ??
           Colors.grey.shade800;
       this.gen = gen;

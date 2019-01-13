@@ -8,6 +8,7 @@ import 'package:vocaloid_player/model/queued_song.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_album.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_song.dart';
 import 'package:vocaloid_player/redux/app_state.dart';
+import 'package:vocaloid_player/redux/states/home_state.dart';
 import 'package:vocaloid_player/redux/states/search_state.dart';
 import 'package:vocaloid_player/views/album_view/album_view_model.dart';
 import 'package:vocaloid_player/widgets/center_toast.dart';
@@ -15,10 +16,12 @@ import 'package:vocaloid_player/api/api_exceptions.dart';
 
 class HomeTabModel {
   SearchState searchState;
+  HomeState homeState;
   String currentSongContextId;
 
   HomeTabModel({
     @required this.searchState,
+    @required this.homeState,
     @required this.currentSongContextId,
   });
 
@@ -36,6 +39,7 @@ class HomeTabModel {
         store.state.playerState.currentSong?.contextId;
     return HomeTabModel(
         searchState: store.state.searchState,
+        homeState: store.state.homeState,
         currentSongContextId: currentSongContextId);
   }
 

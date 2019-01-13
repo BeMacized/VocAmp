@@ -36,6 +36,15 @@ Future<http.Response> _handleErrors(Function request) async {
   }
 }
 
+Future<List<VocaDBAlbum>> getRandomTopAlbums() async {
+  final String url =
+      '${BASE_URL}/albums/top?fields=MainPicture,Tracks&sort=RatingScore';
+  final http.Response resp = await _handleErrors(() => http.get(url));
+  return List<Map<String, dynamic>>.from(json.decode(resp.body))
+      .map<VocaDBAlbum>((rawAlbum) => VocaDBAlbum.fromJson(rawAlbum))
+      .toList()..shuffle();
+}
+
 Future<VocaDBAlbum> getAlbum(int id) async {
   final String url =
       '${BASE_URL}/albums/${id}?fields=MainPicture,Tracks&songFields=MainPicture,PVs';

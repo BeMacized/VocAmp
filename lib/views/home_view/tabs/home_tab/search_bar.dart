@@ -100,7 +100,7 @@ class SearchBarState extends State<SearchBar> with TickerProviderStateMixin {
                 onTap: () => FocusScope.of(context)
                     .requestFocus(widget._searchFocusNode),
                 child: Material(
-                  color: Colors.white.withOpacity(0.25),
+                  color: Colors.white.withOpacity(0.4),
                   child: Padding(
                     padding: EdgeInsets.only(
                         top: (1 - _animation.value) *

@@ -11,17 +11,39 @@ import 'package:vocaloid_player/widgets/album_art.dart';
 import 'package:sliver_fill_remaining_box_adapter/sliver_fill_remaining_box_adapter.dart';
 import 'package:vocaloid_player/widgets/status_view.dart';
 
-class SearchBody extends StatelessWidget {
+class SearchBody extends StatefulWidget {
   final HomeTabModel vm;
 
   SearchBody(this.vm);
+
+  @override
+  SearchBodyState createState() {
+    return SearchBodyState();
+  }
+}
+
+class SearchBodyState extends State<SearchBody> {
+  ScrollController _scrollController;
+
+  @override
+  void initState() {
+    _scrollController = ScrollController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Colors.black,
       child: CustomScrollView(
-        slivers: _buildSlivers(context, vm),
+        controller: _scrollController,
+        slivers: _buildSlivers(context),
       ),
     );
   }
@@ -71,13 +93,13 @@ class SearchBody extends StatelessWidget {
               onSelected: (item) {
                 switch (item) {
                   case 'QUEUE':
-                    vm.queueAlbum(context, album);
+                    widget.vm.queueAlbum(context, album);
                     break;
                   case 'PLAY_NEXT':
-                    vm.playAlbumNext(context, album);
+                    widget.vm.playAlbumNext(context, album);
                     break;
                   case 'PLAY':
-                    vm.playAlbum(context, album);
+                    widget.vm.playAlbum(context, album);
                     break;
                 }
               },
@@ -117,7 +139,7 @@ class SearchBody extends StatelessWidget {
           ? null
           : Text(
               song.name,
-              style: vm.isSongActive(song)
+              style: widget.vm.isSongActive(song)
                   ? TextStyle(
                       color: Theme.of(context).primaryColor,
                     )
@@ -132,17 +154,17 @@ class SearchBody extends StatelessWidget {
               softWrap: false,
               overflow: TextOverflow.ellipsis,
             ),
-      onTap: () => vm.playSongSearchResults(song),
+      onTap: () => widget.vm.playSongSearchResults(song),
       enabled: enabled,
       trailing: menuItems.length > 0
           ? PopupMenuButton<String>(
               onSelected: (item) {
                 switch (item) {
                   case 'QUEUE':
-                    vm.queueSong(context, song);
+                    widget.vm.queueSong(context, song);
                     break;
                   case 'PLAY_NEXT':
-                    vm.playSongNext(context, song);
+                    widget.vm.playSongNext(context, song);
                     break;
                 }
               },
@@ -152,7 +174,7 @@ class SearchBody extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildSlivers(BuildContext context, HomeTabModel vm) {
+  List<Widget> _buildSlivers(BuildContext context) {
     List<Widget> slivers = [
       SearchHeader(
         child: Container(height: 54),
@@ -160,11 +182,11 @@ class SearchBody extends StatelessWidget {
     ];
 
     // Query error
-    if (vm.searchState.errorState != null) {
+    if (widget.vm.searchState.errorState != null) {
       slivers.add(
         SliverFillRemainingBoxAdapter(
           child: StatusView(
-            vm.searchState.errorState,
+            widget.vm.searchState.errorState,
           ),
         ),
       );
@@ -172,7 +194,7 @@ class SearchBody extends StatelessWidget {
     }
 
     // Loading
-    if (vm.searchState.loading) {
+    if (widget.vm.searchState.loading) {
       slivers.add(
         SliverFillRemainingBoxAdapter(
           child: Container(
@@ -185,7 +207,7 @@ class SearchBody extends StatelessWidget {
     }
 
     // No results
-    if (!vm.searchState.hasResults) {
+    if (!widget.vm.searchState.hasResults) {
       slivers.add(
         SliverFillRemainingBoxAdapter(
           child: StatusView(
@@ -193,36 +215,36 @@ class SearchBody extends StatelessWidget {
                 icon: Icons.clear,
                 title: 'No results',
                 subtitle:
-                    '"${vm.searchState.query}" got no results. Maybe try a different query?'),
+                    '"${widget.vm.searchState.query}" got no results. Maybe try a different query?'),
           ),
         ),
       );
       return slivers;
     }
 
-    // Songs
-    if (vm.searchState.songResults.length > 0) {
+    // Albums
+    if (widget.vm.searchState.albumResults.length > 0) {
       slivers.add(
         ResultBlock(
-          title: "Songs",
-          childCount: vm.searchState.songResults.length,
-          builder: (BuildContext context, int index) => _buildSongListTile(
-                context,
-                vm.searchState.songResults[index],
-              ),
+          title: "Albums",
+          childCount: widget.vm.searchState.albumResults.length,
+          builder: (BuildContext context, int index) => _buildAlbumListTile(
+            context,
+            widget.vm.searchState.albumResults[index],
+          ),
         ),
       );
     }
 
-    // Albums
-    if (vm.searchState.albumResults.length > 0) {
+    // Songs
+    if (widget.vm.searchState.songResults.length > 0) {
       slivers.add(
         ResultBlock(
-          title: "Albums",
-          childCount: vm.searchState.albumResults.length,
-          builder: (BuildContext context, int index) => _buildAlbumListTile(
+          title: "Songs",
+          childCount: widget.vm.searchState.songResults.length,
+          builder: (BuildContext context, int index) => _buildSongListTile(
                 context,
-                vm.searchState.albumResults[index],
+                widget.vm.searchState.songResults[index],
               ),
         ),
       );

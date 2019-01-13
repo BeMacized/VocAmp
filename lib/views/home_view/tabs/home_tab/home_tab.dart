@@ -45,7 +45,7 @@ class HomeTabState extends State<HomeTab> {
             onTap: () => _searchFocusNode.unfocus(),
             child: Stack(
               children: <Widget>[
-                HomeBody(),
+                HomeBody(vm),
                 IgnorePointer(
                   ignoring: vm.searchState.query.length == 0 &&
                       !vm.searchState.loading,
