@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
-import 'package:vocaloid_player/globals.dart';
-import 'package:vocaloid_player/model/vocadb/vocadb_album.dart';
 import 'package:vocaloid_player/redux/app_state.dart';
-import 'package:vocaloid_player/redux/states/search_state.dart';
+import 'package:vocaloid_player/views/home_view/tabs/home_tab/home_body.dart';
 import 'package:vocaloid_player/views/home_view/tabs/home_tab/home_tab_model.dart';
 import 'package:vocaloid_player/views/home_view/tabs/home_tab/search_bar.dart';
 import 'package:vocaloid_player/views/home_view/tabs/home_tab/search_body.dart';
-import 'package:vocaloid_player/widgets/album_art.dart';
 
 class HomeTab extends StatefulWidget {
   @override
@@ -57,7 +54,7 @@ class HomeTabState extends State<HomeTab> {
                             vm.searchState.loading
                         ? 1.0
                         : 0.0,
-                    child: SearchBody(),
+                    child: SearchBody(vm),
                     duration: Duration(milliseconds: 250),
                   ),
                 ),
@@ -70,25 +67,3 @@ class HomeTabState extends State<HomeTab> {
     );
   }
 }
-
-class HomeBody extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black,
-      alignment: Alignment.topCenter,
-      child: Padding(
-        padding:
-            EdgeInsets.only(top: MediaQuery.of(context).padding.top + 54 + 8),
-        child: Text(
-          "Home",
-          style: TextStyle(
-            fontSize: 50,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-

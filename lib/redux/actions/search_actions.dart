@@ -40,7 +40,8 @@ ThunkAction<AppState> searchQueryAction(String query) {
 
     try {
       List<VocaDBAlbum> albums = await searchAlbums(query, maxResults: 50);
-      store.dispatch(ReceivedSearchQueryResultsAction(albums, []));
+      List<VocaDBSong> songs = await searchSongs(query, maxResults: 50);
+      store.dispatch(ReceivedSearchQueryResultsAction(albums, songs));
     } on NotConnectedException {
       store.dispatch(
         ErrorQueryingSearchAction(

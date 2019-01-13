@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -17,21 +19,21 @@ class AlbumArt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      child: CachedNetworkImage(
-        imageUrl: albumImageUrl ?? '',
-        placeholder: AlbumPlaceholder(size: size),
-        errorWidget: AlbumPlaceholder(size: size),
-        width: size,
-        fadeInCurve: Curves.ease,
-        fadeOutCurve: Curves.ease,
-        height: size,
-        fit: BoxFit.contain,
-        loadedCallback: loadedCallback,
-        failedCallback: failedCallback,
-      ),
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return CachedNetworkImage(
+          imageUrl: albumImageUrl ?? '',
+          placeholder: AlbumPlaceholder(size: min(constraints.maxWidth, size)),
+          errorWidget: AlbumPlaceholder(size: min(constraints.maxWidth, size)),
+          width: min(size, constraints.maxWidth),
+          fadeInCurve: Curves.ease,
+          fadeOutCurve: Curves.ease,
+          height: min(size, constraints.maxHeight),
+          fit: BoxFit.contain,
+          loadedCallback: loadedCallback,
+          failedCallback: failedCallback,
+        );
+      },
     );
   }
 }
@@ -47,12 +49,19 @@ class AlbumPlaceholder extends StatelessWidget {
     return Container(
       width: size,
       height: size,
+      alignment: Alignment.center,
       decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.grey.shade800,
-          ),
-          color: Colors.grey.shade900),
-      child: Icon(Icons.album, color: Colors.grey.shade800, size: size * 0.75),
+        border: Border.all(
+          color: Colors.grey.shade800,
+        ),
+        color: Colors.grey.shade900,
+      ),
+      child: Icon(
+        Icons.album,
+//        color: Colors.grey.shade800,
+        color: Theme.of(context).primaryColor,
+        size: size * 0.75,
+      ),
     );
   }
 }

@@ -4,12 +4,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:connectivity/connectivity.dart';
+import 'package:vocaloid_player/model/vocadb/vocadb_song.dart';
 
 final String BASE_URL = 'https://vocadb.net/api';
 
 Future<http.Response> _handleErrors(Function request) async {
   // Check connection
-  var connectivityResult = await (new Connectivity().checkConnectivity());
+  var connectivityResult = await (Connectivity().checkConnectivity());
   if (connectivityResult == ConnectivityResult.none)
     throw NotConnectedException();
 
@@ -45,11 +46,23 @@ Future<VocaDBAlbum> getAlbum(int id) async {
 Future<List<VocaDBAlbum>> searchAlbums(String query,
     {int maxResults = 10}) async {
   final String url =
-      '${BASE_URL}/albums?query=${Uri.encodeComponent(query)}&maxResults=${maxResults.clamp(1, 50)}&nameMatchMode=Auto&fields=MainPicture,Tracks&songFields=MainPicture,PVs';
+      '${BASE_URL}/albums?query=${Uri.encodeComponent(query)}&maxResults=${maxResults.clamp(1, 50)}&nameMatchMode=Auto&fields=MainPicture,Tracks&songFields=MainPicture,PVs&sort=RatingScore';
   final http.Response resp = await _handleErrors(() => http.get(url));
   Map<String, dynamic> jsonData =
       json.decode(resp.body) as Map<String, dynamic>;
   return List<Map<String, dynamic>>.from(jsonData['items'] ?? [])
       .map<VocaDBAlbum>((rawAlbum) => VocaDBAlbum.fromJson(rawAlbum))
+      .toList();
+}
+
+Future<List<VocaDBSong>> searchSongs(String query,
+    {int maxResults = 10}) async {
+  final String url =
+      '${BASE_URL}/songs?query=${Uri.encodeComponent(query)}&maxResults=${maxResults.clamp(1, 50)}&nameMatchMode=Auto&fields=MainPicture,PVs&sort=RatingScore';
+  final http.Response resp = await _handleErrors(() => http.get(url));
+  Map<String, dynamic> jsonData =
+      json.decode(resp.body) as Map<String, dynamic>;
+  return List<Map<String, dynamic>>.from(jsonData['items'] ?? [])
+      .map<VocaDBSong>((rawSong) => VocaDBSong.fromJson(rawSong))
       .toList();
 }

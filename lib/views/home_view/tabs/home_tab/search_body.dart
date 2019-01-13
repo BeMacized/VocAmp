@@ -6,55 +6,145 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'package:vocaloid_player/globals.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_album.dart';
+import 'package:vocaloid_player/model/vocadb/vocadb_song.dart';
 import 'package:vocaloid_player/redux/app_state.dart';
 import 'package:vocaloid_player/redux/states/search_state.dart';
+import 'package:vocaloid_player/views/home_view/tabs/home_tab/home_tab_model.dart';
 import 'package:vocaloid_player/widgets/album_art.dart';
 
 class SearchBody extends StatelessWidget {
+  final HomeTabModel vm;
+
+  SearchBody(this.vm);
+
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<AppState, SearchState>(
-      converter: (Store<AppState> store) => store.state.searchState,
-      builder: (BuildContext context, SearchState vm) {
-        return Container(
-          color: Colors.black,
-          child: CustomScrollView(
-            slivers: _buildSlivers(context, vm),
-          ),
-        );
-      },
+    return Container(
+      color: Colors.black,
+      child: CustomScrollView(
+        slivers: _buildSlivers(context, vm),
+      ),
     );
   }
 
-  List<Widget> _buildSlivers(BuildContext context, SearchState vm) {
+  ListTile _buildSongListTile(
+    BuildContext context,
+    HomeTabModel vm,
+    VocaDBSong song,
+  ) {
+    bool enabled = song.isAvailable ?? false;
+
+    List<PopupMenuEntry<String>> menuItems = [];
+    if (enabled)
+      menuItems.addAll(
+        [
+          const PopupMenuItem<String>(
+            value: 'QUEUE',
+            child: ListTile(
+              title: Text('Queue Song'),
+            ),
+          ),
+          const PopupMenuItem<String>(
+            value: 'PLAY_NEXT',
+            child: ListTile(
+              title: Text('Play Next'),
+            ),
+          ),
+        ],
+      );
+
+    return ListTile(
+      title: song.name == null
+          ? null
+          : Text(
+              song.name,
+              style: vm.isSongActive(song)
+                  ? TextStyle(
+                      color: Theme.of(context).primaryColor,
+                    )
+                  : null,
+              softWrap: false,
+              overflow: TextOverflow.ellipsis,
+            ),
+      subtitle: song.artistString == null
+          ? null
+          : Text(
+              song.artistString,
+              softWrap: false,
+              overflow: TextOverflow.ellipsis,
+            ),
+      onTap: () => vm.playSongSearchResults(song),
+      enabled: enabled,
+      trailing: menuItems.length > 0
+          ? PopupMenuButton<String>(
+              onSelected: (item) {
+                switch (item) {
+                  case 'QUEUE':
+                    vm.queueSong(context, song);
+                    break;
+                  case 'PLAY_NEXT':
+                    vm.playSongNext(context, song);
+                    break;
+                }
+              },
+              itemBuilder: (BuildContext context) => menuItems,
+            )
+          : null,
+    );
+  }
+
+  List<Widget> _buildSlivers(BuildContext context, HomeTabModel vm) {
     List<Widget> slivers = [
       SearchHeader(
         child: Container(height: 54),
       ),
     ];
-    //TODO: Songs
+
+    // Songs
+    if (vm.searchState.songResults.length > 0) {
+      slivers.add(
+        ResultBlock(
+          title: "Songs",
+          childCount: vm.searchState.songResults.length,
+          builder: (BuildContext context, int index) => _buildSongListTile(
+                context,
+                vm,
+                vm.searchState.songResults[index],
+              ),
+        ),
+      );
+    }
 
     // Albums
-    slivers.add(
-      ResultBlock(
-        title: "Albums",
-        childCount: vm.albumResults.length,
-        maxItems: 5,
-        builder: (BuildContext context, int index) {
-          VocaDBAlbum album = vm.albumResults[index];
-          return ListTile(
-            leading: AlbumArt(
-              albumImageUrl: album.mainPicture?.urlThumb,
-              size: 48,
-            ),
-            title: Text(album.name),
-            subtitle: Text(album.artistString),
-            onTap: () => Application.navigator
-                .pushNamed('/album/' + album.id.toString()),
-          );
-        },
-      ),
-    );
+    if (vm.searchState.albumResults.length > 0) {
+      slivers.add(
+        ResultBlock(
+          title: "Albums",
+          childCount: vm.searchState.albumResults.length,
+          builder: (BuildContext context, int index) {
+            VocaDBAlbum album = vm.searchState.albumResults[index];
+            return ListTile(
+              leading: AlbumArt(
+                albumImageUrl: album.mainPicture?.urlThumb,
+                size: 48,
+              ),
+              title: Text(
+                album.name,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
+              ),
+              subtitle: Text(
+                album.artistString,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
+              ),
+              onTap: () => Application.navigator
+                  .pushNamed('/album/' + album.id.toString()),
+            );
+          },
+        ),
+      );
+    }
 
     //TODO: Artists
     return slivers;
@@ -96,7 +186,7 @@ class ResultBlock extends StatefulWidget {
     @required this.title,
     @required this.builder,
     @required this.childCount,
-    this.maxItems = 5,
+    this.maxItems = 4,
   }) : super(key: key);
 
   @override
