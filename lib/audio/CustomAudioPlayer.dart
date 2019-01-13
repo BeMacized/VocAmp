@@ -115,13 +115,16 @@ class CustomAudioPlayer {
 
   Future<void> play() async {
     if (_cursor < _queue.length) {
-      await _setState(basicState: BasicPlaybackState.playing);
+      _setState(basicState: BasicPlaybackState.playing);
       MediaItem item = _queue[_cursor];
       String streamUrl = _songCache?.playUrl;
       if (streamUrl == null || _songCache.mediaId != item.id) {
         streamUrl = await _getUrlForMedia(_queue[_cursor]);
         _songCache = SongCache(item.id, streamUrl);
       }
+      // If by this point we are not playing the current item anymore, don't start anyways
+      if (this._basicState != BasicPlaybackState.playing || _queue[_cursor].id != item.id) return;
+      // Start playing audio
       AudioServiceBackground.androidForceEnableMediaButtons();
       await _audioPlayer.play(streamUrl);
     }
