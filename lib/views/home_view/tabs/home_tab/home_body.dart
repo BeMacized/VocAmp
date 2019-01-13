@@ -68,7 +68,7 @@ class HomeBodyState extends State<HomeBody> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Colors.black.withOpacity(0.1),
+                    Colors.transparent,
                     Colors.black.withOpacity(1)
                   ],
                   begin: Alignment.topCenter,
@@ -82,6 +82,7 @@ class HomeBodyState extends State<HomeBody> {
     );
 
     // Random Popular Albums
+    slivers.add(AlbumRow(widget.vm));
     slivers.add(AlbumRow(widget.vm));
     return slivers;
   }

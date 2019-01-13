@@ -37,7 +37,6 @@ Future<http.Response> _handleErrors(Function request) async {
 }
 
 Future<List<VocaDBAlbum>> getRandomTopAlbums() async {
-  print("GET RANDOM");
   final String url =
       '${BASE_URL}/albums/top?fields=MainPicture,Tracks&sort=RatingScore';
   final http.Response resp = await _handleErrors(() => http.get(url));
@@ -47,7 +46,6 @@ Future<List<VocaDBAlbum>> getRandomTopAlbums() async {
 }
 
 Future<VocaDBAlbum> getAlbum(int id) async {
-  print("GET ALBUM");
   final String url =
       '${BASE_URL}/albums/${id}?fields=MainPicture,Tracks&songFields=MainPicture,PVs';
   final http.Response resp = await _handleErrors(() => http.get(url));

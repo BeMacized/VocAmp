@@ -1,9 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:vocaloid_player/globals.dart';
 import 'package:vocaloid_player/views/album_view/album_view_model.dart';
 import 'package:vocaloid_player/widgets/album_art.dart';
+import 'package:vocaloid_player/widgets/scrolling_text.dart';
 
 class AlbumHeader extends StatelessWidget {
   final AlbumViewModel vm;
@@ -100,7 +102,11 @@ class _AlbumHeaderContentState extends State<AlbumHeaderContent> {
 
   Future<void> _refreshFadeColor({ImageProvider imageProvider}) async {
     if (imageProvider == null) return Colors.grey.shade800;
-    await Future.delayed(Duration(milliseconds: 100)); // Wait for imageProvider
+    // Await load
+    ImageStreamCompleter completer =
+        (imageProvider as CachedNetworkImageProvider).load(imageProvider);
+    await completer;
+    // Generate color
     PaletteGenerator gen =
         await PaletteGenerator.fromImageProvider(imageProvider);
     setState(() {
@@ -182,7 +188,8 @@ class _AlbumHeaderContentState extends State<AlbumHeaderContent> {
                               child: Column(
                                 children: <Widget>[
                                   AlbumArt(
-                                    albumImageUrl: widget.vm.album?.mainPicture?.urlThumb,
+                                    albumImageUrl:
+                                        widget.vm.album?.mainPicture?.urlThumb,
                                     size: 150,
                                     loadedCallback: (imageProvider) =>
                                         _refreshFadeColor(
@@ -196,32 +203,39 @@ class _AlbumHeaderContentState extends State<AlbumHeaderContent> {
                           Padding(
                             padding: const EdgeInsets.only(
                                 top: 16, left: 16, right: 16),
-                            child: widget.vm.album?.name != null
-                                ? Text(
-                                    widget.vm.album.name,
-                                    softWrap: false,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                : null,
+                            child: Container(
+                              height: 38,
+                              child: widget.vm.album?.name != null
+                                  ? ScrollingText(
+                                      TextSpan(
+                                        text: widget.vm.album.name,
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    )
+                                  : null,
+                            ),
                           ),
                           Padding(
                             padding: const EdgeInsets.only(
                                 top: 8, left: 16, right: 16),
-                            child: widget.vm.album?.artistString != null
-                                ? Text(
-                                    "ALBUM BY " + widget.vm.album.artistString,
-                                    softWrap: false,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.white.withOpacity(0.75),
-                                    ),
-                                  )
-                                : null,
+                            child: Container(
+                              height: 20,
+                              child: widget.vm.album?.artistString != null
+                                  ? ScrollingText(
+                                      TextSpan(
+                                        text: widget.vm.album.artistString,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white.withOpacity(0.75),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    )
+                                  : null,
+                            ),
                           ),
                         ],
                       ),
