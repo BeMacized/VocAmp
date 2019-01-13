@@ -28,7 +28,7 @@ class AlbumArt extends StatelessWidget {
           width: min(size, constraints.maxWidth),
           fadeInCurve: Curves.ease,
           fadeOutCurve: Curves.ease,
-          height: min(size, constraints.maxHeight),
+          height: min(size, constraints.maxWidth),
           fit: BoxFit.contain,
           loadedCallback: loadedCallback,
           failedCallback: failedCallback,
