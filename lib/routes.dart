@@ -2,7 +2,6 @@ import 'package:fluro/fluro.dart';
 import 'package:flutter/widgets.dart';
 import 'package:vocaloid_player/globals.dart';
 import 'package:vocaloid_player/redux/actions/album_actions.dart';
-import 'package:vocaloid_player/redux/actions/home_actions.dart';
 import 'package:vocaloid_player/views/album_view/album_view.dart';
 import 'package:vocaloid_player/views/home_view/home_view.dart';
 import 'package:vocaloid_player/views/player_view/player_view.dart';
@@ -38,7 +37,6 @@ class Routes {
 
 final Handler rootHandler = Handler(
   handlerFunc: (BuildContext context, Map<String, List<String>> params) {
-    Application.store.dispatch(loadHomeTopAlbumsAction());
     return HomeView();
   },
 );

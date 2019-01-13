@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:vocaloid_player/globals.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_album.dart';
+import 'package:vocaloid_player/redux/actions/home_actions.dart';
 import 'package:vocaloid_player/views/home_view/tabs/home_tab/home_tab_model.dart';
 import 'package:vocaloid_player/widgets/album_art.dart';
 import 'package:vocaloid_player/widgets/press_animation.dart';
@@ -23,6 +24,7 @@ class HomeBodyState extends State<HomeBody> {
   @override
   void initState() {
     _scrollController = ScrollController();
+    Application.store.dispatch(loadHomeTopAlbumsAction());
     super.initState();
   }
 
