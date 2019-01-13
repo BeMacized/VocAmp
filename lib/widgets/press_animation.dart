@@ -49,6 +49,7 @@ class _PressAnimationState extends State<PressAnimation>
               _controller.reverse();
             }
           : null,
+      onTapCancel: _controller.reverse,
       onTap: widget.onTap,
       child: AnimatedBuilder(
         animation: _animation,
