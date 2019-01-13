@@ -21,9 +21,9 @@ class AlbumHeader extends StatelessWidget {
       elevation: 0,
       backgroundColor: Colors.transparent,
       brightness: Brightness.dark,
-      title: vm.title != null
+      title: vm.album?.name != null
           ? Text(
-              vm.title,
+              vm.album.name,
               style: TextStyle(color: Colors.white.withAlpha(255)),
             )
           : null,
@@ -181,7 +181,7 @@ class _AlbumHeaderContentState extends State<AlbumHeaderContent> {
                               child: Column(
                                 children: <Widget>[
                                   AlbumArt(
-                                    albumImageUrl: widget.vm.albumImageUrl,
+                                    albumImageUrl: widget.vm.album?.mainPicture?.urlThumb,
                                     size: 150,
                                     loadedCallback: (imageProvider) =>
                                         _refreshFadeColor(
@@ -195,9 +195,9 @@ class _AlbumHeaderContentState extends State<AlbumHeaderContent> {
                           Padding(
                             padding: const EdgeInsets.only(
                                 top: 16, left: 16, right: 16),
-                            child: widget.vm.title != null
+                            child: widget.vm.album?.name != null
                                 ? Text(
-                                    widget.vm.title,
+                                    widget.vm.album.name,
                                     softWrap: false,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
@@ -210,9 +210,9 @@ class _AlbumHeaderContentState extends State<AlbumHeaderContent> {
                           Padding(
                             padding: const EdgeInsets.only(
                                 top: 8, left: 16, right: 16),
-                            child: widget.vm.artistsString != null
+                            child: widget.vm.album?.artistString != null
                                 ? Text(
-                                    "ALBUM BY " + widget.vm.artistsString,
+                                    "ALBUM BY " + widget.vm.album.artistString,
                                     softWrap: false,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(

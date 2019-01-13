@@ -26,9 +26,69 @@ class SearchBody extends StatelessWidget {
     );
   }
 
+  ListTile _buildAlbumListTile(BuildContext context, VocaDBAlbum album) {
+    List<PopupMenuEntry<String>> menuItems = [
+      const PopupMenuItem<String>(
+        value: 'PLAY',
+        child: ListTile(
+          title: Text('Play Now'),
+        ),
+      ),
+      const PopupMenuItem<String>(
+        value: 'QUEUE',
+        child: ListTile(
+          title: Text('Queue Album'),
+        ),
+      ),
+      const PopupMenuItem<String>(
+        value: 'PLAY_NEXT',
+        child: ListTile(
+          title: Text('Play Next'),
+        ),
+      ),
+    ];
+
+    return ListTile(
+      leading: AlbumArt(
+        albumImageUrl: album.mainPicture?.urlThumb,
+        size: 48,
+      ),
+      title: Text(
+        album.name,
+        softWrap: false,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Text(
+        album.artistString,
+        softWrap: false,
+        overflow: TextOverflow.ellipsis,
+      ),
+      onTap: () => Application.navigator.pushNamed(
+            '/album/' + album.id.toString(),
+          ),
+      trailing: menuItems.length > 0
+          ? PopupMenuButton<String>(
+              onSelected: (item) {
+                switch (item) {
+                  case 'QUEUE':
+                    vm.queueAlbum(context, album);
+                    break;
+                  case 'PLAY_NEXT':
+                    vm.playAlbumNext(context, album);
+                    break;
+                  case 'PLAY':
+                    vm.playAlbum(context, album);
+                    break;
+                }
+              },
+              itemBuilder: (BuildContext context) => menuItems,
+            )
+          : null,
+    );
+  }
+
   ListTile _buildSongListTile(
     BuildContext context,
-    HomeTabModel vm,
     VocaDBSong song,
   ) {
     bool enabled = song.isAvailable ?? false;
@@ -148,7 +208,6 @@ class SearchBody extends StatelessWidget {
           childCount: vm.searchState.songResults.length,
           builder: (BuildContext context, int index) => _buildSongListTile(
                 context,
-                vm,
                 vm.searchState.songResults[index],
               ),
         ),
@@ -161,27 +220,10 @@ class SearchBody extends StatelessWidget {
         ResultBlock(
           title: "Albums",
           childCount: vm.searchState.albumResults.length,
-          builder: (BuildContext context, int index) {
-            VocaDBAlbum album = vm.searchState.albumResults[index];
-            return ListTile(
-              leading: AlbumArt(
-                albumImageUrl: album.mainPicture?.urlThumb,
-                size: 48,
+          builder: (BuildContext context, int index) => _buildAlbumListTile(
+                context,
+                vm.searchState.albumResults[index],
               ),
-              title: Text(
-                album.name,
-                softWrap: false,
-                overflow: TextOverflow.ellipsis,
-              ),
-              subtitle: Text(
-                album.artistString,
-                softWrap: false,
-                overflow: TextOverflow.ellipsis,
-              ),
-              onTap: () => Application.navigator
-                  .pushNamed('/album/' + album.id.toString()),
-            );
-          },
         ),
       );
     }

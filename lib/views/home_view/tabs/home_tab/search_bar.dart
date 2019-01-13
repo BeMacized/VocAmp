@@ -28,6 +28,7 @@ class SearchBarState extends State<SearchBar> with TickerProviderStateMixin {
 
   bool get isFocused => widget._searchFocusNode.hasFocus;
   Timer _searchDebounceTimer;
+  String _lastSearch;
 
   @override
   void initState() {
@@ -62,6 +63,8 @@ class SearchBarState extends State<SearchBar> with TickerProviderStateMixin {
   _onSearchChanged() {
     if (_searchDebounceTimer?.isActive ?? false) _searchDebounceTimer.cancel();
     _searchDebounceTimer = Timer(const Duration(milliseconds: 500), () {
+      if (_lastSearch == _searchEditingController.text) return;
+      _lastSearch = _searchEditingController.text;
       Application.store
           .dispatch(searchQueryAction(_searchEditingController.text));
     });

@@ -4,6 +4,7 @@ import 'package:redux/redux.dart';
 import 'package:vocaloid_player/globals.dart';
 import 'package:vocaloid_player/model/queued_song.dart';
 import 'package:vocaloid_player/model/status_data.dart';
+import 'package:vocaloid_player/model/vocadb/vocadb_album.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_song.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_songinalbum.dart';
 import 'package:vocaloid_player/redux/app_state.dart';
@@ -43,47 +44,16 @@ class AlbumViewModelTrack {
 }
 
 class AlbumViewModel {
+  VocaDBAlbum album;
   StatusData errorState;
-  int albumId;
-  String title;
-  String albumImageUrl;
-  String artistsString;
   Map<int, List<AlbumViewModelTrack>> discs;
   bool loading = true;
 
-  AlbumViewModel(
-      {this.albumId,
-      this.title,
-      this.albumImageUrl,
-      this.artistsString,
-      this.discs,
-      this.loading,
-      this.errorState});
+  AlbumViewModel({this.album, this.discs, this.loading, this.errorState});
 
-  static String _generateContextId(int songId, int albumId) {
+  static String generateContextId(int songId, int albumId) {
     if (songId == null || albumId == null) return null;
     return 'ALBUM_' + albumId.toString() + '_' + songId.toString();
-  }
-
-  List<QueuedSong> _buildQueuedSongs() {
-    // Merge discs && filter to playable tracks
-    List<VocaDBSong> items = discs.values
-        .expand((songs) => songs)
-        .where((song) => song.song != null && song.song.isAvailable)
-        .map((song) => song.song)
-        .toList();
-    // Generate songs for queueing
-    List<QueuedSong> queue = items
-        .map<QueuedSong>(
-          (song) => QueuedSong.fromSong(
-                song,
-                albumName: title,
-                albumArtUrl: albumImageUrl,
-                contextId: _generateContextId(song.id, albumId),
-              ),
-        )
-        .toList();
-    return queue;
   }
 
   int _getQueueIndexForTrack(AlbumViewModelTrack track) {
@@ -104,9 +74,9 @@ class AlbumViewModel {
     await Application.audioManager.queueSong(
       QueuedSong.fromSong(
         track.song,
-        albumName: title,
-        albumArtUrl: albumImageUrl,
-        contextId: _generateContextId(track.song.id, albumId),
+        albumName: album.name,
+        albumArtUrl: album.mainPicture?.urlThumb,
+        contextId: generateContextId(track.song.id, album.id),
       ),
     );
     // Show toast
@@ -122,9 +92,9 @@ class AlbumViewModel {
     await Application.audioManager.playSongNext(
       QueuedSong.fromSong(
         track.song,
-        albumName: title,
-        albumArtUrl: albumImageUrl,
-        contextId: _generateContextId(track.song.id, albumId),
+        albumName: album.name,
+        albumArtUrl: album.mainPicture?.urlThumb,
+        contextId: generateContextId(track.song.id, album.id),
       ),
     );
     // Show toast
@@ -136,8 +106,9 @@ class AlbumViewModel {
   queueAlbum(BuildContext context) async {
     // Determine if we should start playing after queueing depending on if the queue was empty
     bool startPlay = Application.store.state.playerState.queue.length == 0;
-    // Queue songs
-    await Application.audioManager.queueSongs(_buildQueuedSongs());
+    List<QueuedSong> queue =
+        album.buildQueuedSongs((song) => generateContextId(song.id, album.id));
+    await Application.audioManager.queueSongs(queue);
     // Show toast
     CenterToast.showToast(context, icon: Icons.queue, text: 'Album queued');
     // Start
@@ -148,7 +119,9 @@ class AlbumViewModel {
     // Determine if we should start playing after queueing depending on if the queue was empty
     bool startPlay = Application.store.state.playerState.queue.length == 0;
     // Queue songs
-    await Application.audioManager.playSongsNext(_buildQueuedSongs());
+    List<QueuedSong> queue =
+        album.buildQueuedSongs((song) => generateContextId(song.id, album.id));
+    await Application.audioManager.playSongsNext(queue);
     // Show toast
     CenterToast.showToast(context, icon: Icons.queue, text: 'Album plays next');
     // Start
@@ -156,7 +129,8 @@ class AlbumViewModel {
   }
 
   playAlbum({AlbumViewModelTrack track}) async {
-    List<QueuedSong> queue = _buildQueuedSongs();
+    List<QueuedSong> queue =
+        album.buildQueuedSongs((song) => generateContextId(song.id, album.id));
     int cursor = _getQueueIndexForTrack(track);
     // Set Queue
     await Application.audioManager.setQueue(queue, cursor);
@@ -177,7 +151,7 @@ class AlbumViewModel {
 
       mapSongToViewModel(VocaDBSongInAlbum song) {
         bool active = currentSongContextId != null &&
-            _generateContextId(song.song?.id, state.album?.id) ==
+            generateContextId(song.song?.id, state.album?.id) ==
                 currentSongContextId;
 
         return AlbumViewModelTrack.fromVocaDBSongInAlbum(
@@ -195,11 +169,8 @@ class AlbumViewModel {
     }
 
     return AlbumViewModel(
-      albumId: state.album?.id,
+      album: state.album,
       loading: state.loading,
-      title: state.album?.name,
-      albumImageUrl: state.album?.mainPicture?.urlThumb,
-      artistsString: state.album?.artistString,
       discs: discs,
       errorState: state.errorState,
     );
