@@ -52,8 +52,11 @@ class VocaDBSong {
       if (b?.releaseDate?.dateTime == null) return -1;
       return a.releaseDate.dateTime.compareTo(b.releaseDate.dateTime);
     });
-    print(_albums.map<DateTime>((a) => a?.releaseDate?.dateTime).toList());
     return _albums[0];
+  }
+
+  String get artUrl {
+    return firstAlbum?.albumArtUrl ?? mainPicture?.urlThumb;
   }
 
   factory VocaDBSong.fromJson(Map<String, dynamic> json) {

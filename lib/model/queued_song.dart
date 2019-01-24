@@ -35,7 +35,7 @@ class QueuedSong {
         title: song.name,
         album: album?.name ?? '',
         artist: song.artistString,
-        artUri: album?.albumArtUrl ?? '',
+        artUri: album?.albumArtUrl ?? song.artUrl,
       ),
       contextId: contextId,
     );

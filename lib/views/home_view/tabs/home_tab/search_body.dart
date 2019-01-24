@@ -139,7 +139,8 @@ class SearchBodyState extends State<SearchBody> {
           ? null
           : Text(
               song.name,
-              style: widget.vm.isSongActive(song)
+              style: widget.vm.generateSearchContextId(song) ==
+                      widget.vm.currentSongContextId
                   ? TextStyle(
                       color: Theme.of(context).primaryColor,
                     )
@@ -154,17 +155,22 @@ class SearchBodyState extends State<SearchBody> {
               softWrap: false,
               overflow: TextOverflow.ellipsis,
             ),
-      onTap: () => widget.vm.playSongSearchResults(song),
+      onTap: () => widget.vm.playSongInList(
+          song,
+          widget.vm.searchState.songResults,
+          widget.vm.generateSearchContextId(song)),
       enabled: enabled,
       trailing: menuItems.length > 0
           ? PopupMenuButton<String>(
               onSelected: (item) {
                 switch (item) {
                   case 'QUEUE':
-                    widget.vm.queueSong(context, song);
+                    widget.vm.queueSong(
+                        context, song, widget.vm.generateSearchContextId(song));
                     break;
                   case 'PLAY_NEXT':
-                    widget.vm.playSongNext(context, song);
+                    widget.vm.playSongNext(
+                        context, song, widget.vm.generateSearchContextId(song));
                     break;
                 }
               },
@@ -229,9 +235,9 @@ class SearchBodyState extends State<SearchBody> {
           title: "Albums",
           childCount: widget.vm.searchState.albumResults.length,
           builder: (BuildContext context, int index) => _buildAlbumListTile(
-            context,
-            widget.vm.searchState.albumResults[index],
-          ),
+                context,
+                widget.vm.searchState.albumResults[index],
+              ),
         ),
       );
     }

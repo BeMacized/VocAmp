@@ -25,13 +25,14 @@ class HomeTabModel {
     @required this.currentSongContextId,
   });
 
-  static String _generateContextId(int songId) {
-    if (songId == null) return null;
-    return 'SEARCH_' + songId.toString();
+  String generateSearchContextId(VocaDBSong song) {
+    if (song == null) return null;
+    return 'SEARCH_' + song.id.toString();
   }
 
-  bool isSongActive(VocaDBSong song) {
-    return _generateContextId(song.id) == currentSongContextId;
+  String generateHighlightedSongContextId(VocaDBSong song) {
+    if (song == null) return null;
+    return 'HOME_HIGHLIGHTED_' + song.id.toString();
   }
 
   static HomeTabModel fromStore(Store<AppState> store) {
@@ -43,23 +44,23 @@ class HomeTabModel {
         currentSongContextId: currentSongContextId);
   }
 
-  playSongSearchResults(VocaDBSong song) async {
-    List<QueuedSong> queue = searchState.songResults
+  playSongInList(VocaDBSong song, List<VocaDBSong> list, String contextId) async {
+    List<QueuedSong> queue = list
         .where((song) => song.isAvailable)
         .map<QueuedSong>((song) {
       return QueuedSong.fromSong(
         song,
         song.firstAlbum,
-        contextId: _generateContextId(song.id),
+        contextId: contextId,
       );
     }).toList();
-    int cursor = searchState.songResults.indexOf(song);
+    int cursor = list.indexOf(song);
     // Set Queue
     await Application.audioManager.setQueue(queue, cursor);
     await Application.audioManager.play();
   }
 
-  void queueSong(BuildContext context, VocaDBSong song) async {
+  void queueSong(BuildContext context, VocaDBSong song, String contextId) async {
     // Determine if we should start playing after queueing depending on if the queue was empty
     bool startPlay = Application.store.state.player.queue.length == 0;
     // Queue track
@@ -67,7 +68,7 @@ class HomeTabModel {
       QueuedSong.fromSong(
         song,
         song.firstAlbum,
-        contextId: _generateContextId(song.id),
+        contextId: contextId
       ),
     );
     // Show toast
@@ -76,7 +77,7 @@ class HomeTabModel {
     if (startPlay) await Application.audioManager.play();
   }
 
-  void playSongNext(BuildContext context, VocaDBSong song) async {
+  void playSongNext(BuildContext context, VocaDBSong song, String contextId) async {
     // Determine if we should start playing after queueing depending on if the queue was empty
     bool startPlay = Application.store.state.player.queue.length == 0;
     // Insert into queue
@@ -84,7 +85,7 @@ class HomeTabModel {
       QueuedSong.fromSong(
         song,
         song.firstAlbum,
-        contextId: _generateContextId(song.id),
+        contextId: contextId,
       ),
     );
     // Show toast

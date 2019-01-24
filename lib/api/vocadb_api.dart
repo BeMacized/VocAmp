@@ -79,7 +79,7 @@ Future<List<VocaDBSong>> searchSongs(String query,
 
 Future<List<VocaDBSong>> getHighlightedSongs() async {
   final String url =
-      '${BASE_URL}/songs/highlighted?fields=fields=MainPicture,PVs,Albums';
+      '${BASE_URL}/songs/highlighted?fields=MainPicture,PVs,Albums';
   final http.Response resp = await _handleErrors(() => http.get(url));
   return List<Map<String, dynamic>>.from(json.decode(resp.body))
       .map<VocaDBSong>((rawAlbum) => VocaDBSong.fromJson(rawAlbum))
