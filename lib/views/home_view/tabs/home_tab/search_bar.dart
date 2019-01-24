@@ -80,80 +80,91 @@ class SearchBarState extends State<SearchBar> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (BuildContext context, Widget child) {
-        return Padding(
-          padding: EdgeInsets.only(
-              top: _animation.value * MediaQuery.of(context).padding.top),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: _animation.value * 12,
-              vertical: _animation.value * 12,
-            ),
-            child: PhysicalModel(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(_animation.value * 8),
-              clipBehavior: Clip.antiAlias,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => FocusScope.of(context)
-                    .requestFocus(widget._searchFocusNode),
-                child: Material(
-                  color: Colors.white.withOpacity(0.4),
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                        top: (1 - _animation.value) *
-                            MediaQuery.of(context).padding.top),
-                    child: Container(
-                      height: (1 - _animation.value) * 20 + 38,
-                      alignment: Alignment.center,
-                      child: Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.only(left: 24),
-                              child: Theme(
-                                data: Theme.of(context)
-                                    .copyWith(splashColor: Colors.transparent),
-                                child: TextField(
-                                  controller: _searchEditingController,
-                                  cursorColor: Colors.white,
-                                  focusNode: widget._searchFocusNode,
-                                  decoration: InputDecoration.collapsed(
-                                    hintText: 'Search',
+    return WillPopScope(
+      onWillPop: () async {
+        if (_searchEditingController.value.text.length > 0) {
+          _searchEditingController.clear();
+          widget._searchFocusNode.unfocus();
+          _onFocusChange();
+          return false;
+        }
+        return true;
+      },
+      child: AnimatedBuilder(
+        animation: _animation,
+        builder: (BuildContext context, Widget child) {
+          return Padding(
+            padding: EdgeInsets.only(
+                top: _animation.value * MediaQuery.of(context).padding.top),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: _animation.value * 12,
+                vertical: _animation.value * 12,
+              ),
+              child: PhysicalModel(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(_animation.value * 8),
+                clipBehavior: Clip.antiAlias,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => FocusScope.of(context)
+                      .requestFocus(widget._searchFocusNode),
+                  child: Material(
+                    color: Colors.white.withOpacity(0.4),
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                          top: (1 - _animation.value) *
+                              MediaQuery.of(context).padding.top),
+                      child: Container(
+                        height: (1 - _animation.value) * 20 + 38,
+                        alignment: Alignment.center,
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 24),
+                                child: Theme(
+                                  data: Theme.of(context)
+                                      .copyWith(splashColor: Colors.transparent),
+                                  child: TextField(
+                                    controller: _searchEditingController,
+                                    cursorColor: Colors.white,
+                                    focusNode: widget._searchFocusNode,
+                                    decoration: InputDecoration.collapsed(
+                                      hintText: 'Search',
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          AnimatedOpacity(
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.clear,
+                            AnimatedOpacity(
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.clear,
+                                ),
+                                onPressed: () {
+                                  _searchEditingController.clear();
+                                  widget._searchFocusNode.unfocus();
+                                  _onFocusChange();
+                                },
                               ),
-                              onPressed: () {
-                                _searchEditingController.clear();
-                                widget._searchFocusNode.unfocus();
-                                _onFocusChange();
-                              },
+                              duration: Duration(milliseconds: 250),
+                              opacity:
+                                  _searchEditingController.value.text.length > 0
+                                      ? 1.0
+                                      : 0.0,
                             ),
-                            duration: Duration(milliseconds: 250),
-                            opacity:
-                                _searchEditingController.value.text.length > 0
-                                    ? 1.0
-                                    : 0.0,
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
