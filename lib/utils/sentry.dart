@@ -29,6 +29,8 @@ bool get isInDebugMode {
 }
 
 Future<void> reportError(dynamic error, dynamic stackTrace) async {
+  // TODO: HACKY FIX FOR UNHANDLEABLE ERRORS FROM CACHED NETWORK IMAGE DEPENDENCY
+  if (error == "Couldn't download or retreive file.") return;
   // Print the exception to the console
   print('Caught error: $error');
   // Show crash view
