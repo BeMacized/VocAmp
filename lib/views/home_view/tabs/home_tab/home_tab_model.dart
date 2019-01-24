@@ -54,7 +54,7 @@ class HomeTabModel {
         contextId: contextId,
       );
     }).toList();
-    int cursor = list.indexOf(song);
+    int cursor = list.where((song) => song.isAvailable).toList().indexOf(song);
     // Set Queue
     await Application.audioManager.setQueue(queue, cursor);
     await Application.audioManager.play();
