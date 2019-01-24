@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'dart:isolate';
+import 'dart:ui';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:yt_audiostream/yt_audiostream.dart';
 import 'package:vocaloid_player/audio/MediaSource.dart';
 import 'package:vocaloid_player/utils/mediaitem_utils.dart';
+
+const String BG_AUDIO_ERROR_PORT = "BG_AUDIO_ERROR_PORT";
 
 enum RepeatMode { NONE, ALL, SINGLE }
 
@@ -27,16 +31,24 @@ class CustomAudioPlayer {
   SongCache _songCache;
   Duration _position = Duration(seconds: 0);
   BasicPlaybackState _basicState = BasicPlaybackState.paused;
+  SendPort errorPort;
 
   Future<void> start() async {
     print("[CustomAudioPlayer] RUNNING");
+    // Lookup error port
+    errorPort = IsolateNameServer.lookupPortByName(BG_AUDIO_ERROR_PORT);
+    // initialize audio service default state
     this._setState();
+    // Listen for audio position changes
     StreamSubscription<Duration> positionSubscription = _audioPlayer
         .onAudioPositionChanged
         .listen((position) => _setState(position: position));
+    // Listen for audio player changes
     StreamSubscription<AudioPlayerState> audioPlayerStateSubscription =
         _audioPlayer.onPlayerStateChanged.listen(_onPlayerStateChange);
+    // Await completer to block task ending
     await _completer.future;
+    // Clean up subscriptions before task end
     positionSubscription.cancel();
     audioPlayerStateSubscription.cancel();
   }
@@ -119,11 +131,17 @@ class CustomAudioPlayer {
       MediaItem item = _queue[_cursor];
       String streamUrl = _songCache?.playUrl;
       if (streamUrl == null || _songCache.mediaId != item.id) {
-        streamUrl = await _getUrlForMedia(_queue[_cursor]);
+        try {
+          streamUrl = await _getUrlForMedia(_queue[_cursor]);
+        } catch (e) {
+          // Is already being sent over error port in _getUrlForMedia method
+          return;
+        }
         _songCache = SongCache(item.id, streamUrl);
       }
       // If by this point we are not playing the current item anymore, don't start anyways
-      if (this._basicState != BasicPlaybackState.playing || _queue[_cursor].id != item.id) return;
+      if (this._basicState != BasicPlaybackState.playing ||
+          _queue[_cursor].id != item.id) return;
       // Start playing audio
       AudioServiceBackground.androidForceEnableMediaButtons();
       await _audioPlayer.play(streamUrl);
@@ -296,8 +314,10 @@ class CustomAudioPlayer {
 
   Future<String> _getUrlForMedia(MediaItem item) async {
     if (!_sourceMap.containsKey(item.id)) {
-      throw Exception(
+      Exception e = Exception(
           "No source was provided for media item '" + item.title + "'");
+      errorPort.send(e);
+      throw e;
     }
     MediaSource source = _sourceMap[item.id];
     switch (source.type) {
@@ -305,35 +325,22 @@ class CustomAudioPlayer {
         {
           try {
             return await YTAudioStream.getAudioStream(source.url);
-          } on ContentUnavailableException catch (e) {
-            print("YTERR5");
-            print(e);
-            return Future.error(e);
-          } on AudioUnavailableException catch (e) {
-            print("YTERR4");
-            print(e);
-            return Future.error(e);
-          } on RecaptchaLimitException catch (e) {
-            print("YTERR3");
-            print(e);
-            return Future.error(e);
-          } on CantReachException catch (e) {
-            print("YTERR2");
-            print(e);
+          } on YTStreamError catch (e) {
+            errorPort.send(e.toMap());
             return Future.error(e);
           } catch (e) {
-            print("YTERR1");
-            print(source.url);
-            print(e);
+            errorPort.send({'code': 'Unknown Error', 'str': e.toString()});
             return Future.error(e);
           }
           break;
         }
       default:
         {
-          throw Exception("Source type '" +
+          Exception e = Exception("Source type '" +
               source.type.toString() +
               "' not yet implemented");
+          errorPort.send(e);
+          throw e;
         }
     }
   }

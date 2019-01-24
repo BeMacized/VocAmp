@@ -47,7 +47,11 @@ class HomeTabModel {
     List<QueuedSong> queue = searchState.songResults
         .where((song) => song.isAvailable)
         .map<QueuedSong>((song) {
-      return QueuedSong.fromSong(song, contextId: _generateContextId(song.id));
+      return QueuedSong.fromSong(
+        song,
+        contextId: _generateContextId(song.id),
+        albumArtUrl: song.mainPicture?.urlThumb,
+      );
     }).toList();
     int cursor = searchState.songResults.indexOf(song);
     // Set Queue
@@ -63,6 +67,7 @@ class HomeTabModel {
       QueuedSong.fromSong(
         song,
         contextId: _generateContextId(song.id),
+        albumArtUrl: song.mainPicture?.urlThumb,
       ),
     );
     // Show toast
@@ -79,6 +84,7 @@ class HomeTabModel {
       QueuedSong.fromSong(
         song,
         contextId: _generateContextId(song.id),
+        albumArtUrl: song.mainPicture?.urlThumb,
       ),
     );
     // Show toast
@@ -135,7 +141,8 @@ class HomeTabModel {
     if (startPlay) await Application.audioManager.play();
   }
 
-  playAlbum(BuildContext context, VocaDBAlbum album, {AlbumViewModelTrack track}) async {
+  playAlbum(BuildContext context, VocaDBAlbum album,
+      {AlbumViewModelTrack track}) async {
     try {
       album = await getAlbum(album.id);
     } on NotConnectedException {

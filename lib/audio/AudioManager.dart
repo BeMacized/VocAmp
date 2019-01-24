@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:isolate';
+import 'dart:ui';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:vocaloid_player/audio/CustomAudioPlayer.dart';
@@ -7,15 +9,23 @@ import 'package:vocaloid_player/globals.dart';
 import 'package:vocaloid_player/model/queued_song.dart';
 import 'package:vocaloid_player/redux/actions/player_actions.dart';
 import 'package:vocaloid_player/utils/mediaitem_utils.dart';
+import 'package:vocaloid_player/utils/sentry.dart';
+import 'package:yt_audiostream/yt_audiostream.dart';
 
 class AudioManager {
   List<QueuedSong> _queueCache;
   StreamSubscription<PlaybackState> _playbackStateSubscription;
   StreamSubscription<List<MediaItem>> _queueChangedSubscription;
   StreamSubscription<MediaItem> _mediaChangedSubscription;
+  ReceivePort errorPort;
 
   AudioManager() {
     _queueCache = [];
+    // Initialize receive port
+    errorPort = ReceivePort();
+    IsolateNameServer.registerPortWithName(
+        errorPort.sendPort, BG_AUDIO_ERROR_PORT);
+    errorPort.listen(_handleBGException);
   }
 
   Future<void> connect() async {
@@ -208,6 +218,16 @@ class AudioManager {
         notificationColor: 0xFFFFFFFF,
         androidNotificationIcon: 'mipmap/ic_launcher',
       );
+    }
+  }
+
+  void _handleBGException(dynamic e) {
+    if (e is Exception) {
+      reportError(e, null);
+    } else {
+      YTStreamError err = YTStreamError.fromMap(e as Map<String, String>);
+      //TODO: HANDLE SOME POSSIBLE ERRORS
+      reportError(err.toString(), err.stacktrace);
     }
   }
 }

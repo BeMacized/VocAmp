@@ -1,11 +1,28 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:vocaloid_player/globals.dart';
 import 'package:vocaloid_player/redux/app_state.dart';
 import 'package:vocaloid_player/routes.dart';
+import 'package:vocaloid_player/utils/sentry.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  FlutterError.onError = (FlutterErrorDetails details) {
+    if (isInDebugMode) {
+      FlutterError.dumpErrorToConsole(details);
+    } else {
+      Zone.current.handleUncaughtError(details.exception, details.stack);
+    }
+  };
+
+  runZoned<Future<void>>(() async {
+    runApp(MyApp());
+  }, onError: (error, stackTrace) {
+    reportError(error, stackTrace);
+  });
+}
 
 class MyApp extends StatefulWidget {
   @override
