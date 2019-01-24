@@ -25,6 +25,7 @@ class HomeBodyState extends State<HomeBody> {
   void initState() {
     _scrollController = ScrollController();
     Application.store.dispatch(loadHomeTopAlbumsAction());
+    Application.store.dispatch(loadHomeHighlightedSongsAction());
     super.initState();
   }
 
@@ -67,10 +68,7 @@ class HomeBodyState extends State<HomeBody> {
               height: 200,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(1)
-                  ],
+                  colors: [Colors.transparent, Colors.black.withOpacity(1)],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
@@ -100,10 +98,10 @@ class AlbumRow extends StatelessWidget {
   Widget _buildList(BuildContext context, double height, double albumSize) {
     return ListView.separated(
       scrollDirection: Axis.horizontal,
-      itemCount: vm.homeState.topAlbums.length,
+      itemCount: vm.homeState.topAlbums.albums.length,
       padding: EdgeInsets.symmetric(horizontal: padding),
       itemBuilder: (context, index) {
-        VocaDBAlbum album = vm.homeState.topAlbums[index];
+        VocaDBAlbum album = vm.homeState.topAlbums.albums[index];
         return PressAnimation(
           onTap: () =>
               Application.navigator.pushNamed('/album/' + album.id.toString()),
@@ -172,7 +170,7 @@ class AlbumRow extends StatelessWidget {
                   height: height,
                   child: _buildList(context, height, albumSize),
                 ),
-                crossFadeState: vm.homeState.loadingTopAlbums
+                crossFadeState: vm.homeState.topAlbums.loading
                     ? CrossFadeState.showFirst
                     : CrossFadeState.showSecond,
                 duration: Duration(milliseconds: 300),

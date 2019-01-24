@@ -6,22 +6,22 @@ import 'package:vocaloid_player/redux/states/player_state.dart';
 import 'package:vocaloid_player/redux/states/search_state.dart';
 
 class AppState {
-  final AlbumState albumState;
-  final PlayerState playerState;
-  final HomeState homeState;
-  final SearchState searchState;
+  final AlbumState album;
+  final PlayerState player;
+  final HomeState home;
+  final SearchState search;
 
   AppState({
-    @required this.albumState,
-    @required this.playerState,
-    @required this.homeState,
-    @required this.searchState,
+    @required this.album,
+    @required this.player,
+    @required this.home,
+    @required this.search,
   });
 
   factory AppState.initial() => AppState(
-        albumState: AlbumState.initial(),
-        playerState: PlayerState.initial(),
-        homeState: HomeState.initial(),
-        searchState: SearchState.initial(),
+        album: AlbumState.initial(),
+        player: PlayerState.initial(),
+        home: HomeState.initial(),
+        search: SearchState.initial(),
       );
 }

@@ -17,7 +17,7 @@ class QueueViewModel {
 
   static QueueViewModel fromStore(Store<AppState> store) {
     return QueueViewModel(
-      playerState: store.state.playerState,
+      playerState: store.state.player,
     );
   }
 

@@ -36,10 +36,10 @@ class HomeTabModel {
 
   static HomeTabModel fromStore(Store<AppState> store) {
     String currentSongContextId =
-        store.state.playerState.currentSong?.contextId;
+        store.state.player.currentSong?.contextId;
     return HomeTabModel(
-        searchState: store.state.searchState,
-        homeState: store.state.homeState,
+        searchState: store.state.search,
+        homeState: store.state.home,
         currentSongContextId: currentSongContextId);
   }
 
@@ -61,7 +61,7 @@ class HomeTabModel {
 
   void queueSong(BuildContext context, VocaDBSong song) async {
     // Determine if we should start playing after queueing depending on if the queue was empty
-    bool startPlay = Application.store.state.playerState.queue.length == 0;
+    bool startPlay = Application.store.state.player.queue.length == 0;
     // Queue track
     await Application.audioManager.queueSong(
       QueuedSong.fromSong(
@@ -78,7 +78,7 @@ class HomeTabModel {
 
   void playSongNext(BuildContext context, VocaDBSong song) async {
     // Determine if we should start playing after queueing depending on if the queue was empty
-    bool startPlay = Application.store.state.playerState.queue.length == 0;
+    bool startPlay = Application.store.state.player.queue.length == 0;
     // Insert into queue
     await Application.audioManager.playSongNext(
       QueuedSong.fromSong(
@@ -106,7 +106,7 @@ class HomeTabModel {
       return;
     }
     // Determine if we should start playing after queueing depending on if the queue was empty
-    bool startPlay = Application.store.state.playerState.queue.length == 0;
+    bool startPlay = Application.store.state.player.queue.length == 0;
     // Queue songs
     List<QueuedSong> queue = album.buildQueuedSongs(
         (song) => AlbumViewModel.generateContextId(song.id, album.id));
@@ -130,7 +130,7 @@ class HomeTabModel {
       return;
     }
     // Determine if we should start playing after queueing depending on if the queue was empty
-    bool startPlay = Application.store.state.playerState.queue.length == 0;
+    bool startPlay = Application.store.state.player.queue.length == 0;
     // Queue songs
     List<QueuedSong> queue = album.buildQueuedSongs(
         (song) => AlbumViewModel.generateContextId(song.id, album.id));

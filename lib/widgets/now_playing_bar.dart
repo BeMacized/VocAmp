@@ -42,7 +42,7 @@ class NowPlayingBarState extends State<NowPlayingBar> {
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, _ViewModel>(converter: (store) {
-      return _ViewModel(store.state.playerState, store.dispatch);
+      return _ViewModel(store.state.player, store.dispatch);
     }, builder: (context, vm) {
       double progressValue = 0;
       if (vm.playerState.state == BasicPlaybackState.buffering)

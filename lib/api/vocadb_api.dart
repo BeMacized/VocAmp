@@ -42,7 +42,8 @@ Future<List<VocaDBAlbum>> getRandomTopAlbums() async {
   final http.Response resp = await _handleErrors(() => http.get(url));
   return List<Map<String, dynamic>>.from(json.decode(resp.body))
       .map<VocaDBAlbum>((rawAlbum) => VocaDBAlbum.fromJson(rawAlbum))
-      .toList()..shuffle();
+      .toList()
+        ..shuffle();
 }
 
 Future<VocaDBAlbum> getAlbum(int id) async {
@@ -73,5 +74,14 @@ Future<List<VocaDBSong>> searchSongs(String query,
       json.decode(resp.body) as Map<String, dynamic>;
   return List<Map<String, dynamic>>.from(jsonData['items'] ?? [])
       .map<VocaDBSong>((rawSong) => VocaDBSong.fromJson(rawSong))
+      .toList();
+}
+
+Future<List<VocaDBSong>> getHighlightedSongs() async {
+  final String url =
+      '${BASE_URL}/songs/highlighted?fields=fields=MainPicture,PVs,Albums';
+  final http.Response resp = await _handleErrors(() => http.get(url));
+  return List<Map<String, dynamic>>.from(json.decode(resp.body))
+      .map<VocaDBSong>((rawAlbum) => VocaDBSong.fromJson(rawAlbum))
       .toList();
 }

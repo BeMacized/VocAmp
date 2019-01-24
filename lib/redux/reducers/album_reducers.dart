@@ -18,5 +18,5 @@ AlbumState loadedAlbumReducer(AlbumState state, LoadedAlbumAction action) {
 
 AlbumState errorLoadingAlbumReducer(
     AlbumState state, ErrorLoadingAlbumAction action) {
-  return AlbumState(loading: false, errorState: action.errorState);
+  return AlbumState(loading: false, error: action.errorState);
 }

@@ -1,44 +1,37 @@
 import 'package:meta/meta.dart';
 import 'package:vocaloid_player/model/status_data.dart';
 import 'package:vocaloid_player/model/vocadb/vocadb_album.dart';
+import 'package:vocaloid_player/model/vocadb/vocadb_song.dart';
+import 'package:vocaloid_player/redux/states/home_highlighted_songs_state.dart';
+import 'package:vocaloid_player/redux/states/home_top_albums_state.dart';
 
 class HomeState {
-  int tab;
-  bool loadingTopAlbums;
-  List<VocaDBAlbum> topAlbums;
-  StatusData errorState;
+  final int tab;
 
-  HomeState(
-      {@required this.tab,
-      @required this.loadingTopAlbums,
-      @required this.topAlbums,
-      this.errorState});
+  final HomeTopAlbumsState topAlbums;
+  final HomeHighlightedSongsState highlightedSongs;
+
+  HomeState({
+    @required this.tab,
+    @required this.topAlbums,
+    @required this.highlightedSongs,
+  });
 
   HomeState copyWith({
     int tab,
-    bool loadingTopAlbums,
-    List<VocaDBAlbum> topAlbums,
-    StatusData errorState,
+    HomeTopAlbumsState topAlbums,
+    HomeHighlightedSongsState highlightedSongs,
   }) {
     return HomeState(
       tab: tab ?? this.tab,
-      loadingTopAlbums: loadingTopAlbums ?? this.loadingTopAlbums,
+      highlightedSongs: highlightedSongs ?? this.highlightedSongs,
       topAlbums: topAlbums ?? this.topAlbums,
-      errorState: errorState ?? this.errorState,
-    );
-  }
-
-  HomeState copyWithoutError() {
-    return HomeState(
-      tab: tab,
-      loadingTopAlbums: loadingTopAlbums,
-      topAlbums: topAlbums,
     );
   }
 
   factory HomeState.initial() => HomeState(
         tab: 0,
-        loadingTopAlbums: false,
-        topAlbums: [],
+        topAlbums: HomeTopAlbumsState.initial(),
+        highlightedSongs: HomeHighlightedSongsState.initial(),
       );
 }

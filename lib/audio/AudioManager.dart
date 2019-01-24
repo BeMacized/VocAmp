@@ -46,7 +46,7 @@ class AudioManager {
       var cb = (queue) {
         List<QueuedSong> newQueue = queue
             .map<QueuedSong>((mediaItem) =>
-                Application.store.state.playerState.queue.singleWhere(
+                Application.store.state.player.queue.singleWhere(
                   (song) => song.id == mediaItem.id,
                   orElse: () => _queueCache
                       .singleWhere((song) => song.id == mediaItem.id),
@@ -65,7 +65,7 @@ class AudioManager {
       var cb = (mediaItem) {
         if (mediaItem == null) return;
         // Match with queued song
-        QueuedSong song = Application.store.state.playerState.queue
+        QueuedSong song = Application.store.state.player.queue
             .singleWhere((song) => song.id == mediaItem.id, orElse: () => null);
         // If it exists, dispatch change action. If the duration is known, dispatch that too
         if (song != null) {
@@ -130,7 +130,7 @@ class AudioManager {
 
   Future<void> cycleRepeatMode() async {
     int newIndex = RepeatMode.values
-            .indexOf(Application.store.state.playerState.repeatMode) +
+            .indexOf(Application.store.state.player.repeatMode) +
         1;
     if (newIndex >= RepeatMode.values.length) newIndex = 0;
     setRepeatMode(RepeatMode.values[newIndex]);
@@ -142,7 +142,7 @@ class AudioManager {
   }
 
   Future<void> toggleShuffleMode() async {
-    await setShuffleMode(!Application.store.state.playerState.shuffle);
+    await setShuffleMode(!Application.store.state.player.shuffle);
   }
 
   Future<void> playSongNext(QueuedSong song) async {
@@ -150,8 +150,8 @@ class AudioManager {
   }
 
   Future<void> playSongsNext(List<QueuedSong> songs) async {
-    int index = Application.store.state.playerState.queueIndex + 1;
-    while (index > Application.store.state.playerState.queue.length) index--;
+    int index = Application.store.state.player.queueIndex + 1;
+    while (index > Application.store.state.player.queue.length) index--;
     await queueSongs(songs, index: index);
   }
 

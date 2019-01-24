@@ -14,7 +14,7 @@ class MainNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, int>(
-      converter: (Store<AppState> store) => store.state.homeState.tab,
+      converter: (Store<AppState> store) => store.state.home.tab,
       builder: (BuildContext context, tabIndex) {
         return Theme(
           data: Theme.of(context).copyWith(canvasColor: Colors.grey.shade900),

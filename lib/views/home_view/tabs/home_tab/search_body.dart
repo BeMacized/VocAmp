@@ -182,11 +182,11 @@ class SearchBodyState extends State<SearchBody> {
     ];
 
     // Query error
-    if (widget.vm.searchState.errorState != null) {
+    if (widget.vm.searchState.error != null) {
       slivers.add(
         SliverFillRemainingBoxAdapter(
           child: StatusView(
-            widget.vm.searchState.errorState,
+            widget.vm.searchState.error,
           ),
         ),
       );

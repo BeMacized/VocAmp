@@ -4,7 +4,7 @@ import 'package:vocaloid_player/model/vocadb/vocadb_song.dart';
 import 'package:vocaloid_player/model/status_data.dart';
 
 class SearchState {
-  StatusData errorState;
+  StatusData error;
   final bool loading;
   String query;
   List<VocaDBAlbum> albumResults;
@@ -20,7 +20,7 @@ class SearchState {
     @required this.albumResults,
     @required this.songResults,
     @required this.query,
-    this.errorState,
+    this.error,
   });
 
   SearchState copyWith({
@@ -34,7 +34,7 @@ class SearchState {
       loading: loading ?? this.loading,
       albumResults: albumResults ?? this.albumResults,
       songResults: songResults ?? this.songResults,
-      errorState: errorState ?? this.errorState,
+      error: errorState ?? this.error,
       query: query ?? this.query,
     );
   }

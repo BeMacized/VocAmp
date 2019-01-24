@@ -11,7 +11,7 @@ class HomeViewTabController extends TabController {
   HomeViewTabController({@required int length, @required TickerProvider vsync})
       : super(length: length, vsync: vsync) {
     _tabSubscription = Application.store.onChange
-        .map<int>((state) => state.homeState.tab)
+        .map<int>((state) => state.home.tab)
         .distinct()
         .listen((tab) => super.index = tab);
   }

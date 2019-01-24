@@ -12,7 +12,7 @@ class QueuedSong {
 
   String get id => mediaItem.id;
 
-  int get index => Application.store.state.playerState.queue
+  int get index => Application.store.state.player.queue
       .indexWhere((song) => song.id == id);
 
   QueuedSong(this.song, this.album, this.mediaItem, {this.contextId});

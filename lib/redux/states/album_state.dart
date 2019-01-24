@@ -4,18 +4,18 @@ import 'package:vocaloid_player/model/status_data.dart';
 
 class AlbumState {
   final bool loading;
-  final StatusData errorState;
+  final StatusData error;
   final VocaDBAlbum album;
 
   AlbumState({
     @required this.loading,
     this.album,
-    this.errorState,
+    this.error,
   });
 
   factory AlbumState.initial() => AlbumState(
         loading: false,
         album: null,
-        errorState: null,
+        error: null,
       );
 }

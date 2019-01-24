@@ -69,7 +69,7 @@ class AlbumViewModel {
 
   queueTrack(BuildContext context, AlbumViewModelTrack track) async {
     // Determine if we should start playing after queueing depending on if the queue was empty
-    bool startPlay = Application.store.state.playerState.queue.length == 0;
+    bool startPlay = Application.store.state.player.queue.length == 0;
     // Queue track
     await Application.audioManager.queueSong(
       QueuedSong.fromSong(
@@ -86,7 +86,7 @@ class AlbumViewModel {
 
   playTrackNext(BuildContext context, AlbumViewModelTrack track) async {
     // Determine if we should start playing after queueing depending on if the queue was empty
-    bool startPlay = Application.store.state.playerState.queue.length == 0;
+    bool startPlay = Application.store.state.player.queue.length == 0;
     // Insert into queue
     await Application.audioManager.playSongNext(
       QueuedSong.fromSong(
@@ -103,7 +103,7 @@ class AlbumViewModel {
 
   queueAlbum(BuildContext context) async {
     // Determine if we should start playing after queueing depending on if the queue was empty
-    bool startPlay = Application.store.state.playerState.queue.length == 0;
+    bool startPlay = Application.store.state.player.queue.length == 0;
     List<QueuedSong> queue =
         album.buildQueuedSongs((song) => generateContextId(song.id, album.id));
     await Application.audioManager.queueSongs(queue);
@@ -115,7 +115,7 @@ class AlbumViewModel {
 
   playAlbumNext(BuildContext context) async {
     // Determine if we should start playing after queueing depending on if the queue was empty
-    bool startPlay = Application.store.state.playerState.queue.length == 0;
+    bool startPlay = Application.store.state.player.queue.length == 0;
     // Queue songs
     List<QueuedSong> queue =
         album.buildQueuedSongs((song) => generateContextId(song.id, album.id));
@@ -136,9 +136,9 @@ class AlbumViewModel {
   }
 
   static AlbumViewModel fromStore(Store<AppState> store) {
-    AlbumState state = store.state.albumState;
+    AlbumState state = store.state.album;
     String currentSongContextId =
-        store.state.playerState.currentSong?.contextId;
+        store.state.player.currentSong?.contextId;
 
     Map<int, List<AlbumViewModelTrack>> discs = null;
 
@@ -170,7 +170,7 @@ class AlbumViewModel {
       album: state.album,
       loading: state.loading,
       discs: discs,
-      errorState: state.errorState,
+      errorState: state.error,
     );
   }
 }

@@ -10,6 +10,6 @@ class PlayerViewModel {
   });
 
   static PlayerViewModel fromStore(Store<AppState> store) {
-    return PlayerViewModel(playerState: store.state.playerState);
+    return PlayerViewModel(playerState: store.state.player);
   }
 }
