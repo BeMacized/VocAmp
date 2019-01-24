@@ -55,7 +55,7 @@ Future<VocaDBAlbum> getAlbum(int id) async {
 Future<List<VocaDBAlbum>> searchAlbums(String query,
     {int maxResults = 10}) async {
   final String url =
-      '${BASE_URL}/albums?query=${Uri.encodeComponent(query)}&maxResults=${maxResults.clamp(1, 50)}&nameMatchMode=Auto&fields=MainPicture,Tracks&sort=RatingScore';
+      '${BASE_URL}/albums?query=${Uri.encodeComponent(query)}&maxResults=${maxResults.clamp(1, 50)}&nameMatchMode=Auto&fields=Tracks&sort=RatingScore';
   final http.Response resp = await _handleErrors(() => http.get(url));
   Map<String, dynamic> jsonData =
       json.decode(resp.body) as Map<String, dynamic>;
@@ -67,7 +67,7 @@ Future<List<VocaDBAlbum>> searchAlbums(String query,
 Future<List<VocaDBSong>> searchSongs(String query,
     {int maxResults = 10}) async {
   final String url =
-      '${BASE_URL}/songs?query=${Uri.encodeComponent(query)}&maxResults=${maxResults.clamp(1, 50)}&nameMatchMode=Auto&fields=MainPicture,PVs&sort=RatingScore&onlyWithPvs=true';
+      '${BASE_URL}/songs?query=${Uri.encodeComponent(query)}&maxResults=${maxResults.clamp(1, 50)}&nameMatchMode=Auto&fields=MainPicture,PVs,Albums&sort=RatingScore&onlyWithPvs=true';
   final http.Response resp = await _handleErrors(() => http.get(url));
   Map<String, dynamic> jsonData =
       json.decode(resp.body) as Map<String, dynamic>;

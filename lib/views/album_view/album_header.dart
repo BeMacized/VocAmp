@@ -1,9 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:vocaloid_player/globals.dart';
-import 'package:vocaloid_player/utils/sentry.dart';
 import 'package:vocaloid_player/views/album_view/album_view_model.dart';
 import 'package:vocaloid_player/widgets/album_art.dart';
 import 'package:vocaloid_player/widgets/scrolling_text.dart';
@@ -111,13 +109,13 @@ class _AlbumHeaderContentState extends State<AlbumHeaderContent> {
     if (this.mounted) {
       setState(() {
         fadeColor = (gen.vibrantColor ??
-            gen.darkVibrantColor ??
-            gen.lightVibrantColor ??
-            gen.mutedColor ??
-            gen.darkMutedColor ??
-            gen.lightMutedColor ??
-            gen.dominantColor)
-            ?.color ??
+                    gen.darkVibrantColor ??
+                    gen.lightVibrantColor ??
+                    gen.mutedColor ??
+                    gen.darkMutedColor ??
+                    gen.lightMutedColor ??
+                    gen.dominantColor)
+                ?.color ??
             Colors.grey.shade800;
         this.gen = gen;
       });
@@ -189,8 +187,7 @@ class _AlbumHeaderContentState extends State<AlbumHeaderContent> {
                               child: Column(
                                 children: <Widget>[
                                   AlbumArt(
-                                    albumImageUrl:
-                                        widget.vm.album?.mainPicture?.urlThumb,
+                                    albumImageUrl: widget.vm.album?.albumArtUrl,
                                     size: 150,
                                     loadedCallback: (imageProvider) =>
                                         _refreshFadeColor(

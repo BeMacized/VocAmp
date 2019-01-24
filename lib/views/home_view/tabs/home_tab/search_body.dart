@@ -72,7 +72,7 @@ class SearchBodyState extends State<SearchBody> {
 
     return ListTile(
       leading: AlbumArt(
-        albumImageUrl: album.mainPicture?.urlThumb,
+        albumImageUrl: album.albumArtUrl,
         size: 48,
       ),
       title: Text(

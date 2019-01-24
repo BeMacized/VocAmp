@@ -49,8 +49,8 @@ class HomeTabModel {
         .map<QueuedSong>((song) {
       return QueuedSong.fromSong(
         song,
+        song.firstAlbum,
         contextId: _generateContextId(song.id),
-        albumArtUrl: song.mainPicture?.urlThumb,
       );
     }).toList();
     int cursor = searchState.songResults.indexOf(song);
@@ -66,8 +66,8 @@ class HomeTabModel {
     await Application.audioManager.queueSong(
       QueuedSong.fromSong(
         song,
+        song.firstAlbum,
         contextId: _generateContextId(song.id),
-        albumArtUrl: song.mainPicture?.urlThumb,
       ),
     );
     // Show toast
@@ -83,8 +83,8 @@ class HomeTabModel {
     await Application.audioManager.playSongNext(
       QueuedSong.fromSong(
         song,
+        song.firstAlbum,
         contextId: _generateContextId(song.id),
-        albumArtUrl: song.mainPicture?.urlThumb,
       ),
     );
     // Show toast

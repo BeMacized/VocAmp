@@ -113,7 +113,7 @@ class AlbumRow extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 AlbumArt(
-                  albumImageUrl: album.mainPicture?.urlThumb,
+                  albumImageUrl: album.albumArtUrl,
                   size: albumSize,
                 ),
                 Padding(

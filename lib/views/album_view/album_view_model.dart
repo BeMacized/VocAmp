@@ -74,8 +74,7 @@ class AlbumViewModel {
     await Application.audioManager.queueSong(
       QueuedSong.fromSong(
         track.song,
-        albumName: album.name,
-        albumArtUrl: album.mainPicture?.urlThumb,
+        album,
         contextId: generateContextId(track.song.id, album.id),
       ),
     );
@@ -92,8 +91,7 @@ class AlbumViewModel {
     await Application.audioManager.playSongNext(
       QueuedSong.fromSong(
         track.song,
-        albumName: album.name,
-        albumArtUrl: album.mainPicture?.urlThumb,
+        album,
         contextId: generateContextId(track.song.id, album.id),
       ),
     );
