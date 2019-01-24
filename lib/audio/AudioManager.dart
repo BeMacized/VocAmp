@@ -45,12 +45,15 @@ class AudioManager {
     if (_queueChangedSubscription == null) {
       var cb = (queue) {
         List<QueuedSong> newQueue = queue
-            .map<QueuedSong>((mediaItem) =>
-                Application.store.state.player.queue.singleWhere(
-                  (song) => song.id == mediaItem.id,
-                  orElse: () => _queueCache
-                      .singleWhere((song) => song.id == mediaItem.id),
-                ))
+            .map<QueuedSong>(
+              (mediaItem) => Application.store.state.player.queue.singleWhere(
+                    (song) => song.id == mediaItem.id,
+                    orElse: () => _queueCache.singleWhere(
+                        (song) => song.id == mediaItem.id,
+                        orElse: () => null),
+                  ),
+            )
+            .where((v) => v != null)
             .toList();
         // Remove songs from cache
         queue.forEach((mediaItem) =>
@@ -129,9 +132,9 @@ class AudioManager {
   }
 
   Future<void> cycleRepeatMode() async {
-    int newIndex = RepeatMode.values
-            .indexOf(Application.store.state.player.repeatMode) +
-        1;
+    int newIndex =
+        RepeatMode.values.indexOf(Application.store.state.player.repeatMode) +
+            1;
     if (newIndex >= RepeatMode.values.length) newIndex = 0;
     setRepeatMode(RepeatMode.values[newIndex]);
   }

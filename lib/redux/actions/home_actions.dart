@@ -128,8 +128,6 @@ ThunkAction<AppState> loadHomeTopAlbumsAction() {
     // Dispatch loading action
     store.dispatch(LoadingHomeTopAlbumsAction());
 
-    await Future.delayed(Duration(seconds: 3));
-
     try {
       List<VocaDBAlbum> albums = await getRandomTopAlbums();
       store.dispatch(LoadedHomeTopAlbumsAction(albums));
