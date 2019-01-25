@@ -7,6 +7,7 @@ import 'package:audioplayer/audioplayer.dart';
 import 'package:yt_audiostream/yt_audiostream.dart';
 import 'package:vocaloid_player/audio/MediaSource.dart';
 import 'package:vocaloid_player/utils/mediaitem_utils.dart';
+import 'package:stream_transform/stream_transform.dart';
 
 const String BG_AUDIO_ERROR_PORT = "BG_AUDIO_ERROR_PORT";
 
@@ -40,8 +41,7 @@ class CustomAudioPlayer {
     // initialize audio service default state
     this._setState();
     // Listen for audio position changes
-    StreamSubscription<Duration> positionSubscription = _audioPlayer
-        .onAudioPositionChanged
+    StreamSubscription<Duration> positionSubscription = _audioPlayer.onAudioPositionChanged.transform(throttle(Duration(seconds: 1)))
         .listen((position) => _setState(position: position));
     // Listen for audio player changes
     StreamSubscription<AudioPlayerState> audioPlayerStateSubscription =
@@ -252,12 +252,12 @@ class CustomAudioPlayer {
           );
           AudioServiceBackground.setMediaItem(_queue[_cursor]);
         }
+
         _setState(
           basicState: BasicPlaybackState.playing,
         );
         break;
       case AudioPlayerState.COMPLETED:
-        print("[DEBUG] " + state.toString());
         _setState(
             position: Duration(seconds: 0),
             basicState: BasicPlaybackState.stopped);
@@ -268,17 +268,14 @@ class CustomAudioPlayer {
         }
         break;
       case AudioPlayerState.LOADING:
-        print("[DEBUG] " + state.toString());
         _setState(basicState: BasicPlaybackState.buffering);
         break;
       case AudioPlayerState.STOPPED:
-        print("[DEBUG] " + state.toString());
         _setState(
           basicState: BasicPlaybackState.stopped,
         );
         break;
       case AudioPlayerState.PAUSED:
-        print("[DEBUG] " + state.toString());
         _setState(
           basicState: BasicPlaybackState.paused,
         );
@@ -288,6 +285,8 @@ class CustomAudioPlayer {
 
   Future<void> _setState(
       {Duration position, BasicPlaybackState basicState}) async {
+    // Don't do unnecessary updates
+    if (basicState != null && position == null && this._basicState == basicState) return;
     // set position & state
     this._position = position ?? this._position;
     this._basicState = basicState ?? this._basicState;
@@ -309,7 +308,9 @@ class CustomAudioPlayer {
     await AudioServiceBackground.setState(
         controls: controls,
         basicState: basicState ?? this._basicState,
-        position: this._position.inMilliseconds);
+        position: this._position.inMilliseconds,
+        updateTime: position != null ? DateTime.now().millisecondsSinceEpoch : null
+    );
   }
 
   Future<String> _getUrlForMedia(MediaItem item) async {

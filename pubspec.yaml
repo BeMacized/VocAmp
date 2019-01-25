@@ -27,6 +27,7 @@ dependencies:
   connectivity: ^0.3.2
   sentry: ^2.2.0
   package_info: ^0.3.2+1
+  stream_transform: ^0.0.14+1
   sliver_fill_remaining_box_adapter: ^0.1.1
   yt_audiostream:
     git:
