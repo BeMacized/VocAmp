@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:vocaloid_player/globals.dart';
-import 'package:vocaloid_player/model/vocadb/vocadb_album.dart';
+import 'package:vocaloid_player/model/status_data.dart';
 import 'package:vocaloid_player/redux/actions/home_actions.dart';
-import 'package:vocaloid_player/redux/states/home_top_albums_state.dart';
 import 'package:vocaloid_player/views/home_view/tabs/home_tab/album_row.dart';
 import 'package:vocaloid_player/views/home_view/tabs/home_tab/home_tab_model.dart';
 import 'package:vocaloid_player/views/home_view/tabs/home_tab/songs_list.dart';
-import 'package:vocaloid_player/widgets/album_art.dart';
-import 'package:vocaloid_player/widgets/press_animation.dart';
+import 'package:vocaloid_player/widgets/status_view.dart';
 
 class HomeBody extends StatefulWidget {
   final HomeTabModel vm;
@@ -40,17 +38,26 @@ class HomeBodyState extends State<HomeBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black,
-      alignment: Alignment.topCenter,
-      child: CustomScrollView(
-        controller: _scrollController,
-        slivers: _buildSlivers(context),
+    StatusData loadError = widget.vm.homeState.topAlbums.error ??
+        widget.vm.homeState.highlightedSongs.error;
+
+    List<Widget> children = [
+      Container(
+        color: Colors.black,
+        alignment: Alignment.topCenter,
+        child: CustomScrollView(
+          controller: _scrollController,
+          slivers: _buildSlivers(context, loadError != null),
+        ),
       ),
-    );
+    ];
+
+    if (loadError != null) children.add(StatusView(loadError));
+
+    return Stack(children: children);
   }
 
-  List<Widget> _buildSlivers(BuildContext context) {
+  List<Widget> _buildSlivers(BuildContext context, bool error) {
     List<Widget> slivers = [];
 
     // Image Header
@@ -82,11 +89,13 @@ class HomeBodyState extends State<HomeBody> {
       ),
     );
 
-    // Random Popular Albums
-    slivers.add(AlbumRow(widget.vm.homeState.topAlbums));
+    if (!error) {
+      // Random Popular Albums
+      slivers.add(AlbumRow(widget.vm.homeState.topAlbums));
+      // Highlighted Songs
+      slivers.add(SongsList(widget.vm));
+    }
 
-    // Highlighted Songs
-    slivers.add(SongsList(widget.vm));
     return slivers;
   }
 }
