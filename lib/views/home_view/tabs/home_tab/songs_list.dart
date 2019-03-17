@@ -31,16 +31,19 @@ class SongsList extends StatelessWidget {
     ];
 
     return PressAnimation(
-      onTap: () => vm.playSongInList(
-            song,
-            vm.homeState.highlightedSongs.songs,
-            vm.generateHighlightedSongContextId(song),
-          ),
+      onTap: song.isAvailable
+          ? () => vm.playSongInList(
+                song,
+                vm.homeState.highlightedSongs.songs,
+                vm.generateHighlightedSongContextId(song),
+              )
+          : null,
       child: ListTile(
         leading: AlbumArt(
           albumImageUrl: song.artUrl,
           size: 48,
         ),
+        enabled: song.isAvailable,
         title: Text(
           song.name,
           style: vm.generateHighlightedSongContextId(song) ==

@@ -177,7 +177,6 @@ class _ScrollingTextState extends State<ScrollingText>
     List<Widget> rowChildren = [text];
     // If we are animating, we add a spacer and another text object
     if (shouldAnimate) {
-//      rowChildren.insert(0, Container(width: widget.fadeLength));
       rowChildren.addAll([
         Container(width: widget.spacerWidth),
         text,
@@ -187,6 +186,7 @@ class _ScrollingTextState extends State<ScrollingText>
     return Transform.translate(
       offset: Offset(shouldAnimate ? animation.value as double : 0.0, 0),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: rowChildren,
       ),
     );

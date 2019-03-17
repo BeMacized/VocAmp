@@ -4,34 +4,59 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-class AlbumArt extends StatelessWidget {
+class AlbumArt extends StatefulWidget {
   final double size;
-  final ValueChanged<ImageProvider> loadedCallback;
-  final VoidCallback failedCallback;
   final String albumImageUrl;
+  final ValueChanged<ImageProvider> imageProviderChanged;
 
   AlbumArt({
-    this.loadedCallback,
     this.size = double.infinity,
     this.albumImageUrl,
-    this.failedCallback,
+    this.imageProviderChanged,
   });
+
+  @override
+  AlbumArtState createState() {
+    return AlbumArtState();
+  }
+}
+
+class AlbumArtState extends State<AlbumArt> {
+  ImageProvider provider;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
+        Widget placeholder =
+            AlbumPlaceholder(size: min(constraints.maxWidth, widget.size));
+        if (widget.albumImageUrl == null || widget.albumImageUrl.trim().isEmpty)
+          return placeholder;
         return CachedNetworkImage(
-          imageUrl: albumImageUrl ?? '',
-          placeholder: AlbumPlaceholder(size: min(constraints.maxWidth, size)),
-          errorWidget: AlbumPlaceholder(size: min(constraints.maxWidth, size)),
-          width: min(size, constraints.maxWidth),
+          imageUrl: widget.albumImageUrl,
+          placeholder: (context, url) => placeholder,
+          errorWidget: (context, url, error) => placeholder,
+          width: min(widget.size, constraints.maxWidth),
           fadeInCurve: Curves.ease,
           fadeOutCurve: Curves.ease,
-          height: min(size, constraints.maxWidth),
+          height: min(widget.size, constraints.maxWidth),
           fit: BoxFit.contain,
-          loadedCallback: loadedCallback,
-          failedCallback: failedCallback,
+          imageBuilder: (BuildContext context, ImageProvider provider) {
+            if (widget.imageProviderChanged != null &&
+                this.provider != provider) {
+              widget.imageProviderChanged(provider);
+              this.provider = provider;
+            }
+            return Image(
+              image: provider,
+              fit: BoxFit.contain,
+              width: min(widget.size, constraints.maxWidth),
+              height: min(widget.size, constraints.maxWidth),
+              alignment: Alignment.center,
+              repeat: ImageRepeat.noRepeat,
+              matchTextDirection: false,
+            );
+          },
         );
       },
     );

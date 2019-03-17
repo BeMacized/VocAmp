@@ -2,12 +2,12 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:flutter_reorderable_list/flutter_reorderable_list.dart';
 import 'package:vocaloid_player/globals.dart';
 import 'package:vocaloid_player/model/queued_song.dart';
 import 'package:vocaloid_player/redux/app_state.dart';
 import 'package:vocaloid_player/views/queue_view/queue_view_model.dart';
 import 'package:vocaloid_player/widgets/player_controls.dart';
-import 'package:flutter_reorderable_list/flutter_reorderable_list.dart';
 
 class QueueView extends StatelessWidget {
   @override
@@ -138,6 +138,8 @@ class QueueItem extends StatelessWidget {
             ),
             onTap: () async {
               await Application.audioManager.skipToSong(queuedSong.id);
+              //TODO: LOOK INTO FIXING REQUIRED ARBITRARY DELAY
+              await Future.delayed(Duration(milliseconds: 100));
               await Application.audioManager.play();
             },
           ),

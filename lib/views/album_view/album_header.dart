@@ -100,7 +100,10 @@ class _AlbumHeaderContentState extends State<AlbumHeaderContent> {
   PaletteGenerator gen;
 
   Future<void> _refreshFadeColor({ImageProvider imageProvider}) async {
-    if (imageProvider == null) return Colors.grey.shade800;
+    if (imageProvider == null)
+      setState(() {
+        fadeColor = Colors.grey.shade800;
+      });
     // Await load
     await Future.delayed(Duration(milliseconds: 250));
     // Generate color
@@ -189,10 +192,9 @@ class _AlbumHeaderContentState extends State<AlbumHeaderContent> {
                                   AlbumArt(
                                     albumImageUrl: widget.vm.album?.albumArtUrl,
                                     size: 150,
-                                    loadedCallback: (imageProvider) =>
+                                    imageProviderChanged: (provider) =>
                                         _refreshFadeColor(
-                                            imageProvider: imageProvider),
-                                    failedCallback: _refreshFadeColor,
+                                            imageProvider: provider),
                                   ),
                                 ],
                               ),

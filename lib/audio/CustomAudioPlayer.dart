@@ -3,11 +3,11 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:audioplayer/audioplayer.dart';
-import 'package:yt_audiostream/yt_audiostream.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:stream_transform/stream_transform.dart';
 import 'package:vocaloid_player/audio/MediaSource.dart';
 import 'package:vocaloid_player/utils/mediaitem_utils.dart';
-import 'package:stream_transform/stream_transform.dart';
+import 'package:yt_audiostream/yt_audiostream.dart';
 
 const String BG_AUDIO_ERROR_PORT = "BG_AUDIO_ERROR_PORT";
 
@@ -30,6 +30,7 @@ class CustomAudioPlayer {
   int _cursor = 0;
   Map<String, MediaSource> _sourceMap = {};
   SongCache _songCache;
+  Duration _duration = Duration(seconds: 0);
   Duration _position = Duration(seconds: 0);
   BasicPlaybackState _basicState = BasicPlaybackState.paused;
   SendPort errorPort;
@@ -41,8 +42,26 @@ class CustomAudioPlayer {
     // initialize audio service default state
     this._setState();
     // Listen for audio position changes
-    StreamSubscription<Duration> positionSubscription = _audioPlayer.onAudioPositionChanged.transform(throttle(Duration(seconds: 1)))
-        .listen((position) => _setState(position: position));
+    StreamSubscription<Duration> positionSubscription = _audioPlayer
+        .onAudioPositionChanged
+        .transform(throttle(Duration(seconds: 1)))
+        .listen((position) {
+      _setState(position: position);
+    });
+    // Listen for audio duration changes
+    StreamSubscription<Duration> durationSubscription =
+        _audioPlayer.onDurationChanged.listen((duration) {
+      // Update local duration
+      _duration = duration;
+      // Set duration of currently playing song if it is still unknown
+      if (_queue[_cursor].duration == null) {
+        _queue[_cursor] = copyMediaItem(
+          _queue[_cursor],
+          duration: _duration.inMilliseconds,
+        );
+        AudioServiceBackground.setMediaItem(_queue[_cursor]);
+      }
+    });
     // Listen for audio player changes
     StreamSubscription<AudioPlayerState> audioPlayerStateSubscription =
         _audioPlayer.onPlayerStateChanged.listen(_onPlayerStateChange);
@@ -50,6 +69,7 @@ class CustomAudioPlayer {
     await _completer.future;
     // Clean up subscriptions before task end
     positionSubscription.cancel();
+    durationSubscription.cancel();
     audioPlayerStateSubscription.cancel();
   }
 
@@ -126,26 +146,29 @@ class CustomAudioPlayer {
   }
 
   Future<void> play() async {
-    if (_cursor < _queue.length) {
-      _setState(basicState: BasicPlaybackState.playing);
-      MediaItem item = _queue[_cursor];
-      String streamUrl = _songCache?.playUrl;
-      if (streamUrl == null || _songCache.mediaId != item.id) {
-        try {
-          streamUrl = await _getUrlForMedia(_queue[_cursor]);
-        } catch (e) {
-          // Is already being sent over error port in _getUrlForMedia method
-          return;
-        }
-        _songCache = SongCache(item.id, streamUrl);
+    if (_cursor >= _queue.length) return;
+    // Set playing mode
+    _setState(basicState: BasicPlaybackState.playing);
+    // Get current media item
+    MediaItem item = _queue[_cursor];
+    // Get the known stream url
+    String streamUrl = _songCache?.playUrl;
+    // If there's no known streamUrl, fetch it
+    if (streamUrl == null || _songCache.mediaId != item.id) {
+      try {
+        streamUrl = await _getUrlForMedia(_queue[_cursor]);
+      } catch (e) {
+        // Is already being sent over error port in _getUrlForMedia method
+        return;
       }
-      // If by this point we are not playing the current item anymore, don't start anyways
-      if (this._basicState != BasicPlaybackState.playing ||
-          _queue[_cursor].id != item.id) return;
-      // Start playing audio
-      AudioServiceBackground.androidForceEnableMediaButtons();
-      await _audioPlayer.play(streamUrl);
+      _songCache = SongCache(item.id, streamUrl);
     }
+    // If by this point we are not playing the current item anymore, don't start anyways
+    if (this._basicState != BasicPlaybackState.playing ||
+        _queue[_cursor].id != item.id) return;
+    // Start playing audio
+    AudioServiceBackground.androidForceEnableMediaButtons();
+    await _audioPlayer.play(streamUrl);
   }
 
   Future<void> pause() async {
@@ -180,7 +203,7 @@ class CustomAudioPlayer {
     // Reset to start of song
     if (_position.inMilliseconds >= 2000 ||
         (_repeatMode != RepeatMode.ALL && _cursor == 0)) {
-      await _audioPlayer.seek(0);
+      await _audioPlayer.seek(Duration(seconds: 0));
       play();
     }
     // Go to previous
@@ -189,7 +212,7 @@ class CustomAudioPlayer {
       if (_cursor < 0)
         _cursor = _repeatMode == RepeatMode.ALL ? _queue.length - 1 : 0;
       AudioServiceBackground.setMediaItem(_queue[_cursor]);
-      _audioPlayer.stop();
+      await _audioPlayer.stop();
       play();
     }
   }
@@ -198,16 +221,21 @@ class CustomAudioPlayer {
     _cursor++;
     if (_cursor >= _queue.length) _cursor = 0;
     AudioServiceBackground.setMediaItem(_queue[_cursor]);
-    await _audioPlayer.stop();
+    if (_audioPlayer.state != AudioPlayerState.COMPLETED &&
+        _audioPlayer.state != AudioPlayerState.STOPPED) {
+      await _audioPlayer.stop();
+      // TODO: SEARCH ALTERNATE SOLUTION FOR HACKY FIX. AWAITING .stop DOES NOT WAIT UNTIL STOPPED.
+      await Future.delayed(Duration(milliseconds: 500));
+    }
     if (_cursor > 0 || _repeatMode == RepeatMode.ALL) play();
   }
 
   Future<void> seekTo(int pos) async {
     if ((_audioPlayer.state == AudioPlayerState.PLAYING ||
             _audioPlayer.state == AudioPlayerState.PAUSED) &&
-        _audioPlayer.duration.inMilliseconds > 0 &&
-        pos <= _audioPlayer.duration.inMilliseconds) {
-      await _audioPlayer.seek(pos / 1000);
+        _duration.inMilliseconds > 0 &&
+        _position.inMilliseconds <= _duration.inMilliseconds) {
+      await _audioPlayer.seek(Duration(milliseconds: pos));
     }
   }
 
@@ -245,19 +273,13 @@ class CustomAudioPlayer {
   _onPlayerStateChange(AudioPlayerState state) {
     switch (state) {
       case AudioPlayerState.PLAYING:
-        if (_queue[_cursor].duration == null) {
-          _queue[_cursor] = copyMediaItem(
-            _queue[_cursor],
-            duration: _audioPlayer.duration.inMilliseconds,
-          );
-          AudioServiceBackground.setMediaItem(_queue[_cursor]);
-        }
-
+        print("[DEBUG] AudioPlayerState.PLAYING");
         _setState(
           basicState: BasicPlaybackState.playing,
         );
         break;
       case AudioPlayerState.COMPLETED:
+        print("[DEBUG] AudioPlayerState.COMPLETED");
         _setState(
             position: Duration(seconds: 0),
             basicState: BasicPlaybackState.stopped);
@@ -267,15 +289,18 @@ class CustomAudioPlayer {
           skipNext();
         }
         break;
-      case AudioPlayerState.LOADING:
-        _setState(basicState: BasicPlaybackState.buffering);
-        break;
+      // TODO: LOOK INTO LOADING STATE
+//      case AudioPlayerState.LOADING:
+//        _setState(basicState: BasicPlaybackState.buffering);
+//        break;
       case AudioPlayerState.STOPPED:
+        print("[DEBUG] AudioPlayerState.STOPPED");
         _setState(
           basicState: BasicPlaybackState.stopped,
         );
         break;
       case AudioPlayerState.PAUSED:
+        print("[DEBUG] AudioPlayerState.PAUSED");
         _setState(
           basicState: BasicPlaybackState.paused,
         );
@@ -285,8 +310,11 @@ class CustomAudioPlayer {
 
   Future<void> _setState(
       {Duration position, BasicPlaybackState basicState}) async {
+    if (position != null && basicState == null) {}
     // Don't do unnecessary updates
-    if (basicState != null && position == null && this._basicState == basicState) return;
+    if (basicState != null &&
+        position == null &&
+        this._basicState == basicState) return;
     // set position & state
     this._position = position ?? this._position;
     this._basicState = basicState ?? this._basicState;
@@ -309,8 +337,8 @@ class CustomAudioPlayer {
         controls: controls,
         basicState: basicState ?? this._basicState,
         position: this._position.inMilliseconds,
-        updateTime: position != null ? DateTime.now().millisecondsSinceEpoch : null
-    );
+        updateTime:
+            position != null ? DateTime.now().millisecondsSinceEpoch : null);
   }
 
   Future<String> _getUrlForMedia(MediaItem item) async {

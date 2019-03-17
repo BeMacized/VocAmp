@@ -1,6 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:sentry/sentry.dart';
 import 'package:package_info/package_info.dart';
+import 'package:sentry/sentry.dart';
 import 'package:vocaloid_player/globals.dart';
 import 'package:vocaloid_player/views/crash_view/crash_view.dart';
 
@@ -29,10 +31,11 @@ bool get isInDebugMode {
 }
 
 Future<void> reportError(dynamic error, dynamic stackTrace) async {
-  // TODO: HACKY FIX FOR UNHANDLEABLE ERRORS FROM CACHED NETWORK IMAGE DEPENDENCY
-  if (error == "Couldn't download or retreive file.") return;
+  // TODO: Hacky fix for network image lib that provides no way for error handling
+  if (error is HttpException &&
+      error.message == 'No valid statuscode. Statuscode was 404') return;
   // Print the exception to the console
-  print('Caught error: $error');
+  print('Caught error: "$error"');
   // Show crash view
   Application.navigator.pushAndRemoveUntil(
     MaterialPageRoute(

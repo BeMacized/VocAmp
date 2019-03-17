@@ -14,9 +14,11 @@ environment:
 
 dependencies:
   audio_service: ^0.0.15
-  audioplayer:
+  url_launcher: ^5.0.1
+  audioplayers:
     git:
-      url: git://github.com/gamegrd/audioplayer.git
+      url: git://github.com/luanpotter/audioplayers.git
+      ref: f55c38c75a7d2a7ab362b435dab61d93eef65272
   fluro: ^1.4.0
   flutter_reorderable_list: ^0.1.1
   palette_generator: ^0.1.1
@@ -33,11 +35,8 @@ dependencies:
     git:
       url: git://github.com/BeMacized/yt_audiostream.git
       ref: 4d4c5baa613d3552cd96e8aff65149e7c9afaa48
-  cached_network_image:
-    git:
-      url: git://github.com/BeMacized/flutter_cached_network_image.git
-      ref: c91443ad5c6f456de51dcb730c92d2ec33c62825
-  uuid: ^1.0.3
+  cached_network_image: ^0.6.0+1
+  uuid: ^2.0.0
   flutter:
     sdk: flutter
 
