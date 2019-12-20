@@ -1,4 +1,4 @@
-name: vocaloid_player
+name: voc_amp
 description: A new Flutter project.
 
 # The following defines the version and build number for your application.
@@ -6,37 +6,29 @@ description: A new Flutter project.
 # followed by an optional build number separated by a +.
 # Both the version and the builder number may be overridden in flutter
 # build by specifying --build-name and --build-number, respectively.
-# Read more about versioning at semver.org.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
-  audio_service: ^0.0.15
-  url_launcher: ^5.0.1
-  audioplayers:
-    git:
-      url: git://github.com/luanpotter/audioplayers.git
-      ref: f55c38c75a7d2a7ab362b435dab61d93eef65272
-  fluro: ^1.4.0
-  flutter_reorderable_list: ^0.1.1
-  palette_generator: ^0.1.1
-  flutter_redux: ^0.5.2
-  http: ^0.12.0
-  redux_thunk: ^0.2.1
-  collection: ^1.14.11
-  connectivity: ^0.3.2
-  sentry: ^2.2.0
-  package_info: ^0.3.2+1
-  stream_transform: ^0.0.14+1
-  sliver_fill_remaining_box_adapter: ^0.1.1
-  yt_audiostream:
-    git:
-      url: git://github.com/BeMacized/yt_audiostream.git
-      ref: 4d4c5baa613d3552cd96e8aff65149e7c9afaa48
-  cached_network_image: ^0.6.0+1
-  uuid: ^2.0.0
+  audio_service: ^0.5.4
+  just_audio: ^0.0.2
+  dio: ^3.0.5
+  json_annotation: ^3.0.0
+  provider: ^3.2.0
+  rxdart: ^0.22.6
+  cached_network_image: ^2.0.0-rc
+  palette_generator: ^0.2.0
+  auto_size_text: ^2.1.0
+  google_fonts: ^0.2.0
+  color: ^2.1.1
+  color_thief_flutter: ^1.0.0
   flutter:
     sdk: flutter
 
@@ -45,12 +37,14 @@ dependencies:
   cupertino_icons: ^0.1.2
 
 dev_dependencies:
+  json_serializable: ^3.2.3
+  build_runner: ^1.7.2
   flutter_test:
     sdk: flutter
 
 
 # For information on the generic Dart part of this file, see the
-# following page: https://www.dartlang.org/tools/pub/pubspec
+# following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter.
 flutter:
@@ -59,14 +53,17 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-  assets:
-    - images/home/header_bg.jpg
+
+  # To add assets to your application, add an assets section, like this:
+  # assets:
+  #  - images/a_dot_burr.jpeg
+  #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.io/assets-and-images/#resolution-aware.
+  # https://flutter.dev/assets-and-images/#resolution-aware.
 
   # For details regarding adding assets from package dependencies, see
-  # https://flutter.io/assets-and-images/#from-packages
+  # https://flutter.dev/assets-and-images/#from-packages
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
@@ -86,11 +83,4 @@ flutter:
   #         weight: 700
   #
   # For details regarding fonts from package dependencies,
-  # see https://flutter.io/custom-fonts/#from-packages
-  fonts:
-    - family: Raleway
-      fonts:
-        - asset: fonts/Raleway/Raleway-Regular.ttf
-          style: normal
-        - asset: fonts/Raleway/Raleway-Italic.ttf
-          style: italic
+  # see https://flutter.dev/custom-fonts/#from-packages

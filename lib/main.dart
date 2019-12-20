@@ -1,87 +1,95 @@
-import 'dart:async';
-
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_redux/flutter_redux.dart';
-import 'package:vocaloid_player/globals.dart';
-import 'package:vocaloid_player/redux/app_state.dart';
-import 'package:vocaloid_player/routes.dart';
-import 'package:vocaloid_player/utils/sentry.dart';
+import 'package:provider/provider.dart';
+import 'package:voc_amp/providers/track-list.provider.dart';
+import 'package:voc_amp/repositories/track-list.repository.dart';
+import 'package:voc_amp/repositories/vocadb-songs-api.repository.dart';
+import 'package:voc_amp/theme.dart';
+import 'package:voc_amp/views/home/home.view.dart';
+
+import 'globals.dart';
 
 void main() {
-  FlutterError.onError = (FlutterErrorDetails details) {
-    if (isInDebugMode) {
-      FlutterError.dumpErrorToConsole(details);
-    } else {
-      Zone.current.handleUncaughtError(details.exception, details.stack);
-    }
-  };
-
-  runZoned<Future<void>>(() async {
-    runApp(MyApp());
-  }, onError: (error, stackTrace) {
-    reportError(error, stackTrace);
-  });
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+  runApp(VocAmp());
 }
 
-class MyApp extends StatefulWidget {
+class VocAmp extends StatefulWidget {
+  // This widget is the root of your application.
   @override
-  MyAppState createState() {
-    return MyAppState();
-  }
+  _VocAmpState createState() => _VocAmpState();
 }
 
-class MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  MyAppState() {
-    Routes.configureRoutes(Application.router);
-  }
+class _VocAmpState extends State<VocAmp> with WidgetsBindingObserver {
+  VocaDBSongsApiRepository _vocaDBSongsApiRepository;
+  TrackListRepository _trackListRepository;
 
   @override
   initState() {
     super.initState();
-    // Add widget observer for lifecycle changes
+    // Add app state observer
     WidgetsBinding.instance.addObserver(this);
+    // Setup repositories
+    _setupRepositories();
     // Connect to the audio service
-    Application.audioManager.connect();
+    connectAudioService();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return StoreProvider<AppState>(
-      store: Application.store,
-      child: MaterialApp(
-        title: 'Flutter Demo',
-        navigatorKey: Application.navigatorKey,
-        debugShowCheckedModeBanner: false,
-        onGenerateRoute: Application.router.generator,
-        theme: ThemeData(
-            brightness: Brightness.dark,
-            primaryColor: Colors.pink,
-            accentColor: Colors.pinkAccent,
-            buttonColor: Colors.pink,
-            splashColor: Colors.pink,
-            fontFamily: 'Raleway'),
-      ),
-    );
+  _setupRepositories() {
+    _vocaDBSongsApiRepository = VocaDBSongsApiRepository();
+    _trackListRepository = TrackListRepository(_vocaDBSongsApiRepository);
   }
 
   @override
   void dispose() {
+    // Disconnect from the audio service
+    disconnectAudioService();
+    // Remove app state observer
     WidgetsBinding.instance.removeObserver(this);
+
     super.dispose();
+  }
+
+  void connectAudioService() async {
+    await AudioService.connect();
+  }
+
+  void disconnectAudioService() {
+    AudioService.disconnect();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        Application.audioManager.connect();
+        connectAudioService();
         break;
       case AppLifecycleState.paused:
-        Application.audioManager.disconnect();
+        disconnectAudioService();
         break;
       default:
         break;
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      child: MaterialApp(
+        title: 'vocAmp',
+        theme: getAppTheme(context),
+        navigatorKey: Application.navigatorKey,
+        debugShowCheckedModeBanner: false,
+        routes: {
+          '/': (context) => HomeView(),
+        },
+      ),
+      providers: [
+        Provider<TrackListProvider>(
+            create: (_) => TrackListProvider(_trackListRepository)),
+      ],
+    );
   }
 }
