@@ -6,6 +6,7 @@ import 'package:voc_amp/models/media/track.dart';
 import 'package:voc_amp/models/utils/failure.dart';
 import 'package:voc_amp/providers/track-list-view.provider.dart';
 import 'package:voc_amp/views/tracklist/widgets/track-list-header.dart';
+import 'package:voc_amp/widgets/connectivity-bar.dart';
 import 'package:voc_amp/widgets/default-pane.dart';
 import 'package:voc_amp/widgets/failure-block.dart';
 import 'package:voc_amp/widgets/track-list-item.dart';
@@ -40,6 +41,7 @@ class _TrackListViewState extends State<TrackListView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Expanded(child: _buildMainArea(context)),
+            ConnectivityBar(),
             //TODO: PLAY BAR
             //TODO: TAB BAR
           ],

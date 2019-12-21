@@ -35,7 +35,7 @@ class _FailureBlockState extends State<FailureBlock> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Padding(
-          padding: EdgeInsets.only(bottom: 24),
+          padding: EdgeInsets.only(bottom: 12),
           child: SizedBox(
             width: 200,
             child: AspectRatio(
@@ -52,7 +52,7 @@ class _FailureBlockState extends State<FailureBlock> {
           style: Theme.of(context).textTheme.display1,
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 24),
+          padding: const EdgeInsets.only(top: 12),
           child: Text(
             widget.failure.message,
             textAlign: TextAlign.center,
@@ -61,7 +61,7 @@ class _FailureBlockState extends State<FailureBlock> {
         ),
         if (widget.failure.flags.contains(FailureFlag.retry) != null)
           Padding(
-            padding: const EdgeInsets.only(top: 36),
+            padding: const EdgeInsets.only(top: 24),
             child: PrimaryButton(
               text: 'RETRY',
               onTap: widget.onRetry,

@@ -5,6 +5,7 @@ import 'package:voc_amp/models/media/track-list.dart';
 import 'package:voc_amp/providers/track-list.provider.dart';
 import 'package:voc_amp/utils/gradient-utils.dart';
 import 'package:voc_amp/views/tracklist/track-list.view.dart';
+import 'package:voc_amp/widgets/connectivity-bar.dart';
 import 'package:voc_amp/widgets/pressable.dart';
 import 'package:voc_amp/widgets/tile-row.dart';
 import 'package:voc_amp/widgets/tile.dart';
@@ -29,6 +30,7 @@ class _HomeViewState extends State<HomeView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             _buildMainArea(),
+            ConnectivityBar(),
             //TODO: PLAY BAR
             //TODO: TAB BAR
           ],
