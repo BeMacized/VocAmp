@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:voc_amp/utils/gradient-utils.dart';
 
@@ -146,50 +145,58 @@ class DynamicHeaderDelegate extends SliverPersistentHeaderDelegate {
           alignment: Alignment.topCenter,
           minHeight: maxExtent,
           maxHeight: maxExtent,
-          child: AnimatedContainer(
-            duration: Duration(milliseconds: 1000),
-            curve: Curves.easeInOut,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: GradientUtils.curved([
-                  bgColor,
-                  Colors.black,
-                ], curve: Curves.easeInOut),
+          child: Stack(
+            children: <Widget>[
+              Container(color: Colors.black),
+              Opacity(
+                opacity: 1.0 - collapsed * 0.8,
+                child: AnimatedContainer(
+                  duration: Duration(milliseconds: 1000),
+                  curve: Curves.easeInOut,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: GradientUtils.curved([
+                        bgColor,
+                        Colors.black,
+                      ], curve: Curves.easeInOut),
+                    ),
+                  ),
+                ),
               ),
-            ),
-            child: ClipRect(
-              child: OverflowBox(
-                alignment: Alignment.topCenter,
-                maxHeight: double.infinity,
-                child: Stack(
+              ClipRect(
+                child: OverflowBox(
                   alignment: Alignment.topCenter,
-                  children: <Widget>[
-                    Container(
-                      key: contentKey,
-                      child: Opacity(
-                        opacity: 1.0 - collapsed,
-                        child: Transform.scale(
-                          scale: 1.0 - collapsed * 0.2,
-                          child: Transform.translate(
-                            offset: Offset(0, collapsed * 48),
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                top: topPadding + _APPBAR_HEIGHT + 20,
-                                bottom: 20,
+                  maxHeight: double.infinity,
+                  child: Stack(
+                    alignment: Alignment.topCenter,
+                    children: <Widget>[
+                      Container(
+                        key: contentKey,
+                        child: Opacity(
+                          opacity: 1.0 - collapsed,
+                          child: Transform.scale(
+                            scale: 1.0 - collapsed * 0.2,
+                            child: Transform.translate(
+                              offset: Offset(0, collapsed * 48),
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                  top: topPadding + _APPBAR_HEIGHT + 20,
+                                  bottom: 20,
+                                ),
+                                child: content ?? Container(),
                               ),
-                              child: content ?? Container(),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ),

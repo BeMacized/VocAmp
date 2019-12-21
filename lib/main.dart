@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:voc_amp/providers/track-list-view.provider.dart';
 import 'package:voc_amp/providers/track-list.provider.dart';
 import 'package:voc_amp/repositories/track-list.repository.dart';
 import 'package:voc_amp/repositories/vocadb-songs-api.repository.dart';
@@ -88,7 +89,11 @@ class _VocAmpState extends State<VocAmp> with WidgetsBindingObserver {
       ),
       providers: [
         Provider<TrackListProvider>(
-            create: (_) => TrackListProvider(_trackListRepository)),
+          create: (_) => TrackListProvider(_trackListRepository),
+        ),
+        ChangeNotifierProvider<TrackListViewProvider>(
+          create: (_) => TrackListViewProvider(),
+        )
       ],
     );
   }

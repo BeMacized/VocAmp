@@ -3,7 +3,6 @@ import 'package:color_thief_flutter/color_thief_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:voc_amp/models/media/track-list.dart';
 import 'package:voc_amp/widgets/dynamic-header.dart';
-import 'package:voc_amp/widgets/list-art.dart';
 import 'package:voc_amp/widgets/primary-button.dart';
 import 'dart:ui' as ui;
 
@@ -40,12 +39,13 @@ class _TrackListHeaderState extends State<TrackListHeader> {
       );
       try {
         List<int> rgb = await getColorFromImage(img);
-        setState(
-          () => this.bgColor = Color.fromARGB(255, rgb[0], rgb[1], rgb[2]),
-        );
+        if (mounted)
+          setState(
+            () => this.bgColor = Color.fromARGB(255, rgb[0], rgb[1], rgb[2]),
+          );
       } catch (e) {
         print(e);
-        setState(() => this.bgColor = Colors.grey.shade800);
+        if (mounted) setState(() => this.bgColor = Colors.grey.shade800);
       }
     });
   }

@@ -36,12 +36,15 @@ ThemeData _buildAppTheme(BuildContext context) {
     subhead: textTheme.subhead.copyWith(),
     body2: textTheme.body2.copyWith(
       fontWeight: FontWeight.bold,
-      fontSize: 13,
+      fontSize: 14,
     ),
     body1: textTheme.body1.copyWith(
-      fontSize: 13,
+      fontSize: 14,
     ),
-    caption: textTheme.caption.copyWith(),
+    caption: textTheme.caption.copyWith(
+      color: Colors.white.withOpacity(0.6),
+      fontSize: 12,
+    ),
     button: textTheme.button.copyWith(
       fontWeight: FontWeight.bold,
       height: 1.5,
@@ -57,6 +60,8 @@ ThemeData _buildAppTheme(BuildContext context) {
 
   AppBarTheme appBarTheme = Theme.of(context).appBarTheme.copyWith(
         brightness: Brightness.dark,
+        color: Colors.black.withOpacity(0.25),
+        elevation: 0,
         iconTheme: IconThemeData(
           opacity: 1,
           color: Colors.white,

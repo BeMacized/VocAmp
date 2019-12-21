@@ -7,12 +7,12 @@ class TrackList {
   String title;
   String subtitle;
   TrackListImage image;
-  TrackFetcher tracks;
+  TrackFetcher fetchTracks;
 
   TrackList({
     this.title,
     this.subtitle,
     this.image,
-    this.tracks,
+    this.fetchTracks,
   });
 }

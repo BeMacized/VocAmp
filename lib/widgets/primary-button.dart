@@ -36,7 +36,7 @@ class PrimaryButton extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
             child: Text(
-              'SHUFFLE',
+              text,
               style: Theme.of(context)
                   .textTheme
                   .button

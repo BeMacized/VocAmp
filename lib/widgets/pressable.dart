@@ -55,7 +55,7 @@ class _PressableState extends State<Pressable> {
   Duration _calcMinTimeUntilDepress() {
     return Duration(
       milliseconds: max(
-        500 -
+        widget.duration.inMilliseconds -
             (DateTime.now().millisecondsSinceEpoch -
                 lastPressed.millisecondsSinceEpoch),
         0,
@@ -85,21 +85,28 @@ class _AnimatedPressableState
     extends AnimatedWidgetBaseState<_AnimatedPressable> {
   Tween _scaleTween;
   Tween _opacityTween;
+  double scale = 0.9;
 
   @override
   Widget build(BuildContext context) {
-    return Transform.scale(
-      scale: _scaleTween.evaluate(animation),
-      child: Opacity(
-        opacity: _opacityTween.evaluate(animation),
-        child: widget.child,
-      ),
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      scale = max(
+        1.0 - 20 / constraints.minWidth,
+        1.0 - 20 / constraints.minHeight,
+      ).clamp(0.9, 1.0);
+      return Transform.scale(
+        scale: _scaleTween.evaluate(animation),
+        child: Opacity(
+          opacity: _opacityTween.evaluate(animation),
+          child: widget.child,
+        ),
+      );
+    });
   }
 
   @override
   void forEachTween(visitor) {
-    _scaleTween = visitor(_scaleTween, widget.pressed ? 0.9 : 1.0,
+    _scaleTween = visitor(_scaleTween, widget.pressed ? scale : 1.0,
         (dynamic value) => Tween(begin: value));
     _opacityTween = visitor(_opacityTween, widget.pressed ? 0.5 : 1.0,
         (dynamic value) => Tween(begin: value));

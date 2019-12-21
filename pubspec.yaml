@@ -14,10 +14,13 @@ description: A new Flutter project.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.2.2 <3.0.0"
+  sdk: ">=2.6.0 <3.0.0"
 
 dependencies:
+  connectivity: ^0.4.6+1
+  dio_http_cache: ^0.2.5
   audio_service: ^0.5.4
+  dartz: ^0.8.9
   just_audio: ^0.0.2
   dio: ^3.0.5
   json_annotation: ^3.0.0
@@ -53,6 +56,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - lib/assets/img/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

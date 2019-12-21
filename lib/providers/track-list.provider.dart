@@ -24,7 +24,7 @@ class TrackListProvider {
         url: 'https://i.imgur.com/Y3MjVGI.png',
         text: ['Top Tracks', 'All Time'],
       ),
-      tracks: () {
+      fetchTracks: () {
         return _trackListRepository.getTopTracks(
           filteringMode: FilteringMode.popularity,
         );
@@ -39,7 +39,7 @@ class TrackListProvider {
             'https://preview.redd.it/yjh482s8maa31.jpg?width=613&auto=webp&s=ae559021de74cf3e134f703e6f78af074f8cdbd9',
         text: ['Top Tracks', 'Yearly'],
       ),
-      tracks: () {
+      fetchTracks: () {
         return _trackListRepository.getTopTracks(
           filteringMode: FilteringMode.popularity,
           duration: Duration(days: 365),
@@ -54,7 +54,7 @@ class TrackListProvider {
         url: 'https://i.imgur.com/GzcljUi.png',
         text: ['Top Tracks', 'Monthly'],
       ),
-      tracks: () {
+      fetchTracks: () {
         return _trackListRepository.getTopTracks(
           filteringMode: FilteringMode.popularity,
           duration: Duration(days: 31),
@@ -69,10 +69,10 @@ class TrackListProvider {
         url: 'https://i.redd.it/fb5r6koqsja21.png',
         text: ['Top Tracks', 'Weekly'],
       ),
-      tracks: () {
+      fetchTracks: () {
         return _trackListRepository.getTopTracks(
           filteringMode: FilteringMode.popularity,
-          duration: Duration(days: 31),
+          duration: Duration(days: 7),
         );
       },
     );
@@ -84,7 +84,7 @@ class TrackListProvider {
         url: 'https://i.redd.it/9zp4oh3w4e041.jpg',
         text: ['Top Tracks', 'Daily'],
       ),
-      tracks: () {
+      fetchTracks: () {
         return _trackListRepository.getTopTracks(
           filteringMode: FilteringMode.popularity,
           duration: Duration(days: 1),
@@ -99,7 +99,7 @@ class TrackListProvider {
         url: 'https://i.imgur.com/QytVrdo.png',
         text: ['New', 'Releases'],
       ),
-      tracks: () {
+      fetchTracks: () {
         return _trackListRepository.getTopTracks(
           filteringMode: FilteringMode.newlyPublished,
         );
@@ -116,7 +116,7 @@ class TrackListProvider {
             .withOpacity(0.8),
         textColor: Colors.white,
       ),
-      tracks: () {
+      fetchTracks: () {
         return _trackListRepository.getTopTracks(
           filteringMode: FilteringMode.newlyAdded,
         );

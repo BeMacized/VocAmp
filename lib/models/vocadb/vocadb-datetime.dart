@@ -13,7 +13,7 @@ class VocaDBDateTime {
   VocaDBDateTime();
 
   DateTime toDateTime() {
-    return isEmpty ? null : DateTime(year, month, day);
+    return isEmpty ? null : DateTime(year, month ?? 1, day ?? 1);
   }
 
   factory VocaDBDateTime.fromJson(Map<String, dynamic> json) =>
@@ -25,6 +25,4 @@ class VocaDBDateTime {
   String toString() {
     return 'VocaDBDateTime{day: $day, formatted: $formatted, isEmpty: $isEmpty, month: $month, year: $year}';
   }
-
-
 }
