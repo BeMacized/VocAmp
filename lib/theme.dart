@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 ThemeData _appTheme;
 
+Color paneBackgroundColor = Colors.grey.shade900;
+
 ThemeData getAppTheme(BuildContext context) {
   if (_appTheme == null) _appTheme = _buildAppTheme(context);
   return _appTheme;
@@ -46,6 +48,7 @@ ThemeData _buildAppTheme(BuildContext context) {
       fontSize: 12,
     ),
     button: textTheme.button.copyWith(
+      color: Colors.white,
       fontWeight: FontWeight.bold,
       height: 1.5,
     ),
@@ -71,7 +74,7 @@ ThemeData _buildAppTheme(BuildContext context) {
   return ThemeData(
     brightness: Brightness.dark,
     appBarTheme: appBarTheme,
-    primaryColor: Colors.white,
+    primaryColor: Color(0xFF29b6f6),
     fontFamily: 'Montserrat',
     buttonTheme: buttonTheme,
     textTheme: GoogleFonts.montserratTextTheme(textTheme),

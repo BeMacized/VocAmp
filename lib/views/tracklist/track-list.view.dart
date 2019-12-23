@@ -6,7 +6,6 @@ import 'package:voc_amp/models/media/track.dart';
 import 'package:voc_amp/models/utils/failure.dart';
 import 'package:voc_amp/providers/track-list-view.provider.dart';
 import 'package:voc_amp/views/tracklist/widgets/track-list-header.dart';
-import 'package:voc_amp/widgets/connectivity-bar.dart';
 import 'package:voc_amp/widgets/default-pane.dart';
 import 'package:voc_amp/widgets/failure-block.dart';
 import 'package:voc_amp/widgets/track-list-item.dart';
@@ -26,31 +25,14 @@ class _TrackListViewState extends State<TrackListView> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
 //      if (Provider.of<TrackListViewProvider>(context).trackList == null)
-        Provider.of<TrackListViewProvider>(context)
-          ..setTrackList(widget.trackList)
-          ..fetchTracks();
+      Provider.of<TrackListViewProvider>(context)
+        ..setTrackList(widget.trackList)
+        ..fetchTracks();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        color: Colors.black,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Expanded(child: _buildMainArea(context)),
-            ConnectivityBar(),
-            //TODO: PLAY BAR
-            //TODO: TAB BAR
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMainArea(BuildContext context) {
     return Stack(
       alignment: Alignment.topCenter,
       children: <Widget>[

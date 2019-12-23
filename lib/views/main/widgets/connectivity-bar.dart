@@ -43,6 +43,7 @@ class _ConnectivityBarState extends State<ConnectivityBar> {
       color: Colors.black,
       child: ClipRect(
         child: OverflowBox(
+          alignment: Alignment.center,
           maxHeight: expandedHeight,
           child: Center(
             child: Padding(

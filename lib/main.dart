@@ -8,7 +8,7 @@ import 'package:voc_amp/providers/track-list.provider.dart';
 import 'package:voc_amp/repositories/track-list.repository.dart';
 import 'package:voc_amp/repositories/vocadb-songs-api.repository.dart';
 import 'package:voc_amp/theme.dart';
-import 'package:voc_amp/views/home/home.view.dart';
+import 'package:voc_amp/views/main/main.view.dart';
 
 import 'globals.dart';
 
@@ -83,8 +83,9 @@ class _VocAmpState extends State<VocAmp> with WidgetsBindingObserver {
         theme: getAppTheme(context),
         navigatorKey: Application.navigatorKey,
         debugShowCheckedModeBanner: false,
+        initialRoute: '/main',
         routes: {
-          '/': (context) => HomeView(),
+          '/main': (context) => MainView(),
         },
       ),
       providers: [

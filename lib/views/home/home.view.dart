@@ -4,8 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:voc_amp/models/media/track-list.dart';
 import 'package:voc_amp/providers/track-list.provider.dart';
 import 'package:voc_amp/utils/gradient-utils.dart';
-import 'package:voc_amp/views/tracklist/track-list.view.dart';
-import 'package:voc_amp/widgets/connectivity-bar.dart';
 import 'package:voc_amp/widgets/pressable.dart';
 import 'package:voc_amp/widgets/tile-row.dart';
 import 'package:voc_amp/widgets/tile.dart';
@@ -23,61 +21,43 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        color: Colors.black,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            _buildMainArea(),
-            ConnectivityBar(),
-            //TODO: PLAY BAR
-            //TODO: TAB BAR
-          ],
+    return Stack(
+      alignment: Alignment.center,
+      children: <Widget>[
+        Positioned.fill(
+          child: _buildBackgroundGradient(),
         ),
-      ),
-    );
-  }
-
-  Widget _buildMainArea() {
-    return Expanded(
-      child: Stack(
-        alignment: Alignment.center,
-        children: <Widget>[
-          Positioned.fill(
-            child: _buildBackgroundGradient(),
-          ),
-          Positioned.fill(
-            child: SingleChildScrollView(
-              child: SafeArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 20, right: 20, top: 40, bottom: 20),
-                      child: Text(
-                        'Popular Tracks',
-                        style: Theme.of(context).textTheme.headline,
-                      ),
+        Positioned.fill(
+          child: SingleChildScrollView(
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 20, right: 20, top: 40, bottom: 20),
+                    child: Text(
+                      'Popular Tracks',
+                      style: Theme.of(context).textTheme.headline,
                     ),
-                    _buildTopTracksRow(),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 20, right: 20, top: 40, bottom: 20),
-                      child: Text(
-                        'New Tracks',
-                        style: Theme.of(context).textTheme.headline,
-                      ),
+                  ),
+                  _buildTopTracksRow(),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 20, right: 20, top: 40, bottom: 20),
+                    child: Text(
+                      'New Tracks',
+                      style: Theme.of(context).textTheme.headline,
                     ),
-                    _buildNewTracksRow(),
-                  ],
-                ),
+                  ),
+                  _buildNewTracksRow(),
+                  SizedBox(height: 20),
+                ],
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -107,13 +87,7 @@ class _HomeViewState extends State<HomeView> {
   Widget _buildTracksListTile(TrackList trackList) {
     return Pressable(
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (BuildContext context) {
-              return TrackListView(trackList: trackList);
-            },
-          ),
-        );
+        Navigator.of(context).pushNamed('main/tracklist', arguments: trackList);
       },
       child: Tile(
         art: trackList.image.buildWidget(),

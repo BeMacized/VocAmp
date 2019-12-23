@@ -17,7 +17,7 @@ class Marquee extends StatefulWidget {
   Marquee({
     @required this.child,
     this.repeatGap = 24,
-    this.fadeWidth = 32,
+    this.fadeWidth = 24,
     this.speed = 1,
     this.repeatDelay = const Duration(seconds: 2),
     this.initialDelay = const Duration(seconds: 2),
@@ -29,25 +29,35 @@ class Marquee extends StatefulWidget {
   _MarqueeState createState() => _MarqueeState();
 }
 
-class _MarqueeState extends State<Marquee> {
+class _MarqueeState extends State<Marquee> with WidgetsBindingObserver {
   ScrollController scrollController;
   GlobalKey<State> childKey = new GlobalKey<State>();
   bool scrolling = false;
+  bool willScroll = false;
+  bool _firstScroll = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     scrollController = ScrollController();
-    Future.delayed(widget.initialDelay).then((_) => startScrollLoop());
+    startScrollLoop();
   }
 
   @override
   void dispose() {
     scrollController.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
+  @override
+  void didChangeMetrics() {
+    this.startScrollLoop();
+  }
+
   startScrollLoop() async {
+    await Future.delayed(Duration(milliseconds: 0));
     // Find widths
     double ownWidth =
         (this.context?.findRenderObject() as RenderBox)?.size?.width;
@@ -56,11 +66,20 @@ class _MarqueeState extends State<Marquee> {
             ?.size
             ?.width;
     // If child is smaller than the scroll area, stop here.
-    if (childWidth <= ownWidth) return;
+    if (childWidth <= ownWidth) {
+      if (willScroll) setState(() => willScroll = false);
+      return;
+    }
+    if (!willScroll) setState(() => willScroll = true);
+    // Initial delay
+    if (_firstScroll) {
+      _firstScroll = false;
+      await Future.delayed(widget.initialDelay);
+    }
     // Calculate distance and loop time
     double distance = childWidth + widget.repeatGap;
     Duration loopTime = Duration(
-      milliseconds: (distance * 10 / widget.speed).ceil(),
+      milliseconds: (distance * 20 / widget.speed).ceil(),
     );
     // Start scrolling
     setState(() => scrolling = true);
@@ -94,7 +113,8 @@ class _MarqueeState extends State<Marquee> {
     return MarqueeFade(
       duration: widget.fadeDuration,
       curve: Curves.linear,
-      active: scrolling,
+      leftActive: scrolling,
+      rightActive: willScroll,
       fadeWidth: widget.fadeWidth,
       child: LayoutBuilder(
         builder: (context, viewConstraints) {
@@ -144,12 +164,14 @@ class _MarqueeState extends State<Marquee> {
 class MarqueeFade extends ImplicitlyAnimatedWidget {
   final Widget child;
   final double fadeWidth;
-  final bool active;
+  final bool leftActive;
+  final bool rightActive;
 
   MarqueeFade({
     @required this.child,
     @required this.fadeWidth,
-    @required this.active,
+    @required this.leftActive,
+    @required this.rightActive,
     @required Duration duration,
     @required Curve curve,
   }) : super(duration: duration, curve: curve);
@@ -159,7 +181,8 @@ class MarqueeFade extends ImplicitlyAnimatedWidget {
 }
 
 class _MarqueeFadeState extends AnimatedWidgetBaseState<MarqueeFade> {
-  Tween<double> fadeTween;
+  Tween<double> rightFadeTween;
+  Tween<double> leftFadeTween;
 
   @override
   Widget build(BuildContext context) {
@@ -173,13 +196,13 @@ class _MarqueeFadeState extends AnimatedWidgetBaseState<MarqueeFade> {
         ];
         return LinearGradient(
           colors: [
-            Colors.white.withOpacity(fadeTween.evaluate(animation)),
+            Colors.white.withOpacity(leftFadeTween.evaluate(animation)),
             Colors.white,
             Colors.white,
-            Colors.white.withOpacity(fadeTween.evaluate(animation)),
+            Colors.white.withOpacity(rightFadeTween.evaluate(animation)),
           ],
           stops: maskStops,
-        ).createShader(bounds);
+        ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height));
       },
       child: widget.child,
     );
@@ -187,9 +210,14 @@ class _MarqueeFadeState extends AnimatedWidgetBaseState<MarqueeFade> {
 
   @override
   void forEachTween(visitor) {
-    fadeTween = visitor(
-      fadeTween,
-      widget.active ? 0.0 : 1.0,
+    rightFadeTween = visitor(
+      rightFadeTween,
+      widget.rightActive ? 0.0 : 1.0,
+      (value) => Tween<double>(begin: value),
+    );
+    leftFadeTween = visitor(
+      leftFadeTween,
+      widget.leftActive ? 0.0 : 1.0,
       (value) => Tween<double>(begin: value),
     );
   }

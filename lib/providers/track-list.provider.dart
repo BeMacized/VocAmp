@@ -93,7 +93,7 @@ class TrackListProvider {
     );
 
     tracksNewReleases = TrackList(
-      title: 'Newly Released Tracks',
+      title: 'Newly Released',
       subtitle: 'Freshly baked tunes',
       image: TrackListImage(
         url: 'https://i.imgur.com/QytVrdo.png',

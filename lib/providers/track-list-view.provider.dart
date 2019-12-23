@@ -23,7 +23,9 @@ class TrackListViewProvider extends ChangeNotifier {
   // Tracks
 
   Either<Failure, List<Track>> _tracks;
+
   Either<Failure, List<Track>> get tracks => _tracks;
+
   void _setTracks(Either<Failure, List<Track>> tracks) {
     _tracks = tracks;
     notifyListeners();
