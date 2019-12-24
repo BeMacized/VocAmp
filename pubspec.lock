@@ -35,7 +35,7 @@ packages:
       name: audio_service
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.5.4"
+    version: "0.5.5"
   auto_size_text:
     dependency: "direct main"
     description:
@@ -343,9 +343,11 @@ packages:
   just_audio:
     dependency: "direct main"
     description:
-      name: just_audio
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: "9b2ae2dd77b7dd14f8b4d4c75d2f6fe1b277c6bf"
+      resolved-ref: "9b2ae2dd77b7dd14f8b4d4c75d2f6fe1b277c6bf"
+      url: "https://github.com/BeMacized/just_audio.git"
+    source: git
     version: "0.0.2"
   kernel:
     dependency: transitive
@@ -500,7 +502,7 @@ packages:
       name: rxdart
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.22.6"
+    version: "0.23.1"
   shelf:
     dependency: transitive
     description:

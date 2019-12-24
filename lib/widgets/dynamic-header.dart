@@ -86,13 +86,7 @@ class DynamicHeaderDelegate extends SliverPersistentHeaderDelegate {
     @required this.content,
     @required this.bgColor,
     @required this.title,
-  }) {
-    // Cap BG color lightness
-    HSLColor bgHSL = HSLColor.fromColor(this.bgColor);
-    if (bgHSL.lightness > 0.6) {
-      this.bgColor = bgHSL.withLightness(0.6).toColor();
-    }
-  }
+  });
 
   @override
   Widget build(
@@ -148,24 +142,7 @@ class DynamicHeaderDelegate extends SliverPersistentHeaderDelegate {
           child: Stack(
             children: <Widget>[
               Container(color: Colors.black),
-              Opacity(
-                opacity: 1.0 - collapsed * 0.8,
-                child: AnimatedContainer(
-                  duration: Duration(milliseconds: 1000),
-                  curve: Curves.easeInOut,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: GradientUtils.curved([
-                        bgColor,
-                        Colors.black,
-                      ], curve: Curves.easeInOut),
-                    ),
-                  ),
-                ),
-              ),
+              DynamicHeaderBackground(color: bgColor, collapsed: collapsed),
               ClipRect(
                 child: OverflowBox(
                   alignment: Alignment.topCenter,
@@ -206,5 +183,63 @@ class DynamicHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
     return true;
+  }
+}
+
+class DynamicHeaderBackground extends ImplicitlyAnimatedWidget {
+  final Color color;
+  final double collapsed;
+
+  DynamicHeaderBackground({
+    @required this.color,
+    @required this.collapsed,
+    Duration duration = const Duration(milliseconds: 500),
+    Curve curve = Curves.easeInOut,
+  }) : super(duration: duration, curve: curve);
+
+  @override
+  _DynamicHeaderBackgroundState createState() =>
+      _DynamicHeaderBackgroundState();
+}
+
+class _DynamicHeaderBackgroundState
+    extends AnimatedWidgetBaseState<DynamicHeaderBackground> {
+  ColorTween baseColorTween;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: GradientUtils.curved([
+            _calculateBGColor(widget.collapsed),
+            Colors.black,
+          ], curve: Curves.easeInOut),
+        ),
+      ),
+    );
+  }
+
+  Color _calculateBGColor(double collapsed) {
+    assert(collapsed >= 0 && collapsed <= 1.0);
+    HSLColor bgHSL = HSLColor.fromColor(baseColorTween.evaluate(animation));
+    double minLightness = 0.2;
+    double maxLightness = max(min(bgHSL.lightness, 0.6), minLightness);
+    double lightness = bgHSL.lightness == 0
+        ? 0
+        : (1.0 - collapsed) * (maxLightness - minLightness) + minLightness;
+    return bgHSL.withLightness(lightness).toColor();
+  }
+
+  @override
+  void forEachTween(visitor) {
+    baseColorTween = visitor(
+      baseColorTween,
+      widget.color,
+      (value) => ColorTween(begin: value),
+    );
   }
 }

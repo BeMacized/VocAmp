@@ -59,7 +59,7 @@ class VocaDBSongsApiRepository {
     }
     // Construct url;
     String url = "https://vocadb.net/api/songs/top-rated";
-    url += '?fields=PVs,Albums';
+    url += '?fields=PVs,Albums,MainPicture';
     if (duration != null) url += '&durationHours=${duration.inHours}';
     if (filterByParam != null) url += '&filterBy=$filterByParam';
     if (vocalistParam != null) url += '&vocalist=$vocalistParam';

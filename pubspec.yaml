@@ -19,13 +19,16 @@ environment:
 dependencies:
   connectivity: ^0.4.6+1
   dio_http_cache: ^0.2.5
-  audio_service: ^0.5.4
+  audio_service: ^0.5.5
   dartz: ^0.8.9
-  just_audio: ^0.0.2
+  just_audio:
+    git:
+      url: https://github.com/BeMacized/just_audio.git
+      ref: 9b2ae2dd77b7dd14f8b4d4c75d2f6fe1b277c6bf
   dio: ^3.0.5
   json_annotation: ^3.0.0
   provider: ^3.2.0
-  rxdart: ^0.22.6
+  rxdart: ^0.23.1
   cached_network_image: ^2.0.0-rc
   palette_generator: ^0.2.0
   auto_size_text: ^2.1.0

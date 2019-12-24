@@ -8,8 +8,14 @@ import 'dart:ui' as ui;
 
 class TrackListHeader extends StatefulWidget {
   final TrackList trackList;
+  final VoidCallback onAction;
+  final String action;
 
-  TrackListHeader({@required this.trackList});
+  TrackListHeader({
+    @required this.trackList,
+    this.action,
+    this.onAction,
+  });
 
   @override
   _TrackListHeaderState createState() => _TrackListHeaderState();
@@ -58,10 +64,9 @@ class _TrackListHeaderState extends State<TrackListHeader> {
         widget.trackList.title,
         style: Theme.of(context).textTheme.subtitle,
       ),
-      action: PrimaryButton(
-        text: 'SHUFFLE',
-        onTap: () {},
-      ),
+      action: widget.action != null
+          ? PrimaryButton(text: widget.action, onTap: widget.onAction)
+          : null,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:voc_amp/models/vocadb/vocadb-album.dart';
@@ -29,7 +31,7 @@ class Track {
       // non-required
       artist: artist,
       duration: duration,
-      artUri: artUri,
+      artUri: albums.isEmpty ? artUri : (albums[0].artUri ?? artUri),
     );
   }
 

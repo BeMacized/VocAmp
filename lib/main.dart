@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:voc_amp/providers/audio-player.provider.dart';
 import 'package:voc_amp/providers/track-list-view.provider.dart';
 import 'package:voc_amp/providers/track-list.provider.dart';
 import 'package:voc_amp/repositories/track-list.repository.dart';
 import 'package:voc_amp/repositories/vocadb-songs-api.repository.dart';
 import 'package:voc_amp/theme.dart';
 import 'package:voc_amp/views/main/main.view.dart';
+import 'package:voc_amp/views/play/play.view.dart';
 
 import 'globals.dart';
 
@@ -86,6 +88,7 @@ class _VocAmpState extends State<VocAmp> with WidgetsBindingObserver {
         initialRoute: '/main',
         routes: {
           '/main': (context) => MainView(),
+          '/play': (context) => PlayView(),
         },
       ),
       providers: [
@@ -94,7 +97,10 @@ class _VocAmpState extends State<VocAmp> with WidgetsBindingObserver {
         ),
         ChangeNotifierProvider<TrackListViewProvider>(
           create: (_) => TrackListViewProvider(),
-        )
+        ),
+        Provider<AudioPlayerProvider>(
+          create: (_) => AudioPlayerProvider(),
+        ),
       ],
     );
   }
