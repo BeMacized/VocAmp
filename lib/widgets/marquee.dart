@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 
@@ -35,6 +36,7 @@ class _MarqueeState extends State<Marquee> with WidgetsBindingObserver {
   bool scrolling = false;
   bool willScroll = false;
   bool _firstScroll = true;
+  double _loopId;
 
   @override
   void initState() {
@@ -53,10 +55,19 @@ class _MarqueeState extends State<Marquee> with WidgetsBindingObserver {
 
   @override
   void didChangeMetrics() {
-    this.startScrollLoop();
+    startScrollLoop();
+  }
+
+  @override
+  didUpdateWidget(Marquee oldWidget) {
+    if (oldWidget?.child != widget.child) {
+      startScrollLoop();
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   startScrollLoop() async {
+    double loopId = _loopId = Random().nextDouble();
     await Future.delayed(Duration(milliseconds: 0));
     // Find widths
     double ownWidth =
@@ -68,6 +79,7 @@ class _MarqueeState extends State<Marquee> with WidgetsBindingObserver {
     // If child is smaller than the scroll area, stop here.
     if (childWidth <= ownWidth) {
       if (willScroll) setState(() => willScroll = false);
+      scrollController.jumpTo(0);
       return;
     }
     if (!willScroll) setState(() => willScroll = true);
@@ -94,8 +106,10 @@ class _MarqueeState extends State<Marquee> with WidgetsBindingObserver {
     scrollController.jumpTo(0);
     setState(() => scrolling = false);
     // Repeat
-    await Future.delayed(widget.repeatDelay);
-    startScrollLoop();
+    if (_loopId == loopId) {
+      await Future.delayed(widget.repeatDelay);
+      startScrollLoop();
+    }
   }
 
   MainAxisAlignment get alignment {
