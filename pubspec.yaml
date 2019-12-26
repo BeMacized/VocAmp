@@ -35,6 +35,7 @@ dependencies:
   google_fonts: ^0.2.0
   color: ^2.1.1
   color_thief_flutter: ^1.0.0
+  uuid: ^2.0.4
   flutter:
     sdk: flutter
 

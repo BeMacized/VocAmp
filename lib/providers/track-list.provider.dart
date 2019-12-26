@@ -102,6 +102,7 @@ class TrackListProvider {
       fetchTracks: () {
         return _trackListRepository.getTopTracks(
           filteringMode: FilteringMode.newlyPublished,
+          duration: Duration(days: 14),
         );
       },
     );
@@ -119,6 +120,7 @@ class TrackListProvider {
       fetchTracks: () {
         return _trackListRepository.getTopTracks(
           filteringMode: FilteringMode.newlyAdded,
+          duration: Duration(days: 14),
         );
       },
     );

@@ -8,6 +8,7 @@ part of 'queued-track.dart';
 
 QueuedTrack _$QueuedTrackFromJson(Map<String, dynamic> json) {
   return QueuedTrack()
+    ..id = json['id'] as String
     ..track = json['track'] == null
         ? null
         : Track.fromJson(json['track'] as Map<String, dynamic>);
@@ -15,5 +16,6 @@ QueuedTrack _$QueuedTrackFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$QueuedTrackToJson(QueuedTrack instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'track': instance.track,
     };

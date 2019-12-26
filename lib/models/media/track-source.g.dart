@@ -9,11 +9,15 @@ part of 'track-source.dart';
 TrackSource _$TrackSourceFromJson(Map<String, dynamic> json) {
   return TrackSource()
     ..type = json['type'] as String
-    ..uri = json['uri'] as String;
+    ..pvType = json['pvType'] as String
+    ..data = (json['data'] as Map<String, dynamic>)?.map(
+      (k, e) => MapEntry(k, e as String),
+    );
 }
 
 Map<String, dynamic> _$TrackSourceToJson(TrackSource instance) =>
     <String, dynamic>{
       'type': instance.type,
-      'uri': instance.uri,
+      'pvType': instance.pvType,
+      'data': instance.data,
     };

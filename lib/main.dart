@@ -100,6 +100,7 @@ class _VocAmpState extends State<VocAmp> with WidgetsBindingObserver {
         ),
         Provider<AudioPlayerProvider>(
           create: (_) => AudioPlayerProvider(),
+          dispose: (context, provider) => provider.dispose(),
         ),
       ],
     );

@@ -13,12 +13,12 @@ Track _$TrackFromJson(Map<String, dynamic> json) {
     ..artist = json['artist'] as String
     ..duration = json['duration'] as int
     ..artUri = json['artUri'] as String
-    ..trackSource = json['trackSource'] == null
+    ..album = json['album'] == null
         ? null
-        : TrackSource.fromJson(json['trackSource'] as Map<String, dynamic>)
-    ..albums = (json['albums'] as List)
+        : AlbumRef.fromJson(json['album'] as Map<String, dynamic>)
+    ..sources = (json['sources'] as List)
         ?.map((e) =>
-            e == null ? null : AlbumRef.fromJson(e as Map<String, dynamic>))
+            e == null ? null : TrackSource.fromJson(e as Map<String, dynamic>))
         ?.toList();
 }
 
@@ -28,6 +28,6 @@ Map<String, dynamic> _$TrackToJson(Track instance) => <String, dynamic>{
       'artist': instance.artist,
       'duration': instance.duration,
       'artUri': instance.artUri,
-      'trackSource': instance.trackSource,
-      'albums': instance.albums,
+      'album': instance.album,
+      'sources': instance.sources,
     };

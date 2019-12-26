@@ -32,9 +32,11 @@ class VocaDBSongsApiRepository {
     String filterByParam;
     switch (filteringMode) {
       case FilteringMode.newlyPublished:
+        assert(duration != null && duration.inMilliseconds > 0);
         filterByParam = 'PublishDate';
         break;
       case FilteringMode.newlyAdded:
+        assert(duration != null && duration.inMilliseconds > 0);
         filterByParam = 'CreateDate';
         break;
       case FilteringMode.popularity:

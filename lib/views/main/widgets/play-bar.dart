@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:voc_amp/models/media/queued-track.dart';
+import 'package:voc_amp/providers/audio-player.provider.dart';
 import 'package:voc_amp/theme.dart';
 import 'package:voc_amp/widgets/marquee.dart';
 
@@ -15,114 +18,130 @@ class _PlayBarState extends State<PlayBar> {
       onTap: () {
         Navigator.of(context).pushNamed('/play');
       },
-      child: AnimatedContainer(
-        curve: Curves.easeInOut,
-        duration: Duration(milliseconds: 250),
-        height: expandedHeight,
-        child: ClipRect(
-          child: OverflowBox(
-            alignment: Alignment.center,
-            maxHeight: expandedHeight,
-            child: Column(
-              children: <Widget>[
-                LayoutBuilder(builder: (context, constraints) {
-                  return Container(
-                    height: 2,
-                    color: Colors.white.withOpacity(0.5),
-                    alignment: Alignment.centerLeft,
-                    child: AnimatedContainer(
-                      height: 2,
-                      duration: Duration(milliseconds: 250),
-                      color: Colors.white,
-                      width: constraints.maxWidth * 0.5,
-                    ),
-                  );
-                }),
-                Expanded(
-                  child: Material(
-                    color: paneBackgroundColor,
-                    child: Row(
-                      children: <Widget>[
-                        AspectRatio(
-                          aspectRatio: 1,
-                          child: Center(
-                            child: IconButton(
-                              icon: Icon(Icons.star_border),
-                              onPressed: () {},
-                            ),
+      child: StreamBuilder<QueuedTrack>(
+        stream: Provider.of<AudioPlayerProvider>(context).currentTrack,
+        builder: (context, snapshot) {
+          return AnimatedContainer(
+            curve: Curves.easeInOut,
+            duration: Duration(milliseconds: 250),
+            height: snapshot.data != null ? expandedHeight : 0,
+            child: ClipRect(
+              child: OverflowBox(
+                alignment: Alignment.center,
+                maxHeight: expandedHeight,
+                child: Column(
+                  children: <Widget>[
+                    LayoutBuilder(builder: (context, constraints) {
+                      return Container(
+                        height: 2,
+                        color: Colors.white.withOpacity(0.5),
+                        alignment: Alignment.centerLeft,
+                        child: AnimatedContainer(
+                          height: 2,
+                          duration: Duration(milliseconds: 250),
+                          color: Colors.white,
+                          width: constraints.maxWidth * 0.5,
+                        ),
+                      );
+                    }),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(color: Colors.black),
                           ),
                         ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 5,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: <Widget>[
-                                Marquee(
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
+                        child: Material(
+                          color: paneBackgroundColor,
+                          child: Row(
+                            children: <Widget>[
+                              AspectRatio(
+                                aspectRatio: 1,
+                                child: Center(
+                                  child: IconButton(
+                                    icon: Icon(Icons.star_border),
+                                    onPressed: () {},
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 5,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
                                     children: <Widget>[
-                                      Text(
-                                        'This is a very long track title',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .body2
-                                            .copyWith(fontSize: 12),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 3.0,
-                                        ),
-                                        child: Text(
-                                          '\u{2E31}',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .body2
-                                              .copyWith(
-                                                fontSize: 12,
-                                                color:
-                                                    Colors.white.withOpacity(0.6),
+                                      if (snapshot?.data?.track != null)
+                                        Marquee(
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: <Widget>[
+                                              Text(
+                                                snapshot.data.track.title,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .body2
+                                                    .copyWith(fontSize: 12),
                                               ),
-                                        ),
-                                      ),
-                                      Text(
-                                        'By this very artist who also has a long name',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .body2
-                                            .copyWith(
-                                              fontSize: 12,
-                                              color:
-                                                  Colors.white.withOpacity(0.6),
-                                            ),
-                                      )
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 3.0,
+                                                ),
+                                                child: Text(
+                                                  '\u{2E31}',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .body2
+                                                      .copyWith(
+                                                        fontSize: 12,
+                                                        color: Colors.white
+                                                            .withOpacity(0.6),
+                                                      ),
+                                                ),
+                                              ),
+                                              Text(
+                                                snapshot.data.track.artist,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .body2
+                                                    .copyWith(
+                                                      fontSize: 12,
+                                                      color: Colors.white
+                                                          .withOpacity(0.6),
+                                                    ),
+                                              )
+                                            ],
+                                          ),
+                                        )
                                     ],
                                   ),
-                                )
-                              ],
-                            ),
+                                ),
+                              ),
+                              AspectRatio(
+                                aspectRatio: 1,
+                                child: Center(
+                                  child: IconButton(
+                                    icon: Icon(Icons.play_circle_outline),
+                                    onPressed: () {},
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        AspectRatio(
-                          aspectRatio: 1,
-                          child: Center(
-                            child: IconButton(
-                              icon: Icon(Icons.play_circle_outline),
-                              onPressed: () {},
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

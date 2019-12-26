@@ -25,7 +25,6 @@ class _TrackListViewState extends State<TrackListView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-//      if (Provider.of<TrackListViewProvider>(context).trackList == null)
       Provider.of<TrackListViewProvider>(context)
         ..setTrackList(widget.trackList)
         ..fetchTracks();

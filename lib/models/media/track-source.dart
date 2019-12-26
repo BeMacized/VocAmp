@@ -6,7 +6,8 @@ part 'track-source.g.dart';
 class TrackSource {
 
   String type;
-  String uri;
+  String pvType;
+  Map<String, String> data;
 
   TrackSource();
 

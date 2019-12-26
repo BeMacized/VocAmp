@@ -9,43 +9,51 @@ class TrackListItem extends StatelessWidget {
     @required this.track,
   });
 
+  bool get disabled {
+    return track.sources.isEmpty;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Pressable(
-      onTap: (){},
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Row(
-          children: <Widget>[
-            // Left size
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Text(
-                      track.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.body1,
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      track.artist,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.caption,
-                    ),
-                  ],
+      onTap: disabled ? null : () {},
+      child: AnimatedOpacity(
+        opacity: disabled ? 0.5 : 1.0,
+        duration: Duration(milliseconds: 250),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: <Widget>[
+              // Left size
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      Text(
+                        track.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.body1,
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        track.artist,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.caption,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            // Right side
-            Container()
-          ],
+              // Right side
+              Container()
+            ],
+          ),
         ),
       ),
     );

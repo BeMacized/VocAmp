@@ -16,9 +16,7 @@ class _MainTabBarState extends State<MainTabBar> {
       height: expandedHeight,
       decoration: BoxDecoration(
         color: paneBackgroundColor,
-        border: Border(
-          top: BorderSide(color: Colors.black),
-        ),
+
       ),
       child: ClipRect(
         child: OverflowBox(
