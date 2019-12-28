@@ -40,7 +40,6 @@ class AudioPlayerProvider {
       // Request queue update
       await AudioService.customAction('getQueueState');
     });
-
   }
 
   dispose() {
@@ -78,6 +77,13 @@ class AudioPlayerProvider {
 
   _handleEvent(AudioPlayerEvent event) async {
     switch (event.action) {
+      case 'serviceStop':
+        {
+          _queue.add([]);
+          _currentTrack.add(null);
+          _shuffled.add(false);
+          break;
+        }
       case 'queueUpdate':
         {
           _queue.add(event.payload['queue']);
@@ -87,5 +93,4 @@ class AudioPlayerProvider {
         }
     }
   }
-
 }

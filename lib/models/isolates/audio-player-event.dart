@@ -9,7 +9,7 @@ class AudioPlayerEvent {
 
   AudioPlayerEvent();
 
-  factory AudioPlayerEvent.build(String action, dynamic payload) =>
+  factory AudioPlayerEvent.build(String action, [dynamic payload]) =>
       AudioPlayerEvent()
         ..action = action
         ..payload = payload;

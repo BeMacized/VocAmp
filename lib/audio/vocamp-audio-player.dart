@@ -29,22 +29,11 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
     try {
       // Setup queue
       queue = AudioPlayerQueue();
-      StreamSubscription queueSubscription =
-          queue.updated.listen((_) => this.onQueueUpdate());
+      var queueSubscription = queue.updated.listen((_) => this.onQueueUpdate());
       // Setup audio player
       player = AudioPlayer();
-      StreamSubscription playerSubscription = Rx.combineLatest3(
-        player.playbackStateStream,
-        player.durationStream,
-        player.getPositionStream(),
-        (AudioPlaybackState state, Duration duration, Duration position) {
-          return {
-            'state': state ?? player.playbackState,
-            'duration': duration ?? Duration(seconds: 0),
-            'position': position ?? Duration(seconds: 0)
-          };
-        },
-      ).listen((m) => onPlayerUpdate(m['state'], m['duration'], m['position']));
+      var playbackEventSubscription =
+          player.playbackEventStream.listen((e) => updateState());
       // Fetch send port
       onRefreshSendPort();
       // Setup completer and wait for service stop
@@ -52,8 +41,9 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       await serviceStopCompleter.future;
       // Clean up service before stop
       await stopPlayer();
+      sendPort.send(AudioPlayerEvent.build('serviceStop'));
       queueSubscription.cancel();
-      playerSubscription.cancel();
+      playbackEventSubscription.cancel();
       queue.dispose();
     } catch (e) {
       print('[AudioService] onStart: $e');
@@ -116,6 +106,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
             return;
           }
           // Play audio url
+          await stopPlayer();
           Duration duration = await player.setUrl(audioUrl);
           AudioServiceBackground.setMediaItem(
             queue.currentTrack.buildMediaItem(duration: duration),
@@ -137,8 +128,8 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
 
   @override
   void onSeekTo(int position) {
-    if (player.playbackState == AudioPlaybackState.playing ||
-        player.playbackState == AudioPlaybackState.paused)
+    if (player.playbackState != AudioPlaybackState.none &&
+        player.playbackState != AudioPlaybackState.connecting)
       player.seek(Duration(milliseconds: position));
   }
 
@@ -232,8 +223,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
     return null;
   }
 
-  onPlayerUpdate(
-      AudioPlaybackState apState, Duration duration, Duration position) {
+  updateState() {
     // Determine playback state
     BasicPlaybackState bpState = {
       AudioPlaybackState.none: BasicPlaybackState.none,
@@ -242,9 +232,8 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       AudioPlaybackState.playing: BasicPlaybackState.playing,
       AudioPlaybackState.buffering: BasicPlaybackState.buffering,
       AudioPlaybackState.connecting: BasicPlaybackState.connecting,
-      //TODO: CHECK LATER
-      AudioPlaybackState.completed: BasicPlaybackState.paused,
-    }[apState];
+      AudioPlaybackState.completed: BasicPlaybackState.stopped,
+    }[player.playbackState];
     // Determine controls
     bool playing = bpState == BasicPlaybackState.playing ||
         bpState == BasicPlaybackState.buffering ||
@@ -265,8 +254,8 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       controls: controls,
       systemActions: actions,
       basicState: bpState,
-      updateTime: DateTime.now().millisecondsSinceEpoch,
-      position: position.inMilliseconds,
+      updateTime: player.playbackEvent?.updateTime?.inMilliseconds,
+      position: player.playbackEvent?.position?.inMilliseconds ?? 0,
     );
   }
 
