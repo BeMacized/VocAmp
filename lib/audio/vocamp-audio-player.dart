@@ -136,6 +136,13 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
   }
 
   @override
+  void onSeekTo(int position) {
+    if (player.playbackState == AudioPlaybackState.playing ||
+        player.playbackState == AudioPlaybackState.paused)
+      player.seek(Duration(milliseconds: position));
+  }
+
+  @override
   Future<void> onCustomAction(String name, dynamic arguments) async {
     try {
       switch (name) {
