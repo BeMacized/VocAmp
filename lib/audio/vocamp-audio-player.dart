@@ -257,7 +257,8 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
     ];
     // Determine actions
     List<MediaAction> actions = [
-      if (playing || bpState == BasicPlaybackState.paused) MediaAction.seekTo
+      if (playing || bpState == BasicPlaybackState.paused) MediaAction.seekTo,
+      MediaAction.stop,
     ];
     // Set state
     AudioServiceBackground.setState(

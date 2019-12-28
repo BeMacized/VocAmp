@@ -70,6 +70,7 @@ class AudioPlayerProvider {
   _startService() async {
     if (await AudioService.running) return;
     await AudioService.start(
+      androidStopForegroundOnPause: true,
       backgroundTaskEntrypoint: audioPlayerBackgroundTask,
       androidNotificationIcon: 'mipmap/ic_launcher',
     );
