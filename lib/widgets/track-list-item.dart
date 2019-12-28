@@ -4,9 +4,11 @@ import 'package:voc_amp/widgets/pressable.dart';
 
 class TrackListItem extends StatelessWidget {
   final Track track;
+  final VoidCallback onTap;
 
   TrackListItem({
     @required this.track,
+    this.onTap
   });
 
   bool get disabled {
@@ -16,7 +18,7 @@ class TrackListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Pressable(
-      onTap: disabled ? null : () {},
+      onTap: disabled ? null : onTap,
       child: AnimatedOpacity(
         opacity: disabled ? 0.5 : 1.0,
         duration: Duration(milliseconds: 250),

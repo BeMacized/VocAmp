@@ -4,8 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:voc_amp/models/media/track-list.dart';
 import 'package:voc_amp/models/media/track.dart';
 import 'package:voc_amp/models/utils/failure.dart';
-import 'package:voc_amp/providers/audio-player.provider.dart';
-import 'package:voc_amp/providers/track-list-view.provider.dart';
+import 'package:voc_amp/views/tracklist/track-list-view.provider.dart';
 import 'package:voc_amp/views/tracklist/widgets/track-list-header.dart';
 import 'package:voc_amp/widgets/default-pane.dart';
 import 'package:voc_amp/widgets/failure-block.dart';
@@ -21,14 +20,22 @@ class TrackListView extends StatefulWidget {
 }
 
 class _TrackListViewState extends State<TrackListView> {
+  TrackListViewProvider _viewProvider;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<TrackListViewProvider>(context)
+      _viewProvider
         ..setTrackList(widget.trackList)
         ..fetchTracks();
     });
+  }
+
+  didChangeDependencies() {
+    super.didChangeDependencies();
+    final _viewProvider = Provider.of<TrackListViewProvider>(context);
+    if (_viewProvider != this._viewProvider) this._viewProvider = _viewProvider;
   }
 
   @override
@@ -116,13 +123,16 @@ class _TrackListViewState extends State<TrackListView> {
           TrackListHeader(
             trackList: trackList,
             action: 'SHUFFLE',
-            onAction: () {
-              Provider.of<AudioPlayerProvider>(context).setQueue(tracks);
-            },
+            onAction: () => _viewProvider.shuffleAll(tracks),
           ),
           SliverToBoxAdapter(child: SizedBox(height: 20)),
           ...tracks.map((track) {
-            return SliverToBoxAdapter(child: TrackListItem(track: track));
+            return SliverToBoxAdapter(
+              child: TrackListItem(
+                track: track,
+                onTap: () => _viewProvider.playTrack(track, tracks),
+              ),
+            );
           }),
         ],
       ),

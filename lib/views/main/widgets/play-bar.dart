@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:voc_amp/models/media/queued-track.dart';
+import 'package:voc_amp/models/media/queue-track.dart';
 import 'package:voc_amp/providers/audio-player.provider.dart';
 import 'package:voc_amp/theme.dart';
 import 'package:voc_amp/widgets/marquee.dart';
@@ -18,7 +18,7 @@ class _PlayBarState extends State<PlayBar> {
       onTap: () {
         Navigator.of(context).pushNamed('/play');
       },
-      child: StreamBuilder<QueuedTrack>(
+      child: StreamBuilder<QueueTrack>(
         stream: Provider.of<AudioPlayerProvider>(context).currentTrack,
         builder: (context, snapshot) {
           return AnimatedContainer(
@@ -27,7 +27,7 @@ class _PlayBarState extends State<PlayBar> {
             height: snapshot.data != null ? expandedHeight : 0,
             child: ClipRect(
               child: OverflowBox(
-                alignment: Alignment.center,
+                alignment: Alignment.topCenter,
                 maxHeight: expandedHeight,
                 child: Column(
                   children: <Widget>[
@@ -48,7 +48,7 @@ class _PlayBarState extends State<PlayBar> {
                       child: Container(
                         decoration: BoxDecoration(
                           border: Border(
-                            top: BorderSide(color: Colors.black),
+                            bottom: BorderSide(color: Colors.black),
                           ),
                         ),
                         child: Material(

@@ -66,10 +66,10 @@ class _HomeViewState extends State<HomeView> {
     return TileRow(
       children: <Widget>[
         _buildTracksListTile(trackLists.tracksTopOverall),
-        _buildTracksListTile(trackLists.tracksTopYearly),
-        _buildTracksListTile(trackLists.tracksTopMonthly),
-        _buildTracksListTile(trackLists.tracksTopWeekly),
         _buildTracksListTile(trackLists.tracksTopDaily),
+        _buildTracksListTile(trackLists.tracksTopWeekly),
+        _buildTracksListTile(trackLists.tracksTopMonthly),
+        _buildTracksListTile(trackLists.tracksTopYearly),
       ],
     );
   }

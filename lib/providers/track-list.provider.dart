@@ -35,8 +35,7 @@ class TrackListProvider {
       title: 'Tracks of the Year',
       subtitle: 'This year\'s hits',
       image: TrackListImage(
-        url:
-            'https://preview.redd.it/yjh482s8maa31.jpg?width=613&auto=webp&s=ae559021de74cf3e134f703e6f78af074f8cdbd9',
+        url: 'https://i.redd.it/9zp4oh3w4e041.jpg',
         text: ['Top Tracks', 'Yearly'],
       ),
       fetchTracks: () {
@@ -81,7 +80,8 @@ class TrackListProvider {
       title: 'Top of Today',
       subtitle: 'What\'s popular today?',
       image: TrackListImage(
-        url: 'https://i.redd.it/9zp4oh3w4e041.jpg',
+        url:
+            'https://preview.redd.it/yjh482s8maa31.jpg?width=613&auto=webp&s=ae559021de74cf3e134f703e6f78af074f8cdbd9',
         text: ['Top Tracks', 'Daily'],
       ),
       fetchTracks: () {

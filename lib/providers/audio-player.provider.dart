@@ -6,20 +6,19 @@ import 'package:audio_service/audio_service.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:voc_amp/audio/vocamp-audio-player.dart';
 import 'package:voc_amp/models/isolates/audio-player-event.dart';
-import 'package:voc_amp/models/media/queued-track.dart';
-import 'package:voc_amp/models/media/track.dart';
+import 'package:voc_amp/models/media/queue-track.dart';
 
 class AudioPlayerProvider {
   static const PORT_NAME = 'FRONT_PORT';
 
   ReceivePort _receivePort;
-  Subject<List<QueuedTrack>> _queue = ReplaySubject(maxSize: 1);
-  Subject<QueuedTrack> _currentTrack = ReplaySubject(maxSize: 1);
+  Subject<List<QueueTrack>> _queue = ReplaySubject(maxSize: 1);
+  Subject<QueueTrack> _currentTrack = ReplaySubject(maxSize: 1);
   Subject<bool> _shuffled = ReplaySubject(maxSize: 1);
 
-  Stream<List<QueuedTrack>> get tracks => _queue.asBroadcastStream();
+  Stream<List<QueueTrack>> get tracks => _queue.asBroadcastStream();
 
-  Stream<QueuedTrack> get currentTrack => _currentTrack.asBroadcastStream();
+  Stream<QueueTrack> get currentTrack => _currentTrack.asBroadcastStream();
 
   Stream<bool> get shuffled => _shuffled.asBroadcastStream();
 
@@ -41,6 +40,7 @@ class AudioPlayerProvider {
       // Request queue update
       await AudioService.customAction('getQueueState');
     });
+
   }
 
   dispose() {
@@ -49,12 +49,22 @@ class AudioPlayerProvider {
     _currentTrack.close();
   }
 
-  setQueue(List<Track> tracks) async {
-    await _startService(); // Make sure service is started
-    AudioService.customAction(
+  setQueue(List<QueueTrack> tracks,
+      {QueueTrack cursor, bool shuffled = false}) async {
+    await _startService();
+    await AudioService.customAction(
       'setQueue',
-      jsonEncode(tracks.map((t) => QueuedTrack.fromTrack(t)).toList()),
+      jsonEncode({
+        'tracks': tracks,
+        'cursor': cursor ?? (tracks.isEmpty ? null : tracks[0]),
+        'shuffled': shuffled
+      }),
     );
+  }
+
+  void play() async {
+    if (!(await AudioService.running)) return;
+    await AudioService.play();
   }
 
   _startService() async {
@@ -76,4 +86,5 @@ class AudioPlayerProvider {
         }
     }
   }
+
 }

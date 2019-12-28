@@ -37,6 +37,7 @@ class Track {
     }
     // Sources
     List<TrackSource> sources = (song.pvs ?? [])
+        .where((pv) => !pv.disabled)
         .map((pv) {
           switch (pv.service) {
             case 'Youtube':
@@ -63,7 +64,7 @@ class Track {
       ..id = song.id
       ..title = song.name
       ..artist = song.artistString
-      ..duration = song.lengthSeconds
+      ..duration = (song.lengthSeconds ?? 0) * 1000
       ..artUri = album?.artUri ?? song?.mainPicture?.urlThumb
       ..album = album
       ..sources = sources;
