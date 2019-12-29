@@ -32,7 +32,7 @@ dependencies:
   just_audio: #^0.0.3
     git:
       url: https://github.com/BeMacized/just_audio.git
-      ref: 28fe1d34db567e61be737006161d067fc848251b
+      ref: 2976d93eb96d322b1428eb83dc5f9f2f0bd58646
   flutter:
     sdk: flutter
   cupertino_icons: ^0.1.2

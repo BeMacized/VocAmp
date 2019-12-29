@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
 import 'dart:ui';
@@ -11,16 +12,21 @@ import 'package:voc_amp/models/media/queue-track.dart';
 class AudioPlayerProvider {
   static const PORT_NAME = 'FRONT_PORT';
 
+  StreamSubscription _playbackStateSubscription;
+
   ReceivePort _receivePort;
   Subject<List<QueueTrack>> _queue = ReplaySubject(maxSize: 1);
   Subject<QueueTrack> _currentTrack = ReplaySubject(maxSize: 1);
   Subject<bool> _shuffled = ReplaySubject(maxSize: 1);
+  Subject<PlaybackState> _playbackState = ReplaySubject(maxSize: 1);
 
   Stream<List<QueueTrack>> get tracks => _queue.asBroadcastStream();
 
   Stream<QueueTrack> get currentTrack => _currentTrack.asBroadcastStream();
 
   Stream<bool> get shuffled => _shuffled.asBroadcastStream();
+
+  Stream<PlaybackState> get playbackState => _playbackState.asBroadcastStream();
 
   AudioPlayerProvider() {
     // Create receive port
@@ -40,12 +46,19 @@ class AudioPlayerProvider {
       // Request queue update
       await AudioService.customAction('getQueueState');
     });
+    // Subscribe to events
+    _playbackStateSubscription = AudioService.playbackStateStream.listen(
+      (state) => _playbackState.add(state),
+    );
   }
 
+  MediaItem get currentMediaItem => AudioService.currentMediaItem;
+
   dispose() {
-    _receivePort.close();
-    _queue.close();
-    _currentTrack.close();
+    _playbackStateSubscription?.cancel();
+    _receivePort?.close();
+    _queue?.close();
+    _currentTrack?.close();
   }
 
   setQueue(List<QueueTrack> tracks,

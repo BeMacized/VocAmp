@@ -93,6 +93,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
         case AudioPlaybackState.paused:
           await player.play();
           break;
+        case AudioPlaybackState.completed:
         case AudioPlaybackState.none:
         case AudioPlaybackState.stopped:
           if (queue.currentTrack == null ||
@@ -118,7 +119,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
         case AudioPlaybackState.playing:
           break;
         default:
-          throw 'Unknown playback state';
+          throw 'Unknown playback state: ${player.playbackState}';
       }
     } catch (e) {
       print('[AudioService] onPlay: $e');

@@ -351,11 +351,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "28fe1d34db567e61be737006161d067fc848251b"
-      resolved-ref: "28fe1d34db567e61be737006161d067fc848251b"
+      ref: "2976d93eb96d322b1428eb83dc5f9f2f0bd58646"
+      resolved-ref: "2976d93eb96d322b1428eb83dc5f9f2f0bd58646"
       url: "https://github.com/BeMacized/just_audio.git"
     source: git
-    version: "0.0.3"
+    version: "0.0.4"
   kernel:
     dependency: transitive
     description:
