@@ -56,6 +56,13 @@ class _TrackListHeaderState extends State<TrackListHeader> {
     });
   }
 
+  Widget _buildBackButton(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.arrow_back_ios),
+      onPressed: () => Navigator.of(context).pop(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return DynamicHeader(
@@ -67,6 +74,8 @@ class _TrackListHeaderState extends State<TrackListHeader> {
       action: widget.action != null
           ? PrimaryButton(text: widget.action, onTap: widget.onAction)
           : null,
+      barLeading:
+          Navigator.of(context).canPop() ? _buildBackButton(context) : null,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,

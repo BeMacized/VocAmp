@@ -35,7 +35,7 @@ packages:
       name: audio_service
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.5.6"
+    version: "0.6.0"
   auto_size_text:
     dependency: "direct main"
     description:
@@ -351,11 +351,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "2976d93eb96d322b1428eb83dc5f9f2f0bd58646"
-      resolved-ref: "2976d93eb96d322b1428eb83dc5f9f2f0bd58646"
-      url: "https://github.com/BeMacized/just_audio.git"
+      ref: "67bcd13739baeac04854cd14f0dd45865d1a97b7"
+      resolved-ref: "67bcd13739baeac04854cd14f0dd45865d1a97b7"
+      url: "https://github.com/ryanheise/just_audio.git"
     source: git
-    version: "0.0.4"
+    version: "0.0.6"
   kernel:
     dependency: transitive
     description:
@@ -652,7 +652,7 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "5369df4414a2fe5b9d168c0f147f66aa85f1ff81"
+      ref: "5369df4414a2fe5b9d168c0f147f66aa85f1f"
       resolved-ref: "5369df4414a2fe5b9d168c0f147f66aa85f1ff81"
       url: "https://github.com/BeMacized/youtube-extractor.git"
     source: git

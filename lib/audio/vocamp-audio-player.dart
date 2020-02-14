@@ -4,7 +4,6 @@ import 'dart:isolate';
 import 'dart:ui';
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:voc_amp/models/isolates/audio-player-event.dart';
 import 'package:voc_amp/models/media/queue-track.dart';
 import 'package:voc_amp/models/media/track-source.dart';
@@ -206,6 +205,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
                 .map((stream) => stream.url)
                 .firstWhere((url) => url != null, orElse: () => null);
             if (audioUrl != null) {
+              print('Found audio stream for YouTube video "$videoId"');
               return audioUrl;
             } else {
               print('No audio stream available for YouTube video "$videoId"');

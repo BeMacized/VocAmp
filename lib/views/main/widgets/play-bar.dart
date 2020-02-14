@@ -90,8 +90,8 @@ class _PlayBarState extends State<PlayBar> {
               ?.duration ??
           1;
       double progress = playbackState == null
-          ? 0
-          : (playbackState.currentPosition / max(duration, 1)).clamp(0, 1.0);
+          ? 0.0
+          : (playbackState.currentPosition / max(duration, 1)).clamp(0.0, 1.0);
       return Container(
         height: 2,
         color: Colors.white.withOpacity(0.5),
