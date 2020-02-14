@@ -43,6 +43,7 @@ class _TrackListViewState extends State<TrackListView> {
     return Stack(
       alignment: Alignment.topCenter,
       children: <Widget>[
+        Container(color: Colors.black),
         Consumer<TrackListViewProvider>(
           builder: (context, vp, child) =>
               vp.tracks?.fold(

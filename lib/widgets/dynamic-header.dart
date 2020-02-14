@@ -12,12 +12,16 @@ class DynamicHeader extends StatefulWidget {
   final Widget content;
   final Widget title;
   final Color bgColor;
+  final Widget barLeading;
+  final List<Widget> barActions;
 
   DynamicHeader({
     this.action,
     this.content,
     this.title,
     this.bgColor = Colors.white,
+    this.barLeading,
+    this.barActions,
   });
 
   @override
@@ -60,6 +64,8 @@ class _DynamicHeaderState extends State<DynamicHeader> {
         action: widget.action,
         bgColor: widget.bgColor,
         title: widget.title,
+        barLeading: widget.barLeading,
+        barActions: widget.barActions,
       ),
     );
   }
@@ -71,6 +77,8 @@ class DynamicHeaderDelegate extends SliverPersistentHeaderDelegate {
   Widget content;
   Widget action;
   Widget title;
+  Widget barLeading;
+  List<Widget> barActions;
   Color bgColor;
   @override
   double maxExtent = 0;
@@ -86,6 +94,8 @@ class DynamicHeaderDelegate extends SliverPersistentHeaderDelegate {
     @required this.content,
     @required this.bgColor,
     @required this.title,
+    this.barLeading,
+    this.barActions,
   });
 
   @override
@@ -112,10 +122,12 @@ class DynamicHeaderDelegate extends SliverPersistentHeaderDelegate {
       top: 0,
       left: 0,
       right: 0,
-      height: _APPBAR_HEIGHT + topPadding,
       child: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: barLeading,
+        actions: barActions,
         centerTitle: true,
         title: AnimatedOpacity(
           duration: Duration(
