@@ -26,7 +26,7 @@ class TrackListItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
             children: <Widget>[
-              // Left size
+              // Left side
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10),

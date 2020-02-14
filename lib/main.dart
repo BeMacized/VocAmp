@@ -77,6 +77,28 @@ class _VocAmpState extends State<VocAmp> with WidgetsBindingObserver {
     }
   }
 
+  Route<dynamic> onGenerateRoute(RouteSettings settings) {
+    WidgetBuilder builder;
+    bool fullscreenDialog = false;
+    switch (settings.name) {
+      case '/':
+      case '/main':
+        builder = (BuildContext _) => MainView();
+        break;
+      case '/play':
+        builder = (BuildContext _) => PlayView();
+        fullscreenDialog = true;
+        break;
+      default:
+        throw Exception('Invalid route: ${settings.name}');
+    }
+    return MaterialPageRoute(
+      builder: builder,
+      settings: settings,
+      fullscreenDialog: fullscreenDialog,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -85,11 +107,7 @@ class _VocAmpState extends State<VocAmp> with WidgetsBindingObserver {
         theme: getAppTheme(context),
         navigatorKey: Application.navigatorKey,
         debugShowCheckedModeBanner: false,
-        initialRoute: '/main',
-        routes: {
-          '/main': (context) => MainView(),
-          '/play': (context) => PlayView(),
-        },
+        onGenerateRoute: onGenerateRoute,
       ),
       providers: [
         Provider<TrackListProvider>(

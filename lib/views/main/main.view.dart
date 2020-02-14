@@ -13,6 +13,26 @@ class MainView extends StatefulWidget {
 class _MainViewState extends State<MainView> {
   GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
+  Route<dynamic> onGenerateRoute(RouteSettings settings) {
+    WidgetBuilder builder;
+    switch (settings.name) {
+      case 'main/home':
+        builder = (BuildContext _) => HomeView();
+        break;
+      case 'main/tracklist':
+        builder = (BuildContext _) => TrackListView(
+              trackList: settings.arguments,
+            );
+        break;
+      default:
+        throw Exception('Invalid route: ${settings.name}');
+    }
+    return MaterialPageRoute(
+      builder: builder,
+      settings: settings,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,23 +53,7 @@ class _MainViewState extends State<MainView> {
                 child: Navigator(
                   key: _navigatorKey,
                   initialRoute: 'main/home',
-                  onGenerateRoute: (RouteSettings settings) {
-                    WidgetBuilder builder;
-                    switch (settings.name) {
-                      case 'main/home':
-                        builder = (BuildContext _) => HomeView();
-                        break;
-                      case 'main/tracklist':
-                        builder = (BuildContext _) => TrackListView(
-                              trackList: settings.arguments,
-                            );
-                        break;
-                      default:
-                        throw Exception('Invalid route: ${settings.name}');
-                    }
-                    return MaterialPageRoute(
-                        builder: builder, settings: settings);
-                  },
+                  onGenerateRoute: onGenerateRoute,
                 ),
               ),
             ),
