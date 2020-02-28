@@ -71,4 +71,11 @@ class Track {
   }
 
   Map<String, dynamic> toJson() => _$TrackToJson(this);
+
+  @override
+  String toString() {
+    return 'Track{id: $id, title: $title, artist: $artist}';
+  }
+
+
 }

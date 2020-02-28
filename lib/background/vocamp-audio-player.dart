@@ -3,12 +3,13 @@ import 'dart:convert';
 import 'dart:isolate';
 import 'dart:ui';
 import 'package:audio_service/audio_service.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:voc_amp/background/utils/stream-utils.dart';
 import 'package:voc_amp/models/isolates/audio-player-event.dart';
 import 'package:voc_amp/models/media/queue-track.dart';
-import 'package:voc_amp/models/media/track-source.dart';
 import 'package:voc_amp/providers/audio-player.provider.dart';
-import 'package:youtube_extractor/youtube_extractor.dart';
+import 'package:voc_amp/utils/logger.dart';
 
 import 'audio-player-queue.dart';
 import 'media-controls.dart';
@@ -22,19 +23,25 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
   Completer serviceStopCompleter;
   SendPort sendPort;
   AudioPlayer player;
+  Logger log = Logger('VocAmpAudioPlayer');
+
+  //
+  // PLAYER EVENTS
+  //
 
   @override
   onStart() async {
     try {
       // Setup queue
       queue = AudioPlayerQueue();
-      var queueSubscription = queue.updated.listen((_) => this.onQueueUpdate());
+      var queueSubscription =
+          queue.updated.listen((_) => this.sendQueueUpdate());
       // Setup audio player
       player = AudioPlayer();
       var playbackEventSubscription =
           player.playbackEventStream.listen((e) => updateState());
       // Fetch send port
-      onRefreshSendPort();
+      refreshSendPort();
       // Setup completer and wait for service stop
       serviceStopCompleter = Completer();
       await serviceStopCompleter.future;
@@ -45,7 +52,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       playbackEventSubscription.cancel();
       queue.dispose();
     } catch (e) {
-      print('[AudioService] onStart: $e');
+      log.severe(['onStart', e]);
       rethrow;
     }
   }
@@ -53,7 +60,6 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
   @override
   void onPause() async {
     if (player.playbackState == AudioPlaybackState.playing ||
-        player.playbackState == AudioPlaybackState.buffering ||
         player.playbackState == AudioPlaybackState.connecting)
       await player.pause();
   }
@@ -80,7 +86,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       // Release completer
       serviceStopCompleter.complete();
     } catch (e) {
-      print('[AudioService] onStop: $e');
+      log.severe(['onStop', e]);
       rethrow;
     }
   }
@@ -98,22 +104,49 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
           if (queue.currentTrack == null ||
               queue.currentTrack.track.sources.isEmpty) return;
           // Obtain audio url
-          String audioUrl = await getAudioUrl(queue.currentTrack);
+          String audioUrl;
+          try {
+            audioUrl = await StreamUtils.getAudioStreamForQueueTrack(
+                queue.currentTrack);
+          } catch (e) {
+            if (e is NoConnectionException) {
+              Fluttertoast.showToast(
+                msg:
+                    'Playback is stopping as the music service could not be reached.',
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.BOTTOM,
+              );
+              await stopPlayer();
+              return;
+            }
+            if (e is ExtractionException) {
+              Fluttertoast.showToast(
+                msg:
+                    'An extraction error was encountered. The app will likely have to be updated.',
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.BOTTOM,
+              );
+              await stopPlayer();
+              return;
+            }
+            rethrow;
+          }
           // If no audio url can be obtained, skip to the next track.
           if (audioUrl == null) {
-            queue.next();
-            onPlay();
+            QueueTrack nextTrack = queue.next();
+            log.debug(['NEXT TRACK', nextTrack]);
+            if (nextTrack != null) onPlay();
             return;
           }
           // Play audio url
           await stopPlayer();
           Duration duration = await player.setUrl(audioUrl);
+          queue.currentTrack.cachedDuration = duration;
           AudioServiceBackground.setMediaItem(
-            queue.currentTrack.buildMediaItem(duration: duration),
+            queue.currentTrack.buildMediaItem(),
           );
           await player.play();
           break;
-        case AudioPlaybackState.buffering:
         case AudioPlaybackState.connecting:
         case AudioPlaybackState.playing:
           break;
@@ -121,7 +154,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
           throw 'Unknown playback state: ${player.playbackState}';
       }
     } catch (e) {
-      print('[AudioService] onPlay: $e');
+      log.severe(['onPlay', e]);
       rethrow;
     }
   }
@@ -140,22 +173,54 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
         case 'setQueue':
           return await handleSetQueue(jsonDecode(arguments));
         case 'refreshSendPort':
-          return onRefreshSendPort();
+          return refreshSendPort();
         case 'getQueueState':
-          return onQueueUpdate();
+          return handleGetQueueState();
       }
     } catch (e) {
-      print('[AudioService] onCustomAction: $e');
+      log.severe(['onCustomAction', name, e]);
       rethrow;
     }
   }
 
-  void onRefreshSendPort() {
+  //
+  // CUSTOM ACTION HANDLERS
+  //
+
+  Future<void> handleSetQueue(Map<String, dynamic> arguments) async {
+    List<QueueTrack> tracks = (arguments['tracks'] as List<dynamic>)
+        .map((t) => QueueTrack.fromJson(t))
+        .toList();
+    QueueTrack cursor = arguments['cursor'] == null
+        ? (tracks.isEmpty ? null : tracks[0])
+        : QueueTrack.fromJson(arguments['cursor']);
+    bool shuffled = (arguments['shuffled'] as bool) ?? false;
+    await stopPlayer();
+    queue.setShuffled(shuffled);
+    queue.setTracks(tracks);
+    if (cursor != null) queue.setCursor(cursor);
+  }
+
+  void handleRefreshSendPort() {
+    refreshSendPort();
+  }
+
+  void handleGetQueueState() {
+    return sendQueueUpdate();
+  }
+
+  //
+  // UTILITIES
+  //
+
+  // Fetch the current send port
+  void refreshSendPort() {
     sendPort =
         IsolateNameServer.lookupPortByName(AudioPlayerProvider.PORT_NAME);
   }
 
-  void onQueueUpdate() async {
+  // Update the front with the current queue state
+  void sendQueueUpdate() async {
     await AudioServiceBackground.setQueue(
       queue.tracks.map((t) => t.buildMediaItem()).toList(),
     );
@@ -173,57 +238,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
     }
   }
 
-  Future<void> handleSetQueue(Map<String, dynamic> arguments) async {
-    List<QueueTrack> tracks = (arguments['tracks'] as List<dynamic>)
-        .map((t) => QueueTrack.fromJson(t))
-        .toList();
-    QueueTrack cursor = arguments['cursor'] == null
-        ? (tracks.isEmpty ? null : tracks[0])
-        : QueueTrack.fromJson(arguments['cursor']);
-    bool shuffled = (arguments['shuffled'] as bool) ?? false;
-    await stopPlayer();
-    queue.setShuffled(shuffled);
-    queue.setTracks(tracks);
-    if (cursor != null) queue.setCursor(cursor);
-  }
-
-  Future<String> getAudioUrl(QueueTrack track) async {
-    if (track.track.sources.isEmpty)
-      throw 'Cannot obtain audio url for track without sources.';
-    // Dependencies
-    YouTubeExtractor extractor;
-    // Try getting audio stream for each source until one works
-    SOURCE_LOOP:
-    for (TrackSource source in track.track.sources) {
-      switch (source.type) {
-        case 'Youtube':
-          if (extractor == null) extractor = YouTubeExtractor();
-          String videoId = source.data['id'];
-          try {
-            var streamInfo = (await extractor.getMediaStreamsAsync(videoId));
-            String audioUrl = streamInfo.audio
-                .map((stream) => stream.url)
-                .firstWhere((url) => url != null, orElse: () => null);
-            if (audioUrl != null) {
-              print('Found audio stream for YouTube video "$videoId"');
-              return audioUrl;
-            } else {
-              print('No audio stream available for YouTube video "$videoId"');
-              continue SOURCE_LOOP;
-            }
-          } catch (e) {
-            print(
-                'Could not obtain audio stream for YouTube video "$videoId": $e');
-            continue SOURCE_LOOP;
-          }
-          break;
-        default:
-          throw 'UNSUPPORTED TRACK SOURCE: ${source.type}';
-      }
-    }
-    return null;
-  }
-
+  // Update the service state to reflect the current state
   updateState() {
     // Determine playback state
     BasicPlaybackState bpState = {
@@ -231,7 +246,6 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       AudioPlaybackState.stopped: BasicPlaybackState.stopped,
       AudioPlaybackState.paused: BasicPlaybackState.paused,
       AudioPlaybackState.playing: BasicPlaybackState.playing,
-      AudioPlaybackState.buffering: BasicPlaybackState.buffering,
       AudioPlaybackState.connecting: BasicPlaybackState.connecting,
       AudioPlaybackState.completed: BasicPlaybackState.stopped,
     }[player.playbackState];
@@ -260,9 +274,9 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
     );
   }
 
+  // Stop the audio player
   stopPlayer() async {
     if (player.playbackState == AudioPlaybackState.playing ||
-        player.playbackState == AudioPlaybackState.buffering ||
         player.playbackState == AudioPlaybackState.paused) await player.stop();
   }
 }

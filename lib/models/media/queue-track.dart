@@ -9,12 +9,13 @@ part 'queue-track.g.dart';
 class QueueTrack {
   String id;
   Track track;
+  Duration cachedDuration;
 
   QueueTrack() {
     id = Uuid().v4();
   }
 
-  MediaItem buildMediaItem({Duration duration}) {
+  MediaItem buildMediaItem() {
     return MediaItem(
       // required
       id: id,
@@ -22,7 +23,7 @@ class QueueTrack {
       title: track.title,
       // non-required
       artist: track.artist,
-      duration: duration?.inMilliseconds ?? track.duration,
+      duration: cachedDuration?.inMilliseconds ?? track.duration,
       artUri: track.artUri,
     );
   }
@@ -43,4 +44,11 @@ class QueueTrack {
 
   @override
   int get hashCode => id.hashCode;
+
+  @override
+  String toString() {
+    return 'QueueTrack{id: $id, track: $track}';
+  }
+
+
 }

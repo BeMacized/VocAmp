@@ -52,11 +52,15 @@ class TrackListViewProvider extends ChangeNotifier {
   // Utils
   void fetchTracks() async {
     _setState(ProviderState.loading);
-    await Task(() => trackList.fetchTracks())
-        .attempt()
-        .mapLeftToFailure()
-        .run()
-        .then((value) => _setTracks(value));
+    try {
+      await Task(() => trackList.fetchTracks())
+          .attempt()
+          .mapLeftToFailure()
+          .run()
+          .then((value) => _setTracks(value));
+    } catch (e) {
+      print('WHAT $e');
+    }
     _setState(ProviderState.loaded);
   }
 
@@ -75,7 +79,7 @@ class TrackListViewProvider extends ChangeNotifier {
     }
     // Set the track queue
     await _audioPlayerProvider.setQueue(queueTracks, shuffled: true);
-    await _audioPlayerProvider.play();
+    _audioPlayerProvider.play();
   }
 
   playTrack(Track track, List<Track> tracks) async {
@@ -93,6 +97,6 @@ class TrackListViewProvider extends ChangeNotifier {
       queueTracks,
       cursor: cursor,
     );
-    await _audioPlayerProvider.play();
+    _audioPlayerProvider.play();
   }
 }

@@ -4,7 +4,6 @@ part 'track-source.g.dart';
 
 @JsonSerializable()
 class TrackSource {
-
   String type;
   String pvType;
   Map<String, String> data;
@@ -16,4 +15,8 @@ class TrackSource {
 
   Map<String, dynamic> toJson() => _$TrackSourceToJson(this);
 
+  @override
+  String toString() {
+    return 'TrackSource{type: $type, pvType: $pvType, data: $data}';
+  }
 }

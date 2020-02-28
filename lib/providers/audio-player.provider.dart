@@ -5,7 +5,7 @@ import 'dart:ui';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:voc_amp/audio/vocamp-audio-player.dart';
+import 'package:voc_amp/background/vocamp-audio-player.dart';
 import 'package:voc_amp/models/isolates/audio-player-event.dart';
 import 'package:voc_amp/models/media/queue-track.dart';
 
