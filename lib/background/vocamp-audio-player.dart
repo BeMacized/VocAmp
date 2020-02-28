@@ -10,6 +10,7 @@ import 'package:voc_amp/models/isolates/audio-player-event.dart';
 import 'package:voc_amp/models/media/queue-track.dart';
 import 'package:voc_amp/providers/audio-player.provider.dart';
 import 'package:voc_amp/utils/logger.dart';
+import 'package:rxdart/transformers.dart';
 
 import 'audio-player-queue.dart';
 import 'media-controls.dart';
@@ -35,11 +36,14 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       // Setup queue
       queue = AudioPlayerQueue();
       var queueSubscription =
-          queue.updated.listen((_) => this.sendQueueUpdate());
+      queue.updated.listen((_) => this.sendQueueUpdate());
       // Setup audio player
       player = AudioPlayer();
       var playbackEventSubscription =
-          player.playbackEventStream.listen((e) => updateState());
+      player.playbackEventStream.listen((e) => updateState());
+      var playbackStateSubscription =
+      player.playbackStateStream.startWith(null).pairwise().map((e) =>
+          e.toList()).listen((e) => onPlayerStateChange(e[0], e[1]));
       // Fetch send port
       refreshSendPort();
       // Setup completer and wait for service stop
@@ -50,6 +54,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       sendPort.send(AudioPlayerEvent.build('serviceStop'));
       queueSubscription.cancel();
       playbackEventSubscription.cancel();
+      playbackStateSubscription.cancel();
       queue.dispose();
     } catch (e) {
       log.severe(['onStart', e]);
@@ -112,7 +117,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
             if (e is NoConnectionException) {
               Fluttertoast.showToast(
                 msg:
-                    'Playback is stopping as the music service could not be reached.',
+                'Playback is stopping as the music service could not be reached.',
                 toastLength: Toast.LENGTH_LONG,
                 gravity: ToastGravity.BOTTOM,
               );
@@ -122,7 +127,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
             if (e is ExtractionException) {
               Fluttertoast.showToast(
                 msg:
-                    'An extraction error was encountered. The app will likely have to be updated.',
+                'An extraction error was encountered. The app will likely have to be updated.',
                 toastLength: Toast.LENGTH_LONG,
                 gravity: ToastGravity.BOTTOM,
               );
@@ -164,6 +169,16 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
     if (player.playbackState != AudioPlaybackState.none &&
         player.playbackState != AudioPlaybackState.connecting)
       player.seek(Duration(milliseconds: position));
+  }
+
+  void onPlayerStateChange(AudioPlaybackState oldState, AudioPlaybackState newState) {
+    // When end of song is reached
+    if (oldState == AudioPlaybackState.playing && newState == AudioPlaybackState.completed) {
+       if (queue.next() != null) onPlay();
+       else {
+         // TODO: Implement repeat modes
+       }
+    }
   }
 
   @override
