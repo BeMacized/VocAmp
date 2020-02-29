@@ -36,14 +36,16 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       // Setup queue
       queue = AudioPlayerQueue();
       var queueSubscription =
-      queue.updated.listen((_) => this.sendQueueUpdate());
+          queue.updated.listen((_) => this.sendQueueUpdate());
       // Setup audio player
       player = AudioPlayer();
       var playbackEventSubscription =
-      player.playbackEventStream.listen((e) => updateState());
-      var playbackStateSubscription =
-      player.playbackStateStream.startWith(null).pairwise().map((e) =>
-          e.toList()).listen((e) => onPlayerStateChange(e[0], e[1]));
+          player.playbackEventStream.listen((e) => updateState());
+      var playbackStateSubscription = player.playbackStateStream
+          .startWith(null)
+          .pairwise()
+          .map((e) => e.toList())
+          .listen((e) => onPlayerStateChange(e[0], e[1]));
       // Fetch send port
       refreshSendPort();
       // Setup completer and wait for service stop
@@ -64,8 +66,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
 
   @override
   void onPause() async {
-    if (player.playbackState == AudioPlaybackState.playing ||
-        player.playbackState == AudioPlaybackState.connecting)
+    if (player.playbackState == AudioPlaybackState.playing)
       await player.pause();
   }
 
@@ -117,7 +118,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
             if (e is NoConnectionException) {
               Fluttertoast.showToast(
                 msg:
-                'Playback is stopping as the music service could not be reached.',
+                    'Playback is stopping as the music service could not be reached.',
                 toastLength: Toast.LENGTH_LONG,
                 gravity: ToastGravity.BOTTOM,
               );
@@ -127,7 +128,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
             if (e is ExtractionException) {
               Fluttertoast.showToast(
                 msg:
-                'An extraction error was encountered. The app will likely have to be updated.',
+                    'An extraction error was encountered. The app will likely have to be updated.',
                 toastLength: Toast.LENGTH_LONG,
                 gravity: ToastGravity.BOTTOM,
               );
@@ -139,7 +140,6 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
           // If no audio url can be obtained, skip to the next track.
           if (audioUrl == null) {
             QueueTrack nextTrack = queue.next();
-            log.debug(['NEXT TRACK', nextTrack]);
             if (nextTrack != null) onPlay();
             return;
           }
@@ -171,13 +171,16 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       player.seek(Duration(milliseconds: position));
   }
 
-  void onPlayerStateChange(AudioPlaybackState oldState, AudioPlaybackState newState) {
+  void onPlayerStateChange(
+      AudioPlaybackState oldState, AudioPlaybackState newState) {
     // When end of song is reached
-    if (oldState == AudioPlaybackState.playing && newState == AudioPlaybackState.completed) {
-       if (queue.next() != null) onPlay();
-       else {
-         // TODO: Implement repeat modes
-       }
+    if (oldState == AudioPlaybackState.playing &&
+        newState == AudioPlaybackState.completed) {
+      if (queue.next() != null)
+        onPlay();
+      else {
+        // TODO: Implement repeat modes
+      }
     }
   }
 
@@ -266,8 +269,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
     }[player.playbackState];
     // Determine controls
     bool playing = bpState == BasicPlaybackState.playing ||
-        bpState == BasicPlaybackState.buffering ||
-        bpState == BasicPlaybackState.connecting;
+        bpState == BasicPlaybackState.buffering;
     List<MediaControl> controls = [
       if (queue.hasPrevious()) MediaControls.previous,
       if (playing) MediaControls.pause,

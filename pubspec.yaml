@@ -28,11 +28,12 @@ dependencies:
   youtube_explode_dart:
     git:
       url: https://github.com/BeMacized/youtube_explode_dart.git
-      ref: d4302f689c1c3adcc8905600ff1f4ec23c49eefe
+      ref: cf257f14d67d8f46c79f8e4c5472a5e37161e2b5
   just_audio: 0.1.0
   flutter:
     sdk: flutter
   cupertino_icons: ^0.1.2
+  flutter_icons: ^1.0.0+1
 
 dev_dependencies:
   json_serializable: ^3.2.3
