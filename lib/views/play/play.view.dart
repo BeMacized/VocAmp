@@ -3,7 +3,9 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 import 'package:voc_amp/utils/gradient-utils.dart';
+import 'package:voc_amp/views/play/play-view.provider.dart';
 import 'package:voc_amp/views/play/widgets/play-album-area.dart';
 import 'package:voc_amp/views/play/widgets/play-bottom-controls.dart';
 
@@ -15,6 +17,17 @@ class PlayView extends StatefulWidget {
 }
 
 class _PlayViewState extends State<PlayView> {
+  PlayViewProvider _viewProvider;
+
+  didChangeDependencies() {
+    super.didChangeDependencies();
+    // Obtain view provider
+    final _viewProvider = Provider.of<PlayViewProvider>(context);
+    if (_viewProvider != this._viewProvider) {
+      this._viewProvider = _viewProvider;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,9 +38,9 @@ class _PlayViewState extends State<PlayView> {
           Column(
             children: <Widget>[
               Expanded(
-                child: PlayAlbumArea(),
+                child: PlayAlbumArea(_viewProvider),
               ),
-              PlayBottomControls(),
+              PlayBottomControls(_viewProvider),
             ],
           ),
         ],
@@ -57,11 +70,18 @@ class _PlayViewState extends State<PlayView> {
     return Stack(
       children: <Widget>[
         Container(color: Colors.black),
-        CachedNetworkImage(
-          imageUrl: ALBUM_ART_URL,
-          fit: BoxFit.cover,
-          height: double.infinity,
-          width: double.infinity,
+        Consumer<PlayViewProvider>(
+          builder: (context, vp, child) => CachedNetworkImage(
+            imageUrl: vp.currentTrack?.track?.artUri,
+            fit: BoxFit.cover,
+            height: double.infinity,
+            width: double.infinity,
+            fadeInDuration: Duration(milliseconds: 300),
+            fadeOutDuration: Duration(milliseconds: 300),
+            fadeInCurve: Curves.easeInOut,
+            fadeOutCurve: Curves.easeInOut,
+            useOldImageOnUrlChange: true,
+          ),
         ),
         BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),

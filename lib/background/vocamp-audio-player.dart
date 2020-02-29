@@ -86,6 +86,16 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
     await onPlay();
   }
 
+
+  @override
+  void onSkipToQueueItem(String mediaId) async {
+    QueueTrack track = queue.tracks.singleWhere((t) => t.id == mediaId, orElse: () => null);
+    if (track == null) return;
+    queue.setCursor(track);
+    await stopPlayer();
+    await onPlay();
+  }
+
   @override
   Future<void> onStop() async {
     try {

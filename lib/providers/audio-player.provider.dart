@@ -79,6 +79,21 @@ class AudioPlayerProvider {
     await AudioService.play();
   }
 
+  void skipNext() async {
+    if (!(await AudioService.running)) return;
+    await AudioService.skipToNext();
+  }
+
+  void skipPrevious() async {
+    if (!(await AudioService.running)) return;
+    await AudioService.skipToPrevious();
+  }
+
+  void skipToTrack(QueueTrack track) async {
+    if (!(await AudioService.running)) return;
+    await AudioService.skipToQueueItem(track.id);
+  }
+
   _startService() async {
     if (await AudioService.running) return;
     await AudioService.start(

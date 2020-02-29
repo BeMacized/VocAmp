@@ -1,28 +1,91 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
+import '../play-view.provider.dart';
 
-const ALBUM_ART_URL = "https://vocadb.net/Album/CoverPicture/26528?v=11";
+class PlayAlbumArea extends StatefulWidget {
+  PlayViewProvider _viewProvider;
 
-class PlayAlbumArea extends StatelessWidget {
+  PlayAlbumArea(this._viewProvider);
+
+  @override
+  _PlayAlbumAreaState createState() => _PlayAlbumAreaState();
+}
+
+class _PlayAlbumAreaState extends State<PlayAlbumArea> {
+  PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+    widget._viewProvider.addListener(_onViewProviderChange);
+    _onViewProviderChange();
+  }
+
+  @override
+  void dispose() {
+    widget._viewProvider.removeListener(_onViewProviderChange);
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  _onViewProviderChange() {
+    // Determine current page
+    int page = widget._viewProvider.queueIndex;
+    // Animate to page
+    bool animate = _pageController.hasClients;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (animate) {
+        _pageController.animateToPage(
+          page,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      } else {
+        _pageController.jumpToPage(page);
+      }
+    });
+  }
+
+  _onPageChange(int newPage) async {
+    await Future.delayed(Duration(milliseconds: 300));
+    if (newPage != widget._viewProvider.queueIndex)
+      widget._viewProvider.skipToIndex(newPage);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return PageView(
-      children: <Widget>[for (int i = 0; i < 10; i++) _buildAlbumPage()],
+    return Consumer<PlayViewProvider>(
+      builder: (context, vp, child) {
+        // Build page view
+        return PageView(
+          controller: _pageController,
+          onPageChanged: _onPageChange,
+          children: (vp.tracks ?? [])
+              .map(
+                (t) => _buildAlbumPage(t?.track?.artUri),
+          )
+              .toList(),
+        );
+      },
     );
   }
 
-  Widget _buildAlbumPage() {
+  Widget _buildAlbumPage(String artUri) {
     return Container(
       padding: EdgeInsets.all(24),
       child: Center(
         child: AspectRatio(
           aspectRatio: 1 / 1,
-          child: Card(
+          child: Material(
             elevation: 10,
             child: CachedNetworkImage(
-              imageUrl: ALBUM_ART_URL,
+              imageUrl: artUri,
               fit: BoxFit.cover,
+              height: double.infinity,
+              width: double.infinity,
             ),
           ),
         ),

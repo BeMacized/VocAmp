@@ -25,17 +25,25 @@ class _TrackListViewState extends State<TrackListView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _viewProvider
-        ..setTrackList(widget.trackList)
-        ..fetchTracks();
-    });
   }
 
   didChangeDependencies() {
     super.didChangeDependencies();
+    // Obtain view provider
     final _viewProvider = Provider.of<TrackListViewProvider>(context);
-    if (_viewProvider != this._viewProvider) this._viewProvider = _viewProvider;
+    if (_viewProvider != this._viewProvider) {
+      this._viewProvider = _viewProvider;
+      _fetchTracks();
+    }
+  }
+
+  _fetchTracks() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      print('FETCHING TRACKS');
+      _viewProvider
+        ..setTrackList(widget.trackList)
+        ..fetchTracks();
+    });
   }
 
   @override

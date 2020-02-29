@@ -2,10 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:provider/provider.dart';
+import 'package:voc_amp/views/play/play-view.provider.dart';
+import 'package:voc_amp/views/play/play.view.dart';
 import 'package:voc_amp/views/play/widgets/seek-bar.dart';
 import 'package:voc_amp/widgets/marquee.dart';
 
 class PlayBottomControls extends StatelessWidget {
+  PlayViewProvider _viewProvider;
+
+  PlayBottomControls(this._viewProvider);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -34,18 +41,22 @@ class PlayBottomControls extends StatelessWidget {
               children: <Widget>[
                 Marquee(
                   alignment: MarqueeAlignment.start,
-                  child: Text(
-                    'ラッキー☆オーブ',
-                    style: Theme.of(context).textTheme.title,
+                  child: Consumer<PlayViewProvider>(
+                    builder: (context, vp, child) => Text(
+                      vp.currentTrack?.track?.title ?? '',
+                      style: Theme.of(context).textTheme.title,
+                    ),
                   ),
                 ),
                 Marquee(
                   alignment: MarqueeAlignment.start,
-                  child: Text(
-                    'emon feat. 初音ミク',
-                    style: Theme.of(context).textTheme.subtitle.copyWith(
-                          color: Colors.white.withOpacity(0.7),
-                        ),
+                  child: Consumer<PlayViewProvider>(
+                    builder: (context, vp, child) => Text(
+                      vp.currentTrack?.track?.artist ?? '',
+                      style: Theme.of(context).textTheme.subtitle.copyWith(
+                            color: Colors.white.withOpacity(0.7),
+                          ),
+                    ),
                   ),
                 )
               ],
@@ -132,11 +143,15 @@ class PlayBottomControls extends StatelessWidget {
   }
 
   Widget _buildPreviousButton() {
-    return _buildControlButton(
-      icon: Feather.skip_back,
-      iconSize: 32,
-      size: 54,
-      onTap: () {},
+    return Consumer<PlayViewProvider>(
+      builder: (context, vp, child) {
+        return _buildControlButton(
+          icon: Feather.skip_back,
+          iconSize: 32,
+          size: 54,
+          onTap: vp.skipPrevious,
+        );
+      },
     );
   }
 
@@ -155,11 +170,15 @@ class PlayBottomControls extends StatelessWidget {
   }
 
   Widget _buildNextButton() {
-    return _buildControlButton(
-      icon: Feather.skip_forward,
-      iconSize: 32,
-      size: 54,
-      onTap: () {},
+    return Consumer<PlayViewProvider>(
+      builder: (context, vp, child) {
+        return _buildControlButton(
+          icon: Feather.skip_forward,
+          iconSize: 32,
+          size: 54,
+          onTap: vp.skipNext,
+        );
+      },
     );
   }
 
