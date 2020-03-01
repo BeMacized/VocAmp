@@ -15,6 +15,7 @@ class PlayAlbumArea extends StatefulWidget {
 
 class _PlayAlbumAreaState extends State<PlayAlbumArea> {
   PageController _pageController;
+  bool _pageViewIsAnimating = false;
 
   @override
   void initState() {
@@ -38,20 +39,24 @@ class _PlayAlbumAreaState extends State<PlayAlbumArea> {
     bool animate = _pageController.hasClients;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (animate) {
-        _pageController.animateToPage(
-          page,
-          duration: Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
+        _pageViewIsAnimating = true;
+        _pageController
+            .animateToPage(
+              page,
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            )
+            .then((_) => _pageViewIsAnimating = false);
       } else {
+        _pageViewIsAnimating = true;
         _pageController.jumpToPage(page);
+        _pageViewIsAnimating = false;
       }
     });
   }
 
   _onPageChange(int newPage) async {
-    await Future.delayed(Duration(milliseconds: 300));
-    if (newPage != widget._viewProvider.queueIndex)
+    if (!_pageViewIsAnimating && newPage != widget._viewProvider.queueIndex)
       widget._viewProvider.skipToIndex(newPage);
   }
 
@@ -66,7 +71,7 @@ class _PlayAlbumAreaState extends State<PlayAlbumArea> {
           children: (vp.tracks ?? [])
               .map(
                 (t) => _buildAlbumPage(t?.track?.artUri),
-          )
+              )
               .toList(),
         );
       },

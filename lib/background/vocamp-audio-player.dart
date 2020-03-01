@@ -5,10 +5,12 @@ import 'dart:ui';
 import 'package:audio_service/audio_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:voc_amp/background/utils/stream-utils.dart';
 import 'package:voc_amp/models/isolates/audio-player-event.dart';
 import 'package:voc_amp/models/media/queue-track.dart';
 import 'package:voc_amp/providers/audio-player.provider.dart';
+import 'package:voc_amp/utils/debounced-action.dart';
 import 'package:voc_amp/utils/logger.dart';
 import 'package:rxdart/transformers.dart';
 
@@ -25,6 +27,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
   SendPort sendPort;
   AudioPlayer player;
   Logger log = Logger('VocAmpAudioPlayer');
+  DebouncedAction debouncedPlay;
 
   //
   // PLAYER EVENTS
@@ -46,6 +49,11 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
           .pairwise()
           .map((e) => e.toList())
           .listen((e) => onPlayerStateChange(e[0], e[1]));
+      // Set up debounced actions
+      debouncedPlay = DebouncedAction(
+        duration: Duration(milliseconds: 1000),
+        action: onPlay,
+      );
       // Fetch send port
       refreshSendPort();
       // Setup completer and wait for service stop
@@ -73,27 +81,27 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
   @override
   Future<void> onSkipToNext() async {
     if (!queue.hasNext()) return;
-    queue.next();
     await stopPlayer();
-    await onPlay();
+    queue.next();
+    await debouncedPlay.next();
   }
 
   @override
   Future<void> onSkipToPrevious() async {
     if (!queue.hasPrevious()) return;
-    queue.previous();
     await stopPlayer();
-    await onPlay();
+    queue.previous();
+    await debouncedPlay.next();
   }
-
 
   @override
   void onSkipToQueueItem(String mediaId) async {
-    QueueTrack track = queue.tracks.singleWhere((t) => t.id == mediaId, orElse: () => null);
+    QueueTrack track =
+        queue.tracks.singleWhere((t) => t.id == mediaId, orElse: () => null);
     if (track == null) return;
-    queue.setCursor(track);
     await stopPlayer();
-    await onPlay();
+    queue.setCursor(track);
+    await debouncedPlay.next();
   }
 
   @override
@@ -249,6 +257,13 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
 
   // Update the front with the current queue state
   void sendQueueUpdate() async {
+    if (sendPort != null) {
+      sendPort.send(AudioPlayerEvent.build('queueUpdate', {
+        'queue': queue.tracks,
+        'currentTrack': queue.currentTrack,
+        'shuffled': queue.shuffled,
+      }));
+    }
     await AudioServiceBackground.setQueue(
       queue.tracks.map((t) => t.buildMediaItem()).toList(),
     );
@@ -256,13 +271,6 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       await AudioServiceBackground.setMediaItem(
         queue.currentTrack.buildMediaItem(),
       );
-    }
-    if (sendPort != null) {
-      sendPort.send(AudioPlayerEvent.build('queueUpdate', {
-        'queue': queue.tracks,
-        'currentTrack': queue.currentTrack,
-        'shuffled': queue.shuffled,
-      }));
     }
   }
 

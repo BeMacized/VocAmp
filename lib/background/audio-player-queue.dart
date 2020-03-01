@@ -1,4 +1,4 @@
-import 'package:rxdart/subjects.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:voc_amp/models/media/queue-track.dart';
 
 class AudioPlayerQueue {
