@@ -62,6 +62,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       // Clean up service before stop
       await stopPlayer();
       sendPort.send(AudioPlayerEvent.build('serviceStop'));
+      debouncedPlay.dispose();
       queueSubscription.cancel();
       playbackEventSubscription.cancel();
       playbackStateSubscription.cancel();
