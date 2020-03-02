@@ -40,11 +40,14 @@ class AudioPlayerProvider {
     _receivePort.listen((e) => _handleEvent(e));
     // Initialize if audio server is already running
     AudioService.running.then((running) async {
+      print('RUNNING $running');
       if (!running) return;
       // Make service fetch new send port
       await AudioService.customAction('refreshSendPort');
       // Request queue update
       await AudioService.customAction('getQueueState');
+      // Request playbackState update
+      await AudioService.customAction('getPlaybackState');
     });
     // Subscribe to events
     _playbackStateSubscription = AudioService.playbackStateStream.listen(
@@ -61,7 +64,7 @@ class AudioPlayerProvider {
     _currentTrack?.close();
   }
 
-  setQueue(List<QueueTrack> tracks,
+  Future<void> setQueue(List<QueueTrack> tracks,
       {QueueTrack cursor, bool shuffled = false}) async {
     await _startService();
     await AudioService.customAction(
@@ -74,24 +77,34 @@ class AudioPlayerProvider {
     );
   }
 
-  void play() async {
+  Future<void> play() async {
     if (!(await AudioService.running)) return;
     await AudioService.play();
   }
 
-  void skipNext() async {
+  Future<void> pause() async {
+    if (!(await AudioService.running)) return;
+    await AudioService.pause();
+  }
+
+  Future<void> skipNext() async {
     if (!(await AudioService.running)) return;
     await AudioService.skipToNext();
   }
 
-  void skipPrevious() async {
+  Future<void> skipPrevious() async {
     if (!(await AudioService.running)) return;
     await AudioService.skipToPrevious();
   }
 
-  void skipToTrack(QueueTrack track) async {
+  Future<void> skipToTrack(QueueTrack track) async {
     if (!(await AudioService.running)) return;
     await AudioService.skipToQueueItem(track.id);
+  }
+
+  Future<void> seek(Duration position) async {
+    if (!(await AudioService.running)) return;
+    await AudioService.seekTo(position.inSeconds);
   }
 
   _startService() async {

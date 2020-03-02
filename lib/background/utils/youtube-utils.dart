@@ -16,12 +16,23 @@ class YouTubeUtils {
       _log.debug(['Extracting', videoId]);
       var streamInfo = (await _extractor.getVideoMediaStream(videoId));
       var streamUrl = streamInfo.audio
-          .map((stream) => stream.url?.toString())
+          .where(
+            (stream) =>
+                stream.url != null &&
+                stream.audioEncoding != AudioEncoding.opus,
+          )
+          .map((stream) => stream.url.toString())
           .firstWhere((url) => url != null, orElse: () => null);
+
       _log.debug(['Result', streamUrl]);
       return streamUrl;
     } catch (e) {
-      _log.severe(['Encountered an extraction exception', videoId, e, if (e is Error) e.stackTrace]);
+      _log.severe([
+        'Encountered an extraction exception',
+        videoId,
+        e,
+        if (e is Error) e.stackTrace
+      ]);
       throw YouTubeExtractionException(videoId, e);
     }
   }

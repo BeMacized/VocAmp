@@ -50,5 +50,8 @@ class QueueTrack {
     return 'QueueTrack{id: $id, track: $track}';
   }
 
-
+  Duration getDuration() {
+    return cachedDuration ??
+        (track.duration == null ? null : Duration(milliseconds: track.duration));
+  }
 }

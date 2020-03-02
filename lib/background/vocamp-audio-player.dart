@@ -36,10 +36,6 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
   @override
   onStart() async {
     try {
-      // Setup queue
-      queue = AudioPlayerQueue();
-      var queueSubscription =
-          queue.updated.listen((_) => this.sendQueueUpdate());
       // Setup audio player
       player = AudioPlayer();
       var playbackEventSubscription =
@@ -49,6 +45,10 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
           .pairwise()
           .map((e) => e.toList())
           .listen((e) => onPlayerStateChange(e[0], e[1]));
+      // Setup queue
+      queue = AudioPlayerQueue();
+      var queueSubscription =
+          queue.updated.listen((_) => this.sendQueueUpdate());
       // Set up debounced actions
       debouncedPlay = DebouncedAction(
         duration: Duration(milliseconds: 1000),
@@ -67,6 +67,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       playbackEventSubscription.cancel();
       playbackStateSubscription.cancel();
       queue.dispose();
+      player.dispose();
     } catch (e) {
       log.severe(['onStart', e]);
       rethrow;
@@ -128,6 +129,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
         case AudioPlaybackState.stopped:
           if (queue.currentTrack == null ||
               queue.currentTrack.track.sources.isEmpty) return;
+
           // Obtain audio url
           String audioUrl;
           try {
@@ -166,6 +168,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
           await stopPlayer();
           Duration duration = await player.setUrl(audioUrl);
           queue.currentTrack.cachedDuration = duration;
+          sendQueueUpdate();
           AudioServiceBackground.setMediaItem(
             queue.currentTrack.buildMediaItem(),
           );
@@ -213,6 +216,8 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
           return refreshSendPort();
         case 'getQueueState':
           return handleGetQueueState();
+        case 'getPlaybackState':
+          return handleGetPlaybackState();
       }
     } catch (e) {
       log.severe(['onCustomAction', name, e]);
@@ -244,6 +249,10 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
 
   void handleGetQueueState() {
     return sendQueueUpdate();
+  }
+
+  void handleGetPlaybackState() {
+    this.updateState();
   }
 
   //
@@ -306,13 +315,16 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       systemActions: actions,
       basicState: bpState,
       updateTime: player.playbackEvent?.updateTime?.inMilliseconds,
-      position: player.playbackEvent?.position?.inMilliseconds ?? 0,
+      position: (bpState == BasicPlaybackState.paused ||
+              bpState == BasicPlaybackState.playing)
+          ? player.playbackEvent?.position?.inMilliseconds ?? 0
+          : 0,
     );
   }
 
   // Stop the audio player
   stopPlayer() async {
-    if (player.playbackState == AudioPlaybackState.playing ||
+    if (player != null && player.playbackState == AudioPlaybackState.playing ||
         player.playbackState == AudioPlaybackState.paused) await player.stop();
   }
 }

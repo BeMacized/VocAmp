@@ -149,23 +149,29 @@ class PlayBottomControls extends StatelessWidget {
           icon: Feather.skip_back,
           iconSize: 32,
           size: 54,
-          onTap: vp.skipPrevious,
+          onTap: vp.hasPrevious ? vp.skipPrevious : null,
         );
       },
     );
   }
 
   Widget _buildPlayPauseButton() {
-    bool playing = false;
-    return _buildControlButton(
-      icon: !playing ? Entypo.controller_play : Entypo.controller_paus,
-      bgColor: Colors.white,
-      splashColor: Colors.black.withOpacity(0.2),
-      iconColor: Colors.black.withOpacity(0.8),
-      iconSize: 42,
-      size: 64,
-      iconOffset: Offset(playing ? 0 : 2, -2),
-      onTap: () {},
+    return Consumer<PlayViewProvider>(
+      builder: (context, vp, child) {
+        VoidCallback action;
+        if (vp.playing) action = vp.pause;
+        if (vp.paused) action = vp.play;
+        return _buildControlButton(
+          icon: !vp.playing ? Entypo.controller_play : Entypo.controller_paus,
+          bgColor: Colors.white,
+          splashColor: Colors.black.withOpacity(0.2),
+          iconColor: Colors.black.withOpacity(0.8),
+          iconSize: 42,
+          size: 64,
+          iconOffset: Offset(vp.playing ? 0 : 2, -2),
+          onTap: action,
+        );
+      },
     );
   }
 
@@ -176,7 +182,7 @@ class PlayBottomControls extends StatelessWidget {
           icon: Feather.skip_forward,
           iconSize: 32,
           size: 54,
-          onTap: vp.skipNext,
+          onTap: vp.hasNext ? vp.skipNext : null,
         );
       },
     );
@@ -198,7 +204,9 @@ class PlayBottomControls extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(size),
         child: Material(
-          color: bgColor,
+          color: bgColor.withOpacity(
+            bgColor.alpha > 0 ? (onTap == null ? 0.5 : 1.0) : 0.0,
+          ),
           child: InkWell(
             splashColor: splashColor,
             onTap: onTap,
@@ -208,7 +216,7 @@ class PlayBottomControls extends StatelessWidget {
                 child: Icon(
                   icon,
                   size: iconSize,
-                  color: iconColor,
+                  color: iconColor.withOpacity(onTap == null ? 0.5 : 1.0),
                 ),
               ),
             ),
