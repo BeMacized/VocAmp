@@ -35,6 +35,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
 
   @override
   onStart() async {
+    log.debug('onStart()');
     try {
       // Setup audio player
       player = AudioPlayer();
@@ -76,12 +77,14 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
 
   @override
   void onPause() async {
+    log.debug('onPause()');
     if (player.playbackState == AudioPlaybackState.playing)
       await player.pause();
   }
 
   @override
   Future<void> onSkipToNext() async {
+    log.debug('onSkipToNext()');
     if (!queue.hasNext()) return;
     await stopPlayer();
     queue.next();
@@ -90,6 +93,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
 
   @override
   Future<void> onSkipToPrevious() async {
+    log.debug('onSkipToPrevious()');
     if (!queue.hasPrevious()) return;
     await stopPlayer();
     queue.previous();
@@ -98,6 +102,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
 
   @override
   void onSkipToQueueItem(String mediaId) async {
+    log.debug('onSkipToQueueItem()');
     QueueTrack track =
         queue.tracks.singleWhere((t) => t.id == mediaId, orElse: () => null);
     if (track == null) return;
@@ -108,6 +113,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
 
   @override
   Future<void> onStop() async {
+    log.debug('onStop()');
     try {
       // Release completer
       serviceStopCompleter.complete();
@@ -119,6 +125,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
 
   @override
   Future<void> onPlay() async {
+    log.debug('onPlay()');
     try {
       switch (player.playbackState) {
         case AudioPlaybackState.paused:
@@ -188,6 +195,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
 
   @override
   void onSeekTo(int position) {
+    log.debug('onSeekTo()');
     if (player.playbackState != AudioPlaybackState.none &&
         player.playbackState != AudioPlaybackState.connecting)
       player.seek(Duration(milliseconds: position));
@@ -218,6 +226,8 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
           return handleGetQueueState();
         case 'getPlaybackState':
           return handleGetPlaybackState();
+        case 'setShuffle':
+          return await handleSetShuffle(arguments);
       }
     } catch (e) {
       log.severe(['onCustomAction', name, e]);
@@ -229,7 +239,12 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
   // CUSTOM ACTION HANDLERS
   //
 
+  Future<void> handleSetShuffle(bool value) async {
+    queue.setShuffled(value);
+  }
+
   Future<void> handleSetQueue(Map<String, dynamic> arguments) async {
+    log.debug('handleSetQueue()');
     List<QueueTrack> tracks = (arguments['tracks'] as List<dynamic>)
         .map((t) => QueueTrack.fromJson(t))
         .toList();

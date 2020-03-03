@@ -107,6 +107,11 @@ class AudioPlayerProvider {
     await AudioService.seekTo(position.inSeconds);
   }
 
+  Future<void> shuffle(bool value) async {
+    if (!(await AudioService.running)) return;
+    await AudioService.customAction('setShuffle', value);
+  }
+
   _startService() async {
     if (await AudioService.running) return;
     await AudioService.start(

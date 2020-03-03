@@ -129,9 +129,15 @@ class PlayBottomControls extends StatelessWidget {
   }
 
   Widget _buildShuffleToggle() {
-    return _buildControlButton(
-      icon: Feather.shuffle,
-      onTap: () {},
+    return Consumer<PlayViewProvider>(
+      builder: (context, vp, child) {
+        return _buildControlButton(
+          icon: Feather.shuffle,
+          iconColor:
+              vp.shuffled ? Theme.of(context).primaryColor : Colors.white,
+          onTap: () => vp.shuffle(!vp.shuffled),
+        );
+      },
     );
   }
 

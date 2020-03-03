@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
+import 'package:voc_amp/models/media/queue-track.dart';
 import '../play-view.provider.dart';
 
 class PlayAlbumArea extends StatefulWidget {
@@ -16,12 +17,16 @@ class PlayAlbumArea extends StatefulWidget {
 class _PlayAlbumAreaState extends State<PlayAlbumArea> {
   PageController _pageController;
   bool _pageViewIsAnimating = false;
+  bool _shuffled;
+  List<QueueTrack> _tracks = [];
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
     widget._viewProvider.addListener(_onViewProviderChange);
+    _shuffled = widget._viewProvider.shuffled;
+    _tracks = widget._viewProvider.tracks;
     _onViewProviderChange();
   }
 
@@ -33,13 +38,18 @@ class _PlayAlbumAreaState extends State<PlayAlbumArea> {
   }
 
   _onViewProviderChange() {
+    bool shuffleChanged = widget._viewProvider.shuffled != _shuffled;
+    if (shuffleChanged) _shuffled = widget._viewProvider.shuffled;
     // Determine current page
     int page = widget._viewProvider.queueIndex;
     // Animate to page
-    bool animate = _pageController.hasClients;
+    bool animate = _pageController.hasClients && !shuffleChanged;
+    setState(() {
+      this._pageViewIsAnimating = true;
+      this._tracks = widget._viewProvider.tracks;
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (animate) {
-        _pageViewIsAnimating = true;
         _pageController
             .animateToPage(
               page,
@@ -48,7 +58,6 @@ class _PlayAlbumAreaState extends State<PlayAlbumArea> {
             )
             .then((_) => _pageViewIsAnimating = false);
       } else {
-        _pageViewIsAnimating = true;
         _pageController.jumpToPage(page);
         _pageViewIsAnimating = false;
       }
@@ -56,25 +65,22 @@ class _PlayAlbumAreaState extends State<PlayAlbumArea> {
   }
 
   _onPageChange(int newPage) async {
-    if (!_pageViewIsAnimating && newPage != widget._viewProvider.queueIndex)
+    if (!_pageViewIsAnimating && newPage != widget._viewProvider.queueIndex) {
       widget._viewProvider.skipToIndex(newPage);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PlayViewProvider>(
-      builder: (context, vp, child) {
-        // Build page view
-        return PageView(
-          controller: _pageController,
-          onPageChanged: _onPageChange,
-          children: (vp.tracks ?? [])
-              .map(
-                (t) => _buildAlbumPage(t?.track?.artUri),
-              )
-              .toList(),
-        );
-      },
+    // Build page view
+    return PageView(
+      controller: _pageController,
+      onPageChanged: _onPageChange,
+      children: (_tracks ?? [])
+          .map(
+            (t) => _buildAlbumPage(t?.track?.artUri),
+          )
+          .toList(),
     );
   }
 

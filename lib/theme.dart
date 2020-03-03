@@ -74,7 +74,7 @@ ThemeData _buildAppTheme(BuildContext context) {
   return ThemeData(
     brightness: Brightness.dark,
     appBarTheme: appBarTheme,
-    primaryColor: Color(0xFF29b6f6),
+    primaryColor: Colors.pink.shade400,
     fontFamily: 'Montserrat',
     buttonTheme: buttonTheme,
     textTheme: GoogleFonts.montserratTextTheme(textTheme),

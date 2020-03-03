@@ -26,6 +26,10 @@ class PlayViewProvider extends ChangeNotifier {
     _audioPlayerProvider.playbackState.takeUntil(_destroy$).listen((state) =>
         _setPosition(Duration(milliseconds: state.currentPosition),
             DateTime.fromMillisecondsSinceEpoch(state.updateTime)));
+    // Shuffled
+    _audioPlayerProvider.shuffled
+        .takeUntil(_destroy$)
+        .listen((shuffled) => _setShuffled(shuffled));
   }
 
   @override
@@ -81,6 +85,7 @@ class PlayViewProvider extends ChangeNotifier {
     return Duration(milliseconds: position);
   }
 
+  // Position last updated
   DateTime _positionLastUpdated;
 
   DateTime get positionLastUpdated => _positionLastUpdated;
@@ -88,6 +93,16 @@ class PlayViewProvider extends ChangeNotifier {
   void _setPosition(Duration position, DateTime updateTime) {
     _position = position;
     _positionLastUpdated = updateTime;
+    notifyListeners();
+  }
+
+  // Shuffled
+  bool _shuffled;
+
+  bool get shuffled => _shuffled;
+
+  void _setShuffled(bool shuffled) {
+    _shuffled = shuffled;
     notifyListeners();
   }
 
@@ -129,6 +144,11 @@ class PlayViewProvider extends ChangeNotifier {
   play() {
     if (!paused || currentTrack == null) return;
     _audioPlayerProvider.play();
+  }
+
+  shuffle(bool value) {
+    if (currentTrack == null) return;
+    _audioPlayerProvider.shuffle(value);
   }
 
   Future<void> seek(Duration position) async {
