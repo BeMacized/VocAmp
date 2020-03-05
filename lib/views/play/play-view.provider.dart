@@ -1,6 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:voc_amp/models/audio/repeat-mode.dart';
 import 'package:voc_amp/models/media/queue-track.dart';
 import 'package:voc_amp/providers/audio-player.provider.dart';
 
@@ -30,6 +31,10 @@ class PlayViewProvider extends ChangeNotifier {
     _audioPlayerProvider.shuffled
         .takeUntil(_destroy$)
         .listen((shuffled) => _setShuffled(shuffled));
+    // Repeat Mode
+    _audioPlayerProvider.repeatMode
+        .takeUntil(_destroy$)
+        .listen((mode) => _setRepeatMode(mode));
   }
 
   @override
@@ -46,6 +51,7 @@ class PlayViewProvider extends ChangeNotifier {
 
   void _setCurrentTrack(QueueTrack currentTrack) {
     _currentTrack = currentTrack;
+    print('CURRENT INDEX: $queueIndex');
     notifyListeners();
   }
 
@@ -106,11 +112,24 @@ class PlayViewProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Repeat
+  RepeatMode _repeatMode;
+
+  RepeatMode get repeatMode => _repeatMode;
+
+  void _setRepeatMode(RepeatMode mode) {
+    _repeatMode = mode;
+    notifyListeners();
+  }
+
   // Playing
   bool get playing => _basicPlaybackState == BasicPlaybackState.playing;
 
-  // Pause
+  // Paused
   bool get paused => _basicPlaybackState == BasicPlaybackState.paused;
+
+  // Stopped
+  bool get stopped => _basicPlaybackState == BasicPlaybackState.stopped;
 
   // Has Next
   bool get hasNext => queueIndex < (tracks?.length ?? 0) - 1;
@@ -142,13 +161,17 @@ class PlayViewProvider extends ChangeNotifier {
   }
 
   play() {
-    if (!paused || currentTrack == null) return;
+    if ((!paused && !stopped) || currentTrack == null) return;
     _audioPlayerProvider.play();
   }
 
   shuffle(bool value) {
     if (currentTrack == null) return;
     _audioPlayerProvider.shuffle(value);
+  }
+
+  repeat(RepeatMode mode) {
+    _audioPlayerProvider.repeat(mode);
   }
 
   Future<void> seek(Duration position) async {

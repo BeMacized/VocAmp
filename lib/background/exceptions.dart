@@ -1,0 +1,1 @@
+class NoAudioStreamFoundException implements Exception {}

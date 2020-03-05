@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:voc_amp/models/audio/repeat-mode.dart';
 import 'package:voc_amp/views/play/play-view.provider.dart';
 import 'package:voc_amp/views/play/play.view.dart';
 import 'package:voc_amp/views/play/widgets/seek-bar.dart';
@@ -142,9 +143,24 @@ class PlayBottomControls extends StatelessWidget {
   }
 
   Widget _buildRepeatToggle() {
-    return _buildControlButton(
-      icon: Feather.repeat,
-      onTap: () {},
+    return Consumer<PlayViewProvider>(
+      builder: (context, vp, child) {
+        return _buildControlButton(
+          icon: vp.repeatMode == RepeatMode.SINGLE
+              ? MaterialIcons.repeat_one
+              : MaterialIcons.repeat,
+          iconColor: vp.repeatMode != RepeatMode.NONE
+              ? Theme.of(context).primaryColor
+              : Colors.white,
+          onTap: () {
+            RepeatMode mode = RepeatMode.NONE;
+            if (vp.repeatMode == RepeatMode.NONE)
+              mode = RepeatMode.ALL;
+            else if (vp.repeatMode == RepeatMode.ALL) mode = RepeatMode.SINGLE;
+            vp.repeat(mode);
+          },
+        );
+      },
     );
   }
 
@@ -166,7 +182,7 @@ class PlayBottomControls extends StatelessWidget {
       builder: (context, vp, child) {
         VoidCallback action;
         if (vp.playing) action = vp.pause;
-        if (vp.paused) action = vp.play;
+        if (vp.paused || vp.stopped) action = vp.play;
         return _buildControlButton(
           icon: !vp.playing ? Entypo.controller_play : Entypo.controller_paus,
           bgColor: Colors.white,

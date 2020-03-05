@@ -6,7 +6,9 @@ import 'package:audio_service/audio_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:voc_amp/background/exceptions.dart';
 import 'package:voc_amp/background/utils/stream-utils.dart';
+import 'package:voc_amp/models/audio/repeat-mode.dart';
 import 'package:voc_amp/models/isolates/audio-player-event.dart';
 import 'package:voc_amp/models/media/queue-track.dart';
 import 'package:voc_amp/providers/audio-player.provider.dart';
@@ -29,6 +31,9 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
   Logger log = Logger('VocAmpAudioPlayer');
   DebouncedAction debouncedPlay;
 
+  RepeatMode repeatMode = RepeatMode.NONE;
+  String currentAudioTrackId;
+
   //
   // PLAYER EVENTS
   //
@@ -37,6 +42,8 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
   onStart() async {
     log.debug('onStart()');
     try {
+      // Fetch send port
+      refreshSendPort();
       // Setup audio player
       player = AudioPlayer();
       var playbackEventSubscription =
@@ -55,13 +62,13 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
         duration: Duration(milliseconds: 1000),
         action: onPlay,
       );
-      // Fetch send port
-      refreshSendPort();
+      // Send player flags
+      sendPlayerFlags();
       // Setup completer and wait for service stop
       serviceStopCompleter = Completer();
       await serviceStopCompleter.future;
       // Clean up service before stop
-      await stopPlayer();
+      await stopPlayback();
       sendPort.send(AudioPlayerEvent.build('serviceStop'));
       debouncedPlay.dispose();
       queueSubscription.cancel();
@@ -86,7 +93,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
   Future<void> onSkipToNext() async {
     log.debug('onSkipToNext()');
     if (!queue.hasNext()) return;
-    await stopPlayer();
+    await stopPlayback();
     queue.next();
     await debouncedPlay.next();
   }
@@ -95,7 +102,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
   Future<void> onSkipToPrevious() async {
     log.debug('onSkipToPrevious()');
     if (!queue.hasPrevious()) return;
-    await stopPlayer();
+    await stopPlayback();
     queue.previous();
     await debouncedPlay.next();
   }
@@ -106,7 +113,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
     QueueTrack track =
         queue.tracks.singleWhere((t) => t.id == mediaId, orElse: () => null);
     if (track == null) return;
-    await stopPlayer();
+    await stopPlayback();
     queue.setCursor(track);
     await debouncedPlay.next();
   }
@@ -134,52 +141,31 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
         case AudioPlaybackState.completed:
         case AudioPlaybackState.none:
         case AudioPlaybackState.stopped:
+          // Stop if there is nothing to play
           if (queue.currentTrack == null ||
               queue.currentTrack.track.sources.isEmpty) return;
-
-          // Obtain audio url
-          String audioUrl;
+          // Load track & start audio player
           try {
-            audioUrl = await StreamUtils.getAudioStreamForQueueTrack(
-                queue.currentTrack);
-          } catch (e) {
-            if (e is NoConnectionException) {
-              Fluttertoast.showToast(
-                msg:
-                    'Playback is stopping as the music service could not be reached.',
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.BOTTOM,
-              );
-              await stopPlayer();
-              return;
-            }
-            if (e is ExtractionException) {
-              Fluttertoast.showToast(
-                msg:
-                    'An extraction error was encountered. The app will likely have to be updated.',
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.BOTTOM,
-              );
-              await stopPlayer();
-              return;
-            }
-            rethrow;
-          }
-          // If no audio url can be obtained, skip to the next track.
-          if (audioUrl == null) {
+            if (await attemptTrackLoad(queue.currentTrack)) await player.play();
+          } on NoConnectionException catch (e) {
+            errorToast(
+                'Playback is stopping as the music service could not be reached.');
+            return await stopPlayback();
+          } on ExtractionException catch (e) {
+            errorToast(
+                'An extraction error was encountered. The app will likely have to be updated.');
+            return await stopPlayback();
+          } on NoAudioStreamFoundException catch (e) {
+            String err =
+                'No audio stream found for ${queue.currentTrack.track.title}.';
             QueueTrack nextTrack = queue.next();
-            if (nextTrack != null) onPlay();
+            if (nextTrack != null) {
+              err += ' Skipping to the next track...';
+              onPlay();
+            }
+            errorToast(err);
             return;
           }
-          // Play audio url
-          await stopPlayer();
-          Duration duration = await player.setUrl(audioUrl);
-          queue.currentTrack.cachedDuration = duration;
-          sendQueueUpdate();
-          AudioServiceBackground.setMediaItem(
-            queue.currentTrack.buildMediaItem(),
-          );
-          await player.play();
           break;
         case AudioPlaybackState.connecting:
         case AudioPlaybackState.playing:
@@ -206,10 +192,13 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
     // When end of song is reached
     if (oldState == AudioPlaybackState.playing &&
         newState == AudioPlaybackState.completed) {
-      if (queue.next() != null)
+      if (repeatMode == RepeatMode.SINGLE) {
+        if (queue.currentTrack != null) onPlay();
+      } else if (queue.next() != null) {
         onPlay();
-      else {
-        // TODO: Implement repeat modes
+      } else if (repeatMode == RepeatMode.ALL && queue.length > 0) {
+        queue.setCursor(queue.tracks.first);
+        onPlay();
       }
     }
   }
@@ -223,11 +212,15 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
         case 'refreshSendPort':
           return refreshSendPort();
         case 'getQueueState':
-          return handleGetQueueState();
+          return sendQueueUpdate();
         case 'getPlaybackState':
-          return handleGetPlaybackState();
+          return updateState();
         case 'setShuffle':
           return await handleSetShuffle(arguments);
+        case 'getPlayerFlags':
+          return sendPlayerFlags();
+        case 'setRepeat':
+          return await handleSetRepeat(jsonDecode(arguments));
       }
     } catch (e) {
       log.severe(['onCustomAction', name, e]);
@@ -238,6 +231,11 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
   //
   // CUSTOM ACTION HANDLERS
   //
+
+  Future<void> handleSetRepeat(Map<String, dynamic> arguments) async {
+    repeatMode = RepeatMode.fromJson(arguments['mode']);
+    this.sendPlayerFlags();
+  }
 
   Future<void> handleSetShuffle(bool value) async {
     queue.setShuffled(value);
@@ -252,35 +250,69 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
         ? (tracks.isEmpty ? null : tracks[0])
         : QueueTrack.fromJson(arguments['cursor']);
     bool shuffled = (arguments['shuffled'] as bool) ?? false;
-    await stopPlayer();
+    await stopPlayback();
     queue.setShuffled(shuffled);
     queue.setTracks(tracks);
     if (cursor != null) queue.setCursor(cursor);
-  }
-
-  void handleRefreshSendPort() {
-    refreshSendPort();
-  }
-
-  void handleGetQueueState() {
-    return sendQueueUpdate();
-  }
-
-  void handleGetPlaybackState() {
-    this.updateState();
   }
 
   //
   // UTILITIES
   //
 
-  // Fetch the current send port
+  errorToast(String msg) {
+    Fluttertoast.showToast(
+      msg: msg,
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.BOTTOM,
+    );
+  }
+
+  // Return value, whether the load was successful
+  Future<bool> attemptTrackLoad(QueueTrack track) async {
+    // If the track is the currently loaded track, we don't have to load anything
+    if (currentAudioTrackId == track.id) {
+      player.seek(Duration(milliseconds: 0));
+      return true;
+    }
+
+    // Get the audio stream. Any exceptions are handled outside of this method.
+    String audioUrl = await StreamUtils.getAudioStreamForQueueTrack(track);
+
+    // If no audio url can be obtained, skip to the next track.
+    if (audioUrl == null) throw NoAudioStreamFoundException();
+
+    // Stop current playback
+    stopPlayback();
+
+    // Set audio url and obtain duration
+    Duration duration = await player.setUrl(audioUrl);
+    currentAudioTrackId = track.id;
+
+    // Update media item with new duration
+    track.cachedDuration = duration;
+    sendQueueUpdate();
+    AudioServiceBackground.setMediaItem(
+      track.buildMediaItem(),
+    );
+
+    return true;
+  }
+
+// Update the front with the current player flags
+  Future<void> sendPlayerFlags() async {
+    sendPort.send(AudioPlayerEvent.build('playerFlags', {
+      'repeatMode': repeatMode,
+    }));
+  }
+
+// Fetch the current send port
   void refreshSendPort() {
     sendPort =
         IsolateNameServer.lookupPortByName(AudioPlayerProvider.PORT_NAME);
   }
 
-  // Update the front with the current queue state
+// Update the front with the current queue state
   void sendQueueUpdate() async {
     if (sendPort != null) {
       sendPort.send(AudioPlayerEvent.build('queueUpdate', {
@@ -299,7 +331,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
     }
   }
 
-  // Update the service state to reflect the current state
+// Update the service state to reflect the current state
   updateState() {
     // Determine playback state
     BasicPlaybackState bpState = {
@@ -337,8 +369,8 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
     );
   }
 
-  // Stop the audio player
-  stopPlayer() async {
+// Stop the audio player
+  stopPlayback() async {
     if (player != null && player.playbackState == AudioPlaybackState.playing ||
         player.playbackState == AudioPlaybackState.paused) await player.stop();
   }

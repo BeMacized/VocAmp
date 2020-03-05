@@ -6,6 +6,7 @@ import 'dart:ui';
 import 'package:audio_service/audio_service.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:voc_amp/background/vocamp-audio-player.dart';
+import 'package:voc_amp/models/audio/repeat-mode.dart';
 import 'package:voc_amp/models/isolates/audio-player-event.dart';
 import 'package:voc_amp/models/media/queue-track.dart';
 
@@ -19,6 +20,7 @@ class AudioPlayerProvider {
   Subject<QueueTrack> _currentTrack = ReplaySubject(maxSize: 1);
   Subject<bool> _shuffled = ReplaySubject(maxSize: 1);
   Subject<PlaybackState> _playbackState = ReplaySubject(maxSize: 1);
+  Subject<RepeatMode> _repeatMode = ReplaySubject(maxSize: 1);
 
   Stream<List<QueueTrack>> get tracks => _queue.asBroadcastStream();
 
@@ -27,6 +29,8 @@ class AudioPlayerProvider {
   Stream<bool> get shuffled => _shuffled.asBroadcastStream();
 
   Stream<PlaybackState> get playbackState => _playbackState.asBroadcastStream();
+
+  Stream<RepeatMode> get repeatMode => _repeatMode.asBroadcastStream();
 
   AudioPlayerProvider() {
     // Create receive port
@@ -48,6 +52,8 @@ class AudioPlayerProvider {
       await AudioService.customAction('getQueueState');
       // Request playbackState update
       await AudioService.customAction('getPlaybackState');
+      // Request playerFlags update
+      await AudioService.customAction('getPlayerFlags');
     });
     // Subscribe to events
     _playbackStateSubscription = AudioService.playbackStateStream.listen(
@@ -112,6 +118,11 @@ class AudioPlayerProvider {
     await AudioService.customAction('setShuffle', value);
   }
 
+  Future<void> repeat(RepeatMode mode) async {
+    if (!(await AudioService.running)) return;
+    await AudioService.customAction('setRepeat', jsonEncode({'mode': mode}));
+  }
+
   _startService() async {
     if (await AudioService.running) return;
     await AudioService.start(
@@ -135,6 +146,11 @@ class AudioPlayerProvider {
           _queue.add(event.payload['queue']);
           _currentTrack.add(event.payload['currentTrack']);
           _shuffled.add(event.payload['shuffled']);
+          break;
+        }
+      case 'playerFlags':
+        {
+          _repeatMode.add(event.payload['repeatMode']);
           break;
         }
     }

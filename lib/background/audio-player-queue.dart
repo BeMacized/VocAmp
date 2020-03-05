@@ -19,6 +19,8 @@ class AudioPlayerQueue {
 
   Logger _log = Logger('AudioPlayerQueue');
 
+  int get length => _tracks.length;
+
   void clear() {
     _log.debug('clear()');
     _tracks = [];
