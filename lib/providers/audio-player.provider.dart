@@ -21,6 +21,8 @@ class AudioPlayerProvider {
   Subject<bool> _shuffled = ReplaySubject(maxSize: 1);
   Subject<PlaybackState> _playbackState = ReplaySubject(maxSize: 1);
   Subject<RepeatMode> _repeatMode = ReplaySubject(maxSize: 1);
+  Subject<bool> _taskReady = BehaviorSubject.seeded(false);
+  Subject<bool> _taskStarted = BehaviorSubject.seeded(false);
 
   Stream<List<QueueTrack>> get tracks => _queue.asBroadcastStream();
 
@@ -31,6 +33,12 @@ class AudioPlayerProvider {
   Stream<PlaybackState> get playbackState => _playbackState.asBroadcastStream();
 
   Stream<RepeatMode> get repeatMode => _repeatMode.asBroadcastStream();
+
+  // Started & ready
+  Stream<bool> get taskReady => _taskReady.asBroadcastStream();
+
+  // Only started (Not necessarily ready)
+  Stream<bool> get taskStarted => _taskStarted.asBroadcastStream();
 
   AudioPlayerProvider() {
     // Create receive port
@@ -44,16 +52,17 @@ class AudioPlayerProvider {
     _receivePort.listen((e) => _handleEvent(e));
     // Initialize if audio server is already running
     AudioService.running.then((running) async {
-      print('RUNNING $running');
+      _taskReady.add(false);
+      _taskStarted.add(false);
       if (!running) return;
       // Make service fetch new send port
       await AudioService.customAction('refreshSendPort');
-      // Request queue update
-      await AudioService.customAction('getQueueState');
-      // Request playbackState update
-      await AudioService.customAction('getPlaybackState');
       // Request playerFlags update
       await AudioService.customAction('getPlayerFlags');
+      // Request queue update
+      AudioService.customAction('getQueueState');
+      // Request playbackState update
+      AudioService.customAction('getPlaybackState');
     });
     // Subscribe to events
     _playbackStateSubscription = AudioService.playbackStateStream.listen(
@@ -68,6 +77,11 @@ class AudioPlayerProvider {
     _receivePort?.close();
     _queue?.close();
     _currentTrack?.close();
+    _shuffled?.close();
+    _playbackState?.close();
+    _repeatMode?.close();
+    _taskReady?.close();
+    _taskStarted?.close();
   }
 
   Future<void> setQueue(List<QueueTrack> tracks,
@@ -84,52 +98,56 @@ class AudioPlayerProvider {
   }
 
   Future<void> play() async {
-    if (!(await AudioService.running)) return;
+    await (taskReady.firstWhere((ready) => ready));
     await AudioService.play();
   }
 
   Future<void> pause() async {
-    if (!(await AudioService.running)) return;
+    await (taskReady.firstWhere((ready) => ready));
     await AudioService.pause();
   }
 
   Future<void> skipNext() async {
-    if (!(await AudioService.running)) return;
+    await (taskReady.firstWhere((ready) => ready));
     await AudioService.skipToNext();
   }
 
   Future<void> skipPrevious() async {
-    if (!(await AudioService.running)) return;
+    await (taskReady.firstWhere((ready) => ready));
     await AudioService.skipToPrevious();
   }
 
   Future<void> skipToTrack(QueueTrack track) async {
-    if (!(await AudioService.running)) return;
+    await (taskReady.firstWhere((ready) => ready));
     await AudioService.skipToQueueItem(track.id);
   }
 
   Future<void> seek(Duration position) async {
-    if (!(await AudioService.running)) return;
+    await (taskReady.firstWhere((ready) => ready));
     await AudioService.seekTo(position.inSeconds);
   }
 
   Future<void> shuffle(bool value) async {
-    if (!(await AudioService.running)) return;
+    await (taskReady.firstWhere((ready) => ready));
     await AudioService.customAction('setShuffle', value);
   }
 
   Future<void> repeat(RepeatMode mode) async {
-    if (!(await AudioService.running)) return;
+    await (taskReady.firstWhere((ready) => ready));
     await AudioService.customAction('setRepeat', jsonEncode({'mode': mode}));
   }
 
-  _startService() async {
-    if (await AudioService.running) return;
-    await AudioService.start(
-      androidStopForegroundOnPause: true,
-      backgroundTaskEntrypoint: audioPlayerBackgroundTask,
-      androidNotificationIcon: 'mipmap/ic_launcher',
-    );
+  Future<void> _startService() async {
+    if (!(await _taskStarted.first)) {
+      _taskStarted.add(true);
+      AudioService.start(
+        androidStopForegroundOnPause: true,
+        backgroundTaskEntrypoint: audioPlayerBackgroundTask,
+        androidNotificationIcon: 'mipmap/ic_launcher',
+      );
+    }
+    await _taskReady.firstWhere((ready) => ready);
+    return;
   }
 
   _handleEvent(AudioPlayerEvent event) async {
@@ -139,6 +157,8 @@ class AudioPlayerProvider {
           _queue.add([]);
           _currentTrack.add(null);
           _shuffled.add(false);
+          _taskReady.add(false);
+          _taskStarted.add(false);
           break;
         }
       case 'queueUpdate':
@@ -151,6 +171,7 @@ class AudioPlayerProvider {
       case 'playerFlags':
         {
           _repeatMode.add(event.payload['repeatMode']);
+          _taskReady.add(event.payload['ready']);
           break;
         }
     }

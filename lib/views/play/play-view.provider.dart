@@ -51,7 +51,6 @@ class PlayViewProvider extends ChangeNotifier {
 
   void _setCurrentTrack(QueueTrack currentTrack) {
     _currentTrack = currentTrack;
-    print('CURRENT INDEX: $queueIndex');
     notifyListeners();
   }
 

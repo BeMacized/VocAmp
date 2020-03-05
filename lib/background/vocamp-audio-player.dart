@@ -30,9 +30,11 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
   AudioPlayer player;
   Logger log = Logger('VocAmpAudioPlayer');
   DebouncedAction debouncedPlay;
-
-  RepeatMode repeatMode = RepeatMode.NONE;
   String currentAudioTrackId;
+
+  // Flags
+  RepeatMode repeatMode = RepeatMode.NONE;
+  bool taskReady = false;
 
   //
   // PLAYER EVENTS
@@ -62,6 +64,8 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
         duration: Duration(milliseconds: 1000),
         action: onPlay,
       );
+      // Mark background task ready
+      taskReady = true;
       // Send player flags
       sendPlayerFlags();
       // Setup completer and wait for service stop
@@ -296,13 +300,18 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       track.buildMediaItem(),
     );
 
+    // Wait for player to finish connecting
+    await player.playbackStateStream
+        .firstWhere((state) => state != AudioPlaybackState.connecting);
+
     return true;
   }
 
-// Update the front with the current player flags
+  // Update the front with the current player flags
   Future<void> sendPlayerFlags() async {
     sendPort.send(AudioPlayerEvent.build('playerFlags', {
       'repeatMode': repeatMode,
+      'ready': taskReady,
     }));
   }
 
@@ -371,7 +380,9 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
 
 // Stop the audio player
   stopPlayback() async {
-    if (player != null && player.playbackState == AudioPlaybackState.playing ||
-        player.playbackState == AudioPlaybackState.paused) await player.stop();
+    if (player != null &&
+        (player.playbackState == AudioPlaybackState.playing ||
+            player.playbackState == AudioPlaybackState.paused))
+      await player.stop();
   }
 }

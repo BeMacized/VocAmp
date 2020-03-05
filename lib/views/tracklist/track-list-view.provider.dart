@@ -12,7 +12,6 @@ import '../../providers/audio-player.provider.dart';
 enum ProviderState { initial, loading, loaded }
 
 class TrackListViewProvider extends ChangeNotifier {
-
   AudioPlayerProvider _audioPlayerProvider;
 
   TrackListViewProvider(this._audioPlayerProvider);
@@ -50,7 +49,7 @@ class TrackListViewProvider extends ChangeNotifier {
   }
 
   // Utils
-  void fetchTracks() async {
+  Future<void> fetchTracks() async {
     _setState(ProviderState.loading);
     try {
       await Task(() => trackList.fetchTracks())
@@ -64,7 +63,7 @@ class TrackListViewProvider extends ChangeNotifier {
     _setState(ProviderState.loaded);
   }
 
-  shuffleAll(List<Track> tracks) async {
+  Future<void> shuffleAll(List<Track> tracks) async {
     List<QueueTrack> queueTracks = tracks
         .where((t) => t.sources.isNotEmpty)
         .map((t) => QueueTrack.fromTrack(t))
@@ -82,7 +81,7 @@ class TrackListViewProvider extends ChangeNotifier {
     _audioPlayerProvider.play();
   }
 
-  playTrack(Track track, List<Track> tracks) async {
+  Future<void> playTrack(Track track, List<Track> tracks) async {
     // Stop here if track has no source
     if (track.sources.isEmpty) return;
     // Build queue tracks
@@ -97,6 +96,6 @@ class TrackListViewProvider extends ChangeNotifier {
       queueTracks,
       cursor: cursor,
     );
-    _audioPlayerProvider.play();
+    await _audioPlayerProvider.play();
   }
 }
