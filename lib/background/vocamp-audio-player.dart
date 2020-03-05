@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
+import 'dart:math';
 import 'dart:ui';
 import 'package:audio_service/audio_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -31,6 +32,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
   Logger log = Logger('VocAmpAudioPlayer');
   DebouncedAction debouncedPlay;
   String currentAudioTrackId;
+  Random random = Random();
 
   // Flags
   RepeatMode repeatMode = RepeatMode.NONE;
@@ -250,14 +252,16 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
     List<QueueTrack> tracks = (arguments['tracks'] as List<dynamic>)
         .map((t) => QueueTrack.fromJson(t))
         .toList();
-    QueueTrack cursor = arguments['cursor'] == null
-        ? (tracks.isEmpty ? null : tracks[0])
-        : QueueTrack.fromJson(arguments['cursor']);
     bool shuffled = (arguments['shuffled'] as bool) ?? false;
+    QueueTrack cursor = arguments['cursor'] == null
+        ? (tracks.isEmpty
+            ? null
+            : tracks[shuffled ? random.nextInt(tracks.length) : 0])
+        : QueueTrack.fromJson(arguments['cursor']);
     await stopPlayback();
-    queue.setShuffled(shuffled);
     queue.setTracks(tracks);
-    if (cursor != null) queue.setCursor(cursor);
+    queue.setShuffled(shuffled);
+    queue.setCursor(cursor);
   }
 
   //

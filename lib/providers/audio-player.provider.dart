@@ -91,8 +91,8 @@ class AudioPlayerProvider {
       'setQueue',
       jsonEncode({
         'tracks': tracks,
-        'cursor': cursor ?? (tracks.isEmpty ? null : tracks[0]),
-        'shuffled': shuffled
+        'cursor': cursor,
+        'shuffled': shuffled,
       }),
     );
   }

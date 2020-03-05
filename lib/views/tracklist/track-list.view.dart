@@ -39,7 +39,6 @@ class _TrackListViewState extends State<TrackListView> {
 
   _fetchTracks() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      print('FETCHING TRACKS');
       _viewProvider
         ..setTrackList(widget.trackList)
         ..fetchTracks();
