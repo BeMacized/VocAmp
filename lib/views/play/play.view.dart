@@ -30,12 +30,13 @@ class _PlayViewState extends State<PlayView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      body: Stack(
-        children: <Widget>[
-          _buildBackground(),
-          Column(
+    return Stack(
+      children: <Widget>[
+        _buildBackground(),
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: _buildAppBar(),
+          body: Column(
             children: <Widget>[
               Expanded(
                 child: PlayAlbumArea(_viewProvider),
@@ -43,8 +44,8 @@ class _PlayViewState extends State<PlayView> {
               PlayBottomControls(_viewProvider),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
