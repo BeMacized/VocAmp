@@ -4,12 +4,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:voc_amp/utils/gradient-utils.dart';
 import 'package:voc_amp/views/play/play-view.provider.dart';
 import 'package:voc_amp/views/play/widgets/play-album-area.dart';
 import 'package:voc_amp/views/play/widgets/play-bottom-controls.dart';
 
-const ALBUM_ART_URL = "https://vocadb.net/Album/CoverPicture/26528?v=11";
+import '../../globals.dart';
 
 class PlayView extends StatefulWidget {
   @override
@@ -17,36 +18,50 @@ class PlayView extends StatefulWidget {
 }
 
 class _PlayViewState extends State<PlayView> {
+  bool _popping = false;
   PlayViewProvider _viewProvider;
 
-  didChangeDependencies() {
+  @override
+  void didChangeDependencies() {
+    _viewProvider = Provider.of<PlayViewProvider>(context);
+    _viewProvider.addListener(_onViewProviderChange);
     super.didChangeDependencies();
-    // Obtain view provider
-    final _viewProvider = Provider.of<PlayViewProvider>(context);
-    if (_viewProvider != this._viewProvider) {
-      this._viewProvider = _viewProvider;
+  }
+
+  @override
+  dispose() {
+    _viewProvider.removeListener(_onViewProviderChange);
+    super.dispose();
+  }
+
+  _onViewProviderChange() {
+    if (_viewProvider.currentTrack == null && !_popping) {
+      _popping = true;
+      Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        _buildBackground(),
-        Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: _buildAppBar(),
-          body: Column(
-            children: <Widget>[
-              Expanded(
-                child: PlayAlbumArea(_viewProvider),
-              ),
-              PlayBottomControls(_viewProvider),
-            ],
+    return Consumer<PlayViewProvider>(builder: (context, vp, snapshot) {
+      return Stack(
+        children: <Widget>[
+          _buildBackground(),
+          Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: _buildAppBar(),
+            body: Column(
+              children: <Widget>[
+                Expanded(
+                  child: PlayAlbumArea(vp),
+                ),
+                PlayBottomControls(vp),
+              ],
+            ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 
   Widget _buildAppBar() {

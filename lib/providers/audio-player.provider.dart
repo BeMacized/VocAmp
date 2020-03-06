@@ -65,7 +65,7 @@ class AudioPlayerProvider {
       AudioService.customAction('getPlaybackState');
     });
     // Subscribe to events
-    _playbackStateSubscription = AudioService.playbackStateStream.listen(
+    _playbackStateSubscription = AudioService.playbackStateStream.where((s) => s != null).listen(
       (state) => _playbackState.add(state),
     );
   }

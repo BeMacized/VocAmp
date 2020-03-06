@@ -45,9 +45,9 @@ class _PlayAlbumAreaState extends State<PlayAlbumArea> {
     int page = widget._viewProvider.queueIndex;
     // Animate to page
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (page == _pageController.page.round()) return;
-      bool animate = _pageController.hasClients && !shuffleChanged;
-      if (animate) {
+      if (!_pageController.hasClients || page == _pageController.page.round())
+        return;
+      if (!shuffleChanged) {
         _pageController
             .animateToPage(
               page,

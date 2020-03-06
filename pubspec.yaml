@@ -20,7 +20,10 @@ dependencies:
   color: ^2.1.1
   color_thief_flutter: ^1.0.0
   # Widgets
-  cached_network_image: ^2.0.0-rc
+  cached_network_image:
+    git:
+      url: https://github.com/BeMacized/flutter_cached_network_image.git
+      ref: 8c1c43ca02fc77ed9633aecf27de6188b41d247a
   auto_size_text: ^2.1.0
   fluttertoast: ^3.1.3
   # Audio
