@@ -9,6 +9,8 @@ import 'package:voc_amp/views/play/play.view.dart';
 import 'package:voc_amp/views/play/widgets/seek-bar.dart';
 import 'package:voc_amp/widgets/marquee.dart';
 
+import '../../../globals.dart';
+
 class PlayBottomControls extends StatelessWidget {
   PlayViewProvider _viewProvider;
 
@@ -123,7 +125,12 @@ class PlayBottomControls extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Container(),
-          _buildControlButton(icon: MaterialIcons.playlist_play, onTap: () {}),
+          _buildControlButton(
+            icon: MaterialIcons.playlist_play,
+            onTap: () {
+              Application.navigator.pushNamed('/queue');
+            },
+          ),
         ],
       ),
     );

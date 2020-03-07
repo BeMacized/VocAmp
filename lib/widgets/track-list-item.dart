@@ -7,9 +7,10 @@ class TrackListItem extends StatelessWidget {
   final VoidCallback onTap;
 
   TrackListItem({
+    Key key,
     @required this.track,
-    this.onTap
-  });
+    this.onTap,
+  }) : super(key: key);
 
   bool get disabled {
     return track.sources.isEmpty;
@@ -53,7 +54,7 @@ class TrackListItem extends StatelessWidget {
                 ),
               ),
               // Right side
-              Container()
+              SizedBox.shrink(),
             ],
           ),
         ),

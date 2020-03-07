@@ -51,7 +51,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       // Setup audio player
       player = AudioPlayer();
       var playbackEventSubscription =
-          player.playbackEventStream.listen((e) => updateState());
+      player.playbackEventStream.listen((e) => updateState());
       var playbackStateSubscription = player.playbackStateStream
           .startWith(null)
           .pairwise()
@@ -60,7 +60,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       // Setup queue
       queue = AudioPlayerQueue();
       var queueSubscription =
-          queue.updated.listen((_) => this.sendQueueUpdate());
+      queue.updated.listen((_) => this.sendQueueUpdate());
       // Set up debounced actions
       debouncedPlay = DebouncedAction(
         duration: Duration(milliseconds: 1000),
@@ -117,7 +117,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
   void onSkipToQueueItem(String mediaId) async {
     log.debug('onSkipToQueueItem()');
     QueueTrack track =
-        queue.tracks.singleWhere((t) => t.id == mediaId, orElse: () => null);
+    queue.tracks.singleWhere((t) => t.id == mediaId, orElse: () => null);
     if (track == null) return;
     await stopPlayback();
     queue.setCursor(track);
@@ -147,7 +147,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
         case AudioPlaybackState.completed:
         case AudioPlaybackState.none:
         case AudioPlaybackState.stopped:
-          // Stop if there is nothing to play
+        // Stop if there is nothing to play
           if (queue.currentTrack == null ||
               queue.currentTrack.track.sources.isEmpty) return;
           // Load track & start audio player
@@ -193,8 +193,8 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       player.seek(Duration(milliseconds: position));
   }
 
-  void onPlayerStateChange(
-      AudioPlaybackState oldState, AudioPlaybackState newState) {
+  void onPlayerStateChange(AudioPlaybackState oldState,
+      AudioPlaybackState newState) {
     // When end of song is reached
     if (oldState == AudioPlaybackState.playing &&
         newState == AudioPlaybackState.completed) {
@@ -255,10 +255,12 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
     bool shuffled = (arguments['shuffled'] as bool) ?? false;
     QueueTrack cursor = arguments['cursor'] == null
         ? (tracks.isEmpty
-            ? null
-            : tracks[shuffled ? random.nextInt(tracks.length) : 0])
+        ? null
+        : tracks[shuffled ? random.nextInt(tracks.length) : 0])
         : QueueTrack.fromJson(arguments['cursor']);
-    await stopPlayback();
+    // Stop playing if the new cursor is different
+    if (cursor?.id == null || cursor.id != queue.currentTrack?.id) await stopPlayback();
+    // Update queue
     queue.setTracks(tracks);
     queue.setShuffled(shuffled);
     queue.setCursor(cursor);
@@ -376,7 +378,7 @@ class VocAmpAudioPlayer extends BackgroundAudioTask {
       basicState: bpState,
       updateTime: player.playbackEvent?.updateTime?.inMilliseconds,
       position: (bpState == BasicPlaybackState.paused ||
-              bpState == BasicPlaybackState.playing)
+          bpState == BasicPlaybackState.playing)
           ? player.playbackEvent?.position?.inMilliseconds ?? 0
           : 0,
     );

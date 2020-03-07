@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:voc_amp/providers/audio-player.provider.dart';
 import 'package:voc_amp/views/play/play-view.provider.dart';
+import 'package:voc_amp/views/queue/queue-view.provider.dart';
+import 'package:voc_amp/views/queue/queue.view.dart';
 import 'package:voc_amp/views/tracklist/track-list-view.provider.dart';
 import 'package:voc_amp/providers/track-list.provider.dart';
 import 'package:voc_amp/repositories/track-list.repository.dart';
@@ -90,6 +92,10 @@ class _VocAmpState extends State<VocAmp> with WidgetsBindingObserver {
         builder = (BuildContext _) => PlayView();
         fullscreenDialog = true;
         break;
+      case '/queue':
+        builder = (BuildContext _) => QueueView();
+        fullscreenDialog = true;
+        break;
       default:
         throw Exception('Invalid route: ${settings.name}');
     }
@@ -127,6 +133,11 @@ class _VocAmpState extends State<VocAmp> with WidgetsBindingObserver {
           create: (_) => null,
           update: (_, audioPlayerProvider, __) =>
               PlayViewProvider(audioPlayerProvider),
+        ),
+        ChangeNotifierProxyProvider<AudioPlayerProvider, QueueViewProvider>(
+          create: (_) => null,
+          update: (_, audioPlayerProvider, __) =>
+              QueueViewProvider(audioPlayerProvider),
         ),
       ],
     );

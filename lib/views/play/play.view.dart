@@ -25,6 +25,7 @@ class _PlayViewState extends State<PlayView> {
   void didChangeDependencies() {
     _viewProvider = Provider.of<PlayViewProvider>(context);
     _viewProvider.addListener(_onViewProviderChange);
+    _onViewProviderChange();
     super.didChangeDependencies();
   }
 

@@ -5,11 +5,11 @@ import 'package:voc_amp/models/audio/repeat-mode.dart';
 import 'package:voc_amp/models/media/queue-track.dart';
 import 'package:voc_amp/providers/audio-player.provider.dart';
 
-class PlayViewProvider extends ChangeNotifier {
+class QueueViewProvider extends ChangeNotifier {
   AudioPlayerProvider _audioPlayerProvider;
   Subject _destroy$ = PublishSubject();
 
-  PlayViewProvider(this._audioPlayerProvider) {
+  QueueViewProvider(this._audioPlayerProvider) {
     // Current Track
     _audioPlayerProvider.currentTrack
         .takeUntil(_destroy$)
@@ -31,10 +31,6 @@ class PlayViewProvider extends ChangeNotifier {
     _audioPlayerProvider.shuffled
         .takeUntil(_destroy$)
         .listen((shuffled) => _setShuffled(shuffled));
-    // Repeat Mode
-    _audioPlayerProvider.repeatMode
-        .takeUntil(_destroy$)
-        .listen((mode) => _setRepeatMode(mode));
   }
 
   @override
@@ -89,6 +85,12 @@ class PlayViewProvider extends ChangeNotifier {
     return Duration(milliseconds: position);
   }
 
+  double get normalPosition {
+    int duration = currentTrack?.getDuration()?.inMilliseconds ?? 0;
+    return ((position.inMilliseconds ?? 0) / (duration > 0 ? duration : 1))
+        .clamp(0.0, 1.0);
+  }
+
   // Position last updated
   DateTime _positionLastUpdated;
 
@@ -107,16 +109,6 @@ class PlayViewProvider extends ChangeNotifier {
 
   void _setShuffled(bool shuffled) {
     _shuffled = shuffled;
-    notifyListeners();
-  }
-
-  // Repeat
-  RepeatMode _repeatMode;
-
-  RepeatMode get repeatMode => _repeatMode;
-
-  void _setRepeatMode(RepeatMode mode) {
-    _repeatMode = mode;
     notifyListeners();
   }
 
@@ -163,17 +155,16 @@ class PlayViewProvider extends ChangeNotifier {
     _audioPlayerProvider.play();
   }
 
-  shuffle(bool value) {
-    if (currentTrack == null) return;
-    _audioPlayerProvider.shuffle(value);
-  }
-
-  repeat(RepeatMode mode) {
-    _audioPlayerProvider.repeat(mode);
-  }
-
-  Future<void> seek(Duration position) async {
-    if (!playing && !paused) return;
-    await _audioPlayerProvider.seek(position);
+  reorder(int oldIndex, int newIndex) {
+    if (oldIndex >= tracks.length || newIndex < 0 || newIndex > tracks.length)
+      return;
+    tracks.insert(newIndex > oldIndex ? newIndex - 1 : newIndex,
+        tracks.removeAt(oldIndex));
+    notifyListeners();
+    _audioPlayerProvider.setQueue(
+      tracks,
+      cursor: currentTrack,
+      shuffled: shuffled,
+    );
   }
 }

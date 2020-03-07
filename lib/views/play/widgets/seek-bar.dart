@@ -46,10 +46,10 @@ class _SeekBarState extends State<SeekBar> {
                             ?.inMilliseconds
                             ?.toDouble() ??
                         0.0;
-                    double sliderValue = (seekValue ?? vp.position.inMilliseconds.toDouble()).clamp(0, sliderMax);
                     return StreamBuilder(
                       stream: Stream.periodic(Duration(milliseconds: 10)),
                       builder: (context, snapshot) {
+                        double sliderValue = (seekValue ?? vp.position.inMilliseconds.toDouble()).clamp(0, sliderMax);
                         return Slider(
                           value: sliderValue,
                           max: sliderMax,
