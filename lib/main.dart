@@ -4,6 +4,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:voc_amp/providers/audio-player.provider.dart';
+import 'package:voc_amp/views/main/widgets/play-bar.provider.dart';
 import 'package:voc_amp/views/play/play-view.provider.dart';
 import 'package:voc_amp/views/queue/queue-view.provider.dart';
 import 'package:voc_amp/views/queue/queue.view.dart';
@@ -138,6 +139,11 @@ class _VocAmpState extends State<VocAmp> with WidgetsBindingObserver {
           create: (_) => null,
           update: (_, audioPlayerProvider, __) =>
               QueueViewProvider(audioPlayerProvider),
+        ),
+        ChangeNotifierProxyProvider<AudioPlayerProvider, PlayBarProvider>(
+          create: (_) => null,
+          update: (_, audioPlayerProvider, __) =>
+              PlayBarProvider(audioPlayerProvider),
         ),
       ],
     );
